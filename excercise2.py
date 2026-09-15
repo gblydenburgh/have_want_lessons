@@ -54,7 +54,11 @@ vlan 10
 !
 """
 
-
+NON_INTEGER_VLAN_CONFIG = """
+vlan BAD
+ name BROKEN
+!
+"""
 
 VLAN_ID_PATTERN = re.compile(r"^vlan\s+(?P<vlan_id>\S+)")
 VLAN_NAME_PATTERN = re.compile(r"^\s+name\s+(?P<vlan_name>.+)$", re.MULTILINE)
@@ -68,6 +72,13 @@ def run_parser_tests() -> None:
         print("VALID VLAN TEST: FAIL")
         print(f"EXPECTED: {EXPECTED_RESULT}")
         print(f"RESULT: {result}")
+        
+    try:
+        parse_vlan_config(NON_INTEGER_VLAN_CONFIG)
+    except ValueError as e:
+        print("NON-INTEGER VLAN TEST: PASS")
+    else:
+        print("NON-INTEGER VLAN TEST: FAIL")
 
 
 def parse_vlan_config(config: str) -> list[dict[str, Any]]:
@@ -327,4 +338,4 @@ def main() -> None:
         
 
 run_parser_tests()
-main()
+# main()
