@@ -29,6 +29,10 @@ bad_have_by_id = {
     "10": {"vlan_id": "10", "name": "USERS"}
 }
 
+normalized_have_by_id = {
+    10: {"vlan_id": 10, "name": "USERS"}
+}
+
 normalized_effective_by_id = {
     10: {"vlan_id": 10, "name": "USERS"}
 }
@@ -102,7 +106,7 @@ def run_parser_tests() -> None:
         (NON_INTEGER_VLAN_CONFIG, non_integer_error, "NON-INTEGER VLAN TEST"),
         (MIXED_VLAN_ID_CONFIG, mixed_vlan_id_error, "MIXED VLAN ID TEST"),
         (OUT_OF_RANGE_VLAN_CONFIG, out_of_range_error, "OUT-OF-RANGE VLAN TEST")
-        ]:
+    ]:
         print(f"\n####\n# {title}\n####")
         try:
             parse_vlan_config(test_config)
@@ -117,16 +121,22 @@ def run_parser_tests() -> None:
             print(f"{title}: FAIL")
             print(f"EXPECTED ERROR: {expected_error}")
             print("RESULT: Task executed error free.")
-
-    print("####\n# FALSE DIFF TEST\n####")
-    expected_result = {10: {'after': 'USERS', 'before': None}}
-    result = build_vlan_name_changes(bad_have_by_id, normalized_effective_by_id)
-    if result == expected_result:
-        print("FALSE DIFF TEST: PASS")
-    else:
-        print("FALSE DIFF TEST: FAIL")
-        print(f"EXPECTED: {expected_result}")
-        print(f"RESULT: {result}")
+            
+    bad_have_by_id_result = {10: {'after': 'USERS', 'before': None}}
+    normalized_have_by_id_result = {}
+    
+    for test_config, expected_result, title in [
+        (bad_have_by_id, bad_have_by_id_result, "FALSE DIFF TEST"),
+        (normalized_have_by_id, normalized_have_by_id_result, "NO DIFF TEST")
+    ]:
+        print(f"\n####\n# {title}\n####")
+        result = build_vlan_name_changes(test_config, normalized_effective_by_id)
+        if result == expected_result:
+            print(f"{title}: PASS")
+        else:
+            print(f"{title}: FAIL")
+            print(f"EXPECTED: {expected_result}")
+            print(f"RESULT: {result}")
     
 def parse_vlan_config(config: str) -> list[dict[str, Any]]:
     parsed_config:list[dict[str, Any]] = []
