@@ -91,9 +91,19 @@ INDEX_TEST_INPUT = [
 VLAN_ID_PATTERN = re.compile(r"^vlan\s+(?P<vlan_id>\S+)")
 VLAN_NAME_PATTERN = re.compile(r"^\s+name\s+(?P<vlan_name>.+)$", re.MULTILINE)
 
+def simple_result_compare(expected_result, test_result, title) -> None:
+        print(f"\n####\n# {title}\n####")
+        if test_result == expected_result:
+            print(f"{title}: PASS")
+        else:
+            print(f"{title}: FAIL")
+            print(f"EXPECTED: {expected_result}")
+            print(f"RESULT: {test_result}")
+
 def run_state_tests() -> None:
     have_by_id = index_vlan_data(have)
     want_by_id = index_vlan_data(want)
+    
     merged_result = build_merged_state(have_by_id, want_by_id)
     expected_merged_result = {
         10: {'vlan_id': 10, 'name': 'STAFF'},
@@ -103,15 +113,22 @@ def run_state_tests() -> None:
         50: {'vlan_id': 50, 'name': 'IOT'},
         60: {'vlan_id': 60, 'name': 'PRINTERS'}
     }
+
+    simple_result_compare(expected_merged_result, merged_result, "STATE MERGED TEST")
     
-    print("\n####\n# STATE MERGE TEST\n####")
+    replaced_result = build_replaced_state(have_by_id, want_by_id)
+    expected_replaced_result = {
+        10: {'name': 'STAFF', 'vlan_id': 10},
+        20: {'vlan_id': 20},
+        30: {'name': 'VOICE', 'vlan_id': 30},
+        40: {'name': 'GUEST', 'vlan_id': 40},
+        50: {'name': 'IOT', 'vlan_id': 50},
+        60: {'name': 'PRINTERS', 'vlan_id': 60}
+    }
     
-    if merged_result == expected_merged_result:
-        print("STATE MERGE: PASS")
-    else:
-        print("STATE MERGE: FAIL")
-        print(f"EXPECTED: {expected_merged_result}")
-        print(f"RESULT: {merged_result}")
+    simple_result_compare(expected_replaced_result, replaced_result, "STATE REPLACED TEST")
+    
+
 
 def run_index_tests() -> None:
     expected_result = {
@@ -119,26 +136,15 @@ def run_index_tests() -> None:
         20: {'vlan_id': 20, 'name': 'SERVERS'}
         }
     result = index_vlan_data(INDEX_TEST_INPUT)
-    print("\n####\n# INDEX TEST\n####")
-    if result == expected_result:
-        print("INDEX TEST: PASS")
-    else:
-        print("INDEX TEST: FAIL")
-        print(f"EXPECTED: {expected_result}")
-        print(f"RESULT: {result}")
+    
+    simple_result_compare(expected_result, result, "INDEX TEST")
 
 
 def run_parser_tests() -> None:
-    print("####\n# VALID VLAN TEST\n####")
     expected_result = [{'vlan_id': 10, 'name': 'USERS'}]
     result = parse_vlan_config(VALID_VLAN_CONFIG)
-    if result == expected_result:
-        print("VALID VLAN TEST: PASS")
-    else:
-        print("VALID VLAN TEST: FAIL")
-        print(f"EXPECTED: {expected_result}")
-        print(f"RESULT: {result}")
-    
+    simple_result_compare(expected_result, result, "VALID VLAN TEST")
+        
     non_integer_error = "vlan_id value of BAD is not an integer."
     mixed_vlan_id_error = "vlan_id value of 33BAD is not an integer."
     out_of_range_error = "vlan_id is out of range: 9999"
@@ -170,14 +176,10 @@ def run_parser_tests() -> None:
         (bad_have_by_id, bad_have_by_id_result, "FALSE DIFF TEST"),
         (normalized_have_by_id, normalized_have_by_id_result, "NO DIFF TEST")
     ]:
-        print(f"\n####\n# {title}\n####")
         result = build_vlan_name_changes(test_config, normalized_effective_by_id)
-        if result == expected_result:
-            print(f"{title}: PASS")
-        else:
-            print(f"{title}: FAIL")
-            print(f"EXPECTED: {expected_result}")
-            print(f"RESULT: {result}")
+        
+        simple_result_compare(expected_result, result, title)
+
     
 def parse_vlan_config(config: str) -> list[dict[str, Any]]:
     parsed_config:list[dict[str, Any]] = []
