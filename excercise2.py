@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-from typing import Any
+from typing import Any, TypeVar
 import copy
 from pprint import pprint
 import re
+T = TypeVar("T")
 
 have = [
     {"vlan_id": 10, "name": "USERS"},
@@ -91,14 +92,14 @@ INDEX_TEST_INPUT = [
 VLAN_ID_PATTERN = re.compile(r"^vlan\s+(?P<vlan_id>\S+)")
 VLAN_NAME_PATTERN = re.compile(r"^\s+name\s+(?P<vlan_name>.+)$", re.MULTILINE)
 
-def simple_result_compare(expected_result, test_result, title) -> None:
-        print(f"\n####\n# {title}\n####")
-        if test_result == expected_result:
-            print(f"{title}: PASS")
-        else:
-            print(f"{title}: FAIL")
-            print(f"EXPECTED: {expected_result}")
-            print(f"RESULT: {test_result}")
+def simple_result_compare(expected_result: T, test_result: T, title: str) -> None:
+    print(f"\n####\n# {title}\n####")
+    if test_result == expected_result:
+        print(f"{title}: PASS")
+    else:
+        print(f"{title}: FAIL")
+        print(f"EXPECTED: {expected_result}")
+        print(f"RESULT: {test_result}")
 
 def run_state_tests() -> None:
     have_by_id = index_vlan_data(have)
@@ -128,6 +129,17 @@ def run_state_tests() -> None:
     
     simple_result_compare(expected_replaced_result, replaced_result, "STATE REPLACED TEST")
     
+    overridden_result = build_overridden_state(have_by_id, want_by_id)
+    expected_overridden_result = {
+        10: {'name': 'STAFF', 'vlan_id': 10},
+        20: {'vlan_id': 20},
+        30: {'vlan_id': 30},
+        40: {'name': 'GUEST', 'vlan_id': 40},
+        50: {'name': 'IOT', 'vlan_id': 50},
+        60: {'name': 'PRINTERS', 'vlan_id': 60}
+    }
+    
+    simple_result_compare(expected_overridden_result, overridden_result, "STATE OVERRIDDEN TEST")
 
 
 def run_index_tests() -> None:
