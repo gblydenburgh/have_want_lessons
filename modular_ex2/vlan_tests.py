@@ -120,7 +120,7 @@ def run_render_test() -> None:
         ' name PRINTERS'
     ]
     
-    simple_result_compare(expected_render_remove_result, render_remove_result, "RENDER REMOVETEST")
+    simple_result_compare(expected_render_remove_result, render_remove_result, "RENDER REMOVE TEST")
 
 def run_change_test() -> None:
     have_by_id = index_vlan_data(have)
