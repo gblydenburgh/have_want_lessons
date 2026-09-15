@@ -101,6 +101,39 @@ def simple_result_compare(expected_result: T, test_result: T, title: str) -> Non
         print(f"EXPECTED: {expected_result}")
         print(f"RESULT: {test_result}")
 
+
+def run_render_rest() -> None:
+    changes = {
+            10: {'after': 'STAFF', 'before': 'USERS'},
+            50: {'after': 'IOT', 'before': None},
+            60: {'after': 'PRINTERS', 'before': None}
+        }
+    render_result = render_vlan_name_commands(changes)
+    expected_render_result = [
+        'vlan 10',
+        ' name STAFF',
+        'vlan 50',
+        ' name IOT',
+        'vlan 60',
+        ' name PRINTERS'
+    ]
+    
+    simple_result_compare(expected_render_result, render_result, "RENDER TEST")
+
+def run_change_test() -> None:
+    have_by_id = index_vlan_data(have)
+    want_by_id = index_vlan_data(want)
+    merged_result = build_merged_state(have_by_id, want_by_id)
+    expected_change_result = {
+        10: {'after': 'STAFF', 'before': 'USERS'},
+        50: {'after': 'IOT', 'before': None},
+        60: {'after': 'PRINTERS', 'before': None}
+    }
+    change_result = build_vlan_name_changes(have_by_id, merged_result)
+    
+    simple_result_compare(expected_change_result, change_result, "CHANGE TEST")
+    
+    
 def run_state_tests() -> None:
     have_by_id = index_vlan_data(have)
     want_by_id = index_vlan_data(want)
@@ -464,4 +497,7 @@ def main() -> None:
 run_parser_tests()
 run_index_tests()
 run_state_tests()
+run_change_test()
+run_render_rest()
+
 # main()
