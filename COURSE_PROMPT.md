@@ -212,6 +212,32 @@ excercise2.py
 
 unless I tell you otherwise.
 
+## Course evolution and syllabus additions
+
+Track intentional additions or deviations from the original lesson plan here so the course can evolve without silently drifting.
+
+### 2026-09-14 — Supplemental Lesson 4 parser-testing exercise added
+
+A small manual parser-testing exercise was added during Lesson 4 after malformed VLAN inputs were introduced.
+
+This exercise was **not part of the original Lesson 4 outline**. It is intentionally retained because it directly reinforces the parsing and validation work being learned in Lesson 4.
+
+Reason for the addition:
+
+- the parser is intentionally fail-fast,
+- several malformed VLANs placed in one configuration blob cannot all be exercised because the first exception stops execution,
+- isolated inputs make it possible to verify each parser behavior independently,
+- manually writing PASS/FAIL checks provides a concrete bridge between parser behavior and the formal testing work that will come later.
+
+Scope guardrail:
+
+- this is a **supplemental Lesson 4 exercise**, not a replacement for Lesson 11,
+- do not turn Lesson 4 into a general testing lesson,
+- do not introduce pytest yet,
+- Lesson 11 remains the dedicated lesson for current Ansible collection testing practices and the complete test suite.
+
+When future exercises are added beyond the original syllabus, record them in this section with the date, reason, and whether they replace or supplement existing material.
+
 ## Course structure
 
 Follow this lesson order.
@@ -381,6 +407,23 @@ configuration clearly attempting to represent our resource
 but containing malformed data
     → validation error
 ```
+
+#### Supplemental Exercise 4.3 — Isolated parser tests
+
+**Added during the course on 2026-09-14. This is an intentional addition to the original Lesson 4 plan.**
+
+After malformed-input validation is understood, isolate representative parser inputs instead of placing all malformed cases into the same running configuration.
+
+Manually verify a small number of parser behaviors before introducing pytest:
+
+- valid VLAN configuration parses to the expected structured result,
+- non-integer VLAN ID raises the expected validation error,
+- mixed numeric/non-numeric VLAN ID raises the expected validation error,
+- numeric but out-of-range VLAN ID raises the expected validation error.
+
+Start with a hand-written `run_parser_tests() -> None` and simple PASS/FAIL output so the mechanics of a test are visible.
+
+Keep this exercise narrow. Formal test organization, pytest, Ansible collection test patterns, and the full test suite remain Lesson 11 material.
 
 ### Lesson 5 — Idempotency
 
@@ -1043,9 +1086,21 @@ vlan_id
 
 so the raw CLI token and normalized integer have distinct identities.
 
+### Supplemental Exercise 4.3 — ADDED, NOT YET COMPLETE
+
+This exercise was added on 2026-09-14 and is intentionally tracked as a supplement to the original Lesson 4 plan.
+
+Purpose:
+
+- isolate malformed parser inputs,
+- demonstrate why a fail-fast parser cannot test multiple independent failure cases in one configuration blob,
+- manually expose the basic mechanics that a testing framework later automates.
+
+This addition does not move the dedicated testing lesson forward; it only verifies the parser behavior currently being developed.
+
 ## Current next step
 
-Continue Lesson 4.
+Continue **Supplemental Exercise 4.3** within Lesson 4.
 
 The immediate task is to stop putting several malformed VLANs into one configuration blob because the first raised exception prevents later malformed cases from executing.
 
