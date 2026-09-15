@@ -91,6 +91,28 @@ INDEX_TEST_INPUT = [
 VLAN_ID_PATTERN = re.compile(r"^vlan\s+(?P<vlan_id>\S+)")
 VLAN_NAME_PATTERN = re.compile(r"^\s+name\s+(?P<vlan_name>.+)$", re.MULTILINE)
 
+def run_state_tests() -> None:
+    have_by_id = index_vlan_data(have)
+    want_by_id = index_vlan_data(want)
+    merged_result = build_merged_state(have_by_id, want_by_id)
+    expected_merged_result = {
+        10: {'vlan_id': 10, 'name': 'STAFF'},
+        20: {'vlan_id': 20, 'name': 'SERVERS'},
+        30: {'vlan_id': 30, 'name': 'VOICE'},
+        40: {'vlan_id': 40, 'name': 'GUEST'},
+        50: {'vlan_id': 50, 'name': 'IOT'},
+        60: {'vlan_id': 60, 'name': 'PRINTERS'}
+    }
+    
+    print("\n####\n# STATE MERGE TEST\n####")
+    
+    if merged_result == expected_merged_result:
+        print("STATE MERGE: PASS")
+    else:
+        print("STATE MERGE: FAIL")
+        print(f"EXPECTED: {expected_merged_result}")
+        print(f"RESULT: {merged_result}")
+
 def run_index_tests() -> None:
     expected_result = {
         10: {'vlan_id': 10, 'name': 'USERS'},
@@ -415,4 +437,5 @@ def main() -> None:
 
 run_parser_tests()
 run_index_tests()
+run_state_tests()
 # main()
