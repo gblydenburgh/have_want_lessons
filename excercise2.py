@@ -81,8 +81,7 @@ def run_parser_tests() -> None:
     try:
         parse_vlan_config(NON_INTEGER_VLAN_CONFIG)
     except ValueError as e:
-        print("NON-INTEGER VLAN TEST: PASS")
-        if e == expected_error:
+        if str(e) == expected_error:
             print("NON-INTEGER VLAN TEST: PASS")
     else:
         print("NON-INTEGER VLAN TEST: FAIL")
