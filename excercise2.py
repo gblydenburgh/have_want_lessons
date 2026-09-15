@@ -60,6 +60,18 @@ vlan BAD
 !
 """
 
+MIXED_VLAN_ID_CONFIG = """
+vlan 33BAD
+ name OH_CMON
+!
+"""
+
+OUT_OF_RANGE_VLAN_CONFIG = """
+vlan 9999
+ name OUT_OF_RANGE
+!
+"""
+
 VLAN_ID_PATTERN = re.compile(r"^vlan\s+(?P<vlan_id>\S+)")
 VLAN_NAME_PATTERN = re.compile(r"^\s+name\s+(?P<vlan_name>.+)$", re.MULTILINE)
 
@@ -76,23 +88,31 @@ def run_parser_tests() -> None:
     
     print("\n####\n# NON-INTEGER VLAN TEST\n####")
     
-    expected_error = "vlan_id value of BAD is not an integer."
+    non_integer_error = "vlan_id value of BAD is not an integer."
+    mixed_vlan_id_error = "vlan_id value of 33BAD is not an integer."
+    out_of_range_error = "vlan_id is out of range: 9999"
     
-    try:
-        parse_vlan_config(NON_INTEGER_VLAN_CONFIG)
-    except ValueError as e:
-        if str(e) == expected_error:
-            print("NON-INTEGER VLAN TEST: PASS")
+    for test_config, expected_error, title in [
+        (NON_INTEGER_VLAN_CONFIG, non_integer_error, "NON-INTEGER VLAN TEST"),
+        (MIXED_VLAN_ID_CONFIG, mixed_vlan_id_error, "MIXED VLAN ID TEST"),
+        (OUT_OF_RANGE_VLAN_CONFIG, out_of_range_error, "OUT-OF-RANGE VLAN TEST")
+        ]:
+        print(f"\n####\n# {title}\n####")
+        try:
+            parse_vlan_config(test_config)
+        except ValueError as e:
+            if str(e) == expected_error:
+                print(f"{title}: PASS")
+            else:
+                print(f"{title}: FAIL")
+                print(f"EXPECTED ERROR: {expected_error}")
+                print(f"RECEIVED ERROR: {str(e)}")
         else:
-            print("NON-INTEGER VLAN TEST: FAIL")
+            print(f"{title}: FAIL")
             print(f"EXPECTED ERROR: {expected_error}")
-            print(f"RECEIVED ERROR: {str(e)}")
-    else:
-        print("NON-INTEGER VLAN TEST: FAIL")
-        print(f"EXPECTED ERROR: {expected_error}")
-        print(f"RESULT: Task executed error free.")
+            print("RESULT: Task executed error free.")
 
-
+    
 def parse_vlan_config(config: str) -> list[dict[str, Any]]:
     parsed_config:list[dict[str, Any]] = []
     
