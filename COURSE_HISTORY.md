@@ -310,3 +310,161 @@ Before leaving the plain-Python portion of the course, perform a small retrospec
 Lesson 5 and later lessons have not yet been completed, so nothing in those lessons should be treated as skipped yet.
 
 The focused Python classes bridge is intentionally scheduled after Lessons 1–5 and before direct ResourceModule study. The newer requirement to point out class opportunities during code review is supplemental and does not replace that bridge lesson.
+
+# Checkpoint update: 2026-09-15 — Pre-Lesson 5 cut
+
+The revisit queue above has now been worked through far enough to close the Lessons 1–4 plain-Python phase and start Lesson 5 in a fresh conversation.
+
+## Supplemental Exercise 4.3 — COMPLETE
+
+The manual parser test harness now verifies isolated inputs for:
+
+- valid VLAN parsing,
+- non-integer VLAN IDs,
+- mixed numeric/non-numeric VLAN IDs,
+- numeric but out-of-range VLAN IDs.
+
+The learner also worked through the distinction between an exception object and its message, using `str(e)`, and inspected exception chaining through `__cause__`.
+
+No pytest framework was introduced; formal test structure remains reserved for Lesson 11.
+
+## Lesson 4 normalization failure demonstration — COMPLETE
+
+A deliberate malformed internal representation was used to demonstrate a false diff:
+
+```python
+bad_have_by_id = {
+    "10": {"vlan_id": "10", "name": "USERS"}
+}
+```
+
+against an integer-normalized effective structure.
+
+The comparator treated integer VLAN 10 as absent from HAVE and produced a false add/change even though the human-visible VLAN state was equivalent.
+
+The normalized case returned an empty change dictionary.
+
+The learner independently identified an additional failure mode: allowing mixed string/integer dictionary keys to flow through the state-builder path would also make deterministic sorting fail because Python cannot order `str` and `int` keys together.
+
+The normalization responsibility was kept at the parser boundary. `index_vlan_data()` assumes normalized structured input rather than silently repairing parser mistakes.
+
+Lesson 4 is therefore considered **COMPLETE** for the current simplified resource.
+
+The optional `GigabitEthernet1/0/1` versus `Gi1/0/1` example remains optional and was not forced into a VLAN-name resource that has no interface attribute.
+
+## Retrospective Lesson 1 test — COMPLETE
+
+A small `run_index_tests()` check was added for `index_vlan_data()`.
+
+This satisfies the retrospective test requirement without expanding into formal test-framework material.
+
+## Retrospective Lesson 2 state tests — COMPLETE
+
+`run_state_tests()` now verifies expected effective state for:
+
+- `merged`,
+- `replaced`,
+- `overridden`,
+- `deleted`.
+
+The deleted-state test uses a separately indexed `delete_want` fixture and verifies that targeted VLAN identities remain while the resource-owned `name` property disappears.
+
+## Retrospective Lesson 3 change/render tests — COMPLETE
+
+Separate test functions now preserve the layer boundaries:
+
+```text
+state tests
+    HAVE + WANT -> effective state
+
+change tests
+    HAVE + effective state -> before/after changes
+
+render tests
+    changes -> IOS CLI
+```
+
+The tests cover:
+
+- changing an existing name,
+- adding names to resources that did not previously have them or did not previously exist in HAVE,
+- removing an existing name through `after: None`,
+- rendering `name VALUE`,
+- rendering `no name`.
+
+A direct `render_vlan_name_commands({}) == []` assertion has not yet been added. This is a minor explicit coverage gap rather than a conceptual gap. Lesson 5 will make the empty-command path a first-class acceptance condition because the second idempotency pass must produce no commands.
+
+## Manual test helper typing refinement
+
+The generic result helper was changed from broad `Any` inputs to:
+
+```python
+T = TypeVar("T")
+
+def simple_result_compare(expected_result: T, test_result: T, title: str) -> None:
+    ...
+```
+
+The point learned was that the helper may compare different result types across different calls while still expressing that expected and actual values for a single call should have the same type. This improves static intent but does not change Python runtime behavior.
+
+## OOP review status through the checkpoint
+
+Code reviews continued to include a separate OOP pass after functional review.
+
+No class conversion was forced into the state/change/render test functions because there was no meaningful object identity or persistent shared state requiring it.
+
+The parser remains a plausible future component/class boundary, but converting it now would hide mechanics that are still useful for teaching.
+
+The planned focused OOP bridge after Lesson 5 remains required and has **not** been replaced by these smaller OOP observations.
+
+## Working-code checkpoint
+
+At the end of this phase, `excercise2.py` contains:
+
+- parsing and normalization,
+- indexing,
+- state builders for all four action states,
+- structured change calculation,
+- IOS CLI rendering,
+- manual parser tests,
+- normalization false-diff/no-diff tests,
+- retrospective index tests,
+- retrospective state tests,
+- retrospective change tests,
+- retrospective renderer tests.
+
+The last reviewed blob before this history update was:
+
+```text
+bd043f2626930bfd763a404f6cf9ee96df1bf1fa
+```
+
+## Next phase
+
+A hard conversation boundary was intentionally chosen before Lesson 5 because the prior chat had become large enough that continued accumulation would increase context-management risk.
+
+The next conversation starts with:
+
+### Lesson 5 — Idempotency
+
+Use the existing plain-Python pipeline and make the full cycle explicit:
+
+```text
+gather
+-> parse/normalize
+-> compare
+-> render
+-> apply/simulate apply
+-> gather again
+-> compare again
+```
+
+The second pass must prove:
+
+```python
+commands == []
+```
+
+Deliberately introduce at least one bug that causes a false second-pass change, diagnose it, and fix it.
+
+Do not start the class bridge until Lesson 5 is complete. After Lesson 5, proceed to the focused Python classes bridge before direct `ResourceModule` study.
