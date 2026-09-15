@@ -119,6 +119,26 @@ def run_render_test() -> None:
     ]
     
     simple_result_compare(expected_render_result, render_result, "RENDER TEST")
+    
+    remove_changes = {
+        10: {'after': 'STAFF', 'before': 'USERS'},
+        20: {'after': None, 'before': 'SERVERS'},
+        50: {'after': 'IOT', 'before': None},
+        60: {'after': 'PRINTERS', 'before': None}
+    }
+    render_remove_result = render_vlan_name_commands(remove_changes)
+    expected_render_remove_result = [
+        'vlan 10',
+        ' name STAFF',
+        'vlan 20',
+        ' no name',
+        'vlan 50',
+        ' name IOT',
+        'vlan 60',
+        ' name PRINTERS'
+    ]
+    
+    simple_result_compare(expected_render_remove_result, render_remove_result, "RENDER REMOVE TEST")
 
 def run_change_test() -> None:
     have_by_id = index_vlan_data(have)
@@ -132,6 +152,17 @@ def run_change_test() -> None:
     change_result = build_vlan_name_changes(have_by_id, merged_result)
     
     simple_result_compare(expected_change_result, change_result, "CHANGE TEST")
+    
+    replaced_result = build_replaced_state(have_by_id, want_by_id)
+    expected_change_result = {
+        10: {'after': 'STAFF', 'before': 'USERS'},
+        20: {'after': None, 'before': 'SERVERS'},
+        50: {'after': 'IOT', 'before': None},
+        60: {'after': 'PRINTERS', 'before': None}
+    }
+    change_result = build_vlan_name_changes(have_by_id, replaced_result)
+    
+    simple_result_compare(expected_change_result, change_result, "CHANGE REMOVE TEST")
     
     
 def run_state_tests() -> None:
