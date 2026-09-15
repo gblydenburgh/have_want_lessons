@@ -102,6 +102,8 @@ def run_index_tests() -> None:
         print("INDEX TEST: PASS")
     else:
         print("INDEX TEST: FAIL")
+        print(f"EXPECTED: {expected_result}")
+        print(f"RESULT: {result}")
 
 
 def run_parser_tests() -> None:
