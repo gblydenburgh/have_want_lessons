@@ -25,6 +25,14 @@ delete_want = [
     {"vlan_id": 20},
 ] 
 
+bad_have_by_id = {
+    "10": {"vlan_id": "10", "name": "USERS"}
+}
+
+normalized_effective_by_id = {
+    10: {"vlan_id": 10, "name": "USERS"}
+}
+
 RUNNING_CONFIG = """
 hostname SW01
 !
@@ -110,6 +118,15 @@ def run_parser_tests() -> None:
             print(f"EXPECTED ERROR: {expected_error}")
             print("RESULT: Task executed error free.")
 
+    print("####\n# FALSE DIFF TEST\n####")
+    expected_result = {10: {'after': 'USERS', 'before': None}}
+    result = build_vlan_name_changes(bad_have_by_id, normalized_effective_by_id)
+    if result == expected_result:
+        print("FALSE DIFF TEST: PASS")
+    else:
+        print("FALSE DIFF TEST: FAIL")
+        print(f"EXPECTED: {expected_result}")
+        print(f"RESULT: {result}")
     
 def parse_vlan_config(config: str) -> list[dict[str, Any]]:
     parsed_config:list[dict[str, Any]] = []
