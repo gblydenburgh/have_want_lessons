@@ -104,6 +104,7 @@ def simple_result_compare(expected_result: T, test_result: T, title: str) -> Non
 def run_state_tests() -> None:
     have_by_id = index_vlan_data(have)
     want_by_id = index_vlan_data(want)
+    delete_want_by_id = index_vlan_data(delete_want)
     
     merged_result = build_merged_state(have_by_id, want_by_id)
     expected_merged_result = {
@@ -140,6 +141,17 @@ def run_state_tests() -> None:
     }
     
     simple_result_compare(expected_overridden_result, overridden_result, "STATE OVERRIDDEN TEST")
+    
+    deleted_result = build_deleted_state(have_by_id, delete_want_by_id)
+    expected_deleted_result = {
+        10: {'vlan_id': 10},
+        20: {'vlan_id': 20},
+        30: {'name': 'VOICE', 'vlan_id': 30},
+        40: {'name': 'GUEST', 'vlan_id': 40},
+        60: {'vlan_id': 60}
+    }
+    
+    simple_result_compare(expected_deleted_result, deleted_result, "STATE DELETED TEST")
 
 
 def run_index_tests() -> None:
