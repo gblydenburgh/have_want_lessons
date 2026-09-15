@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from typing import Any, TypeVar
 from pprint import pprint
 from vlan_parser import parse_vlan_config
 from vlan_states import (
@@ -14,7 +13,7 @@ from vlan_diff import (
     diff_vlan_name_states,
 )
 from vlan_renderer import render_vlan_name_commands
-T = TypeVar("T")
+
 
 have = [
     {"vlan_id": 10, "name": "USERS"},
