@@ -35,20 +35,11 @@ interface GigabitEthernet1/0/1
 vlan 10
  name USERS
 !
-vlan BAD
- name BROKEN
-!
 vlan 20
  name SERVERS
 !
-vlan 33BAD
- name OH_CMON
-!
 vlan 30
  name VOICE
-!
-vlan 9999
- name OUT_OF_RANGE
 !
 vlan 40
  name GUEST
@@ -57,9 +48,27 @@ vlan 60
 !
 """
 
+VALID_VLAN_CONFIG = """
+vlan 10
+ name USERS
+!
+"""
+
+
 
 VLAN_ID_PATTERN = re.compile(r"^vlan\s+(?P<vlan_id>\S+)")
 VLAN_NAME_PATTERN = re.compile(r"^\s+name\s+(?P<vlan_name>.+)$", re.MULTILINE)
+
+def run_parser_tests() -> None:
+    EXPECTED_RESULT = [{'vlan_id': 10, 'name': 'USERS'}]
+    result = parse_vlan_config(VALID_VLAN_CONFIG)
+    if result == EXPECTED_RESULT:
+        print("pass")
+    else:
+        print("failed")
+        print(f"EXPECTED: {EXPECTED_RESULT}")
+        print(f"RESULT: {result}")
+
 
 def parse_vlan_config(config: str) -> list[dict[str, Any]]:
     parsed_config:list[dict[str, Any]] = []
@@ -315,11 +324,7 @@ def main() -> None:
         pprint(changes)
         print("Rendered Config:")
         pprint(render_vlan_name_commands(changes))
-    # effective_by_id = build_replaced_state(have_by_id, want_by_id)
-    # changes = build_vlan_name_changes(have_by_id, effective_by_id)
-    # print("Changes")    
-    # pprint(changes, sort_dicts=True)
-    # print("Commands")
-    # pprint(render_vlan_name_commands(changes))
+        
 
-main()
+run_parser_tests()
+# main()
