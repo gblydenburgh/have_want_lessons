@@ -63,9 +63,9 @@ def run_parser_tests() -> None:
     EXPECTED_RESULT = [{'vlan_id': 10, 'name': 'USERS'}]
     result = parse_vlan_config(VALID_VLAN_CONFIG)
     if result == EXPECTED_RESULT:
-        print("pass")
+        print("VALID VLAN TEST: PASS")
     else:
-        print("failed")
+        print("VALID VLAN TEST: FAIL")
         print(f"EXPECTED: {EXPECTED_RESULT}")
         print(f"RESULT: {result}")
 
@@ -327,4 +327,4 @@ def main() -> None:
         
 
 run_parser_tests()
-# main()
+main()
