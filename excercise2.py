@@ -83,9 +83,26 @@ vlan 9999
  name OUT_OF_RANGE
 !
 """
+INDEX_TEST_INPUT = [
+    {"vlan_id": 10, "name": "USERS"},
+    {"vlan_id": 20, "name": "SERVERS"},
+]
 
 VLAN_ID_PATTERN = re.compile(r"^vlan\s+(?P<vlan_id>\S+)")
 VLAN_NAME_PATTERN = re.compile(r"^\s+name\s+(?P<vlan_name>.+)$", re.MULTILINE)
+
+def run_index_tests() -> None:
+    expected_result = {
+        10: {'vlan_id': 10, 'name': 'USERS'},
+        20: {'vlan_id': 20, 'name': 'SERVERS'}
+        }
+    result = index_vlan_data(INDEX_TEST_INPUT)
+    print("\n####\n# INDEX TEST\n####")
+    if result == expected_result:
+        print("INDEX TEST: PASS")
+    else:
+        print("INDEX TEST: FAIL")
+
 
 def run_parser_tests() -> None:
     print("####\n# VALID VLAN TEST\n####")
@@ -395,4 +412,5 @@ def main() -> None:
         
 
 run_parser_tests()
+run_index_tests()
 # main()
