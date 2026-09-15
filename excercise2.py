@@ -85,6 +85,7 @@ def run_parser_tests() -> None:
             print("NON-INTEGER VLAN TEST: PASS")
     else:
         print("NON-INTEGER VLAN TEST: FAIL")
+        print(f"EXPECTED ERROR: {expected_error}")
 
 
 def parse_vlan_config(config: str) -> list[dict[str, Any]]:
