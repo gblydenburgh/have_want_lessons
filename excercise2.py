@@ -102,7 +102,7 @@ def simple_result_compare(expected_result: T, test_result: T, title: str) -> Non
         print(f"RESULT: {test_result}")
 
 
-def run_render_rest() -> None:
+def run_render_test() -> None:
     changes = {
             10: {'after': 'STAFF', 'before': 'USERS'},
             50: {'after': 'IOT', 'before': None},
@@ -498,6 +498,6 @@ run_parser_tests()
 run_index_tests()
 run_state_tests()
 run_change_test()
-run_render_rest()
+run_render_test()
 
 # main()
