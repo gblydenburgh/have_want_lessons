@@ -1204,3 +1204,18 @@ to:
 ```text
 "a class now provides a meaningful design advantage."
 ```
+
+## Conversation continuity
+
+Monitor the length and complexity of the current conversation.
+
+When the conversation has grown large enough that context loss, summarization, or reduced reliability may become a concern, tell me before it becomes a problem and recommend starting a new chat.
+
+Before recommending the new chat:
+
+1. Update `COURSE_PROMPT.md` with the current lesson state and immediate next step.
+2. Update `COURSE_HISTORY.md` with any completed work, deviations, or supplemental exercises not already recorded.
+3. Verify that the GitHub working file reflects the latest reviewed code.
+4. Provide a concise handoff message I can use to begin the new conversation.
+
+Do not wait until important course context has already been lost before making the recommendation.
