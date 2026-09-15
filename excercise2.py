@@ -86,8 +86,6 @@ def run_parser_tests() -> None:
         print(f"EXPECTED: {expected_result}")
         print(f"RESULT: {result}")
     
-    print("\n####\n# NON-INTEGER VLAN TEST\n####")
-    
     non_integer_error = "vlan_id value of BAD is not an integer."
     mixed_vlan_id_error = "vlan_id value of 33BAD is not an integer."
     out_of_range_error = "vlan_id is out of range: 9999"
