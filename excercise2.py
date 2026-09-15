@@ -83,9 +83,14 @@ def run_parser_tests() -> None:
     except ValueError as e:
         if str(e) == expected_error:
             print("NON-INTEGER VLAN TEST: PASS")
+        else:
+            print("NON-INTEGER VLAN TEST: FAIL")
+            print(f"EXPECTED ERROR: {expected_error}")
+            print(f"RECEIVED ERROR: {str(e)}")
     else:
         print("NON-INTEGER VLAN TEST: FAIL")
         print(f"EXPECTED ERROR: {expected_error}")
+        print(f"RESULT: Task executed error free.")
 
 
 def parse_vlan_config(config: str) -> list[dict[str, Any]]:
