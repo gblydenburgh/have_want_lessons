@@ -18,6 +18,14 @@ Ignore `modular_ex2/` for the course. That directory was an independent experime
 
 Keep the Lesson 5 implementation in the single root `excercise2.py` file. The single-file layout is intentional at this stage so the complete reconciliation pipeline remains visible and easy to trace while idempotency is being learned.
 
+The one intentional supporting file for Lesson 5 is:
+
+```text
+lesson5_inputs.py
+```
+
+That file contains **data fixtures only** for controlled idempotency/failure scenarios. It is not a modularization of the implementation. Do not move parser, state, diff, renderer, or orchestration logic out of `excercise2.py` during Lesson 5.
+
 Do **not** introduce modularization, classes, pytest, or Ansible framework abstractions during Lesson 5 unless they are required to explain a specific problem.
 
 Lessons 1–4 and the retrospective cleanup are complete. Do not repeat them unless needed to resolve a specific misunderstanding.
@@ -103,18 +111,30 @@ ANSWER  = show/explain the answer
 NEXT    = move on because I understand the current point
 ```
 
-## Deliberate idempotency failure
+## Controlled idempotency failures
 
-Lesson 5 must include at least one deliberate bug that causes a false second-pass change.
+First prove the normal path is idempotent. Do not begin with a broken case.
 
-The instructor should propose the bug and either:
+After a clean second pass has demonstrated:
 
-- show the defective variation in chat and have me identify or inject it, or
-- ask me to make the deliberate change myself.
+```python
+commands == []
+```
 
-Do **not** modify `excercise2.py` directly unless I explicitly ask you to.
+use `lesson5_inputs.py` to introduce controlled failures through **input/observed state**, while leaving the working reconciliation implementation unchanged initially.
 
-Diagnose the failure through the pipeline rather than jumping directly to the bad line:
+The file currently provides these scenario categories:
+
+1. **Converged control state** — the second observation reflects the complete intended merged state and should produce no commands.
+2. **Partial apply** — one intended change is absent from the second observation. A second-pass command is legitimate because the device is not yet converged.
+3. **Stale second gather** — the second observation still looks like the original pre-change state. The learner should diagnose the gather/observation boundary rather than blaming the comparator.
+4. **Normalization-contract violation** — the logical state is converged, but one internal resource identity uses a string where the normalized contract requires an integer. This should produce a false diff and must be traced back to the normalization boundary.
+
+These are synthetic teaching inputs. Do not present them as claims about actual Cisco canonicalization behavior unless that behavior has been verified separately from current device/documentation/source evidence.
+
+Prefer these data-driven failures before deliberately corrupting implementation code.
+
+The learner should diagnose each failure through the pipeline rather than jumping directly to the fixture or bad value:
 
 ```text
 input/device state
@@ -127,7 +147,15 @@ input/device state
 → second comparison
 ```
 
-The goal is to identify which layer caused the false second-run change and why.
+The key distinction to teach is:
+
+```text
+non-empty second pass because real work remains
+versus
+non-empty second pass because equivalent state was represented incorrectly
+```
+
+An implementation bug may be introduced later only if it teaches a different failure mode, such as accidental mutation of HAVE. Do not modify `excercise2.py` directly unless I explicitly ask you to.
 
 ## Code review protocol
 
@@ -145,7 +173,7 @@ A design that is valid but different from the instructor's stylistic preference 
 
 Do not move ahead into:
 
-- modularizing the program into multiple files,
+- modularizing the program into multiple implementation files,
 - `TypedDict` or broader data-model refactoring,
 - pytest,
 - classes or inheritance,
