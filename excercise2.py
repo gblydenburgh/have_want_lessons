@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from typing import Any, TypeVar
+import argparse
 import copy
 from pprint import pprint
 import re
@@ -61,6 +62,33 @@ vlan 60
 !
 """
 
+POST_MERGE_RUNNING_CONFIG = """
+hostname SW01
+!
+interface GigabitEthernet1/0/1
+ description SERVER_PORT
+ switchport access vlan 10
+!
+vlan 10
+ name STAFF
+!
+vlan 20
+ name SERVERS
+!
+vlan 30
+ name VOICE
+!
+vlan 40
+ name GUEST
+!
+vlan 50
+ name IOT
+!
+vlan 60
+ name PRINTERS
+!
+"""
+
 VALID_VLAN_CONFIG = """
 vlan 10
  name USERS
@@ -100,6 +128,29 @@ def simple_result_compare(expected_result: T, test_result: T, title: str) -> Non
         print(f"{title}: FAIL")
         print(f"EXPECTED: {expected_result}")
         print(f"RESULT: {test_result}")
+
+
+def run_idempotency_test() -> None:
+    post_merge_parsed = parse_vlan_config(POST_MERGE_RUNNING_CONFIG)
+    post_merge_have_by_id = index_vlan_data(post_merge_parsed)
+    want_by_id = index_vlan_data(want)
+    changes = build_vlan_name_changes(post_merge_have_by_id, want_by_id)
+    print("Calculated Changes:")
+    pprint(changes)
+    print("Rendered Config:")
+    pprint(render_vlan_name_commands(changes))
+    post_merged_by_id = build_merged_state(post_merge_have_by_id, want_by_id)
+    pprint(post_merged_by_id)
+ 
+    for state_name, effective_state, haves in [
+        ("MERGED (POST)", post_merged_by_id, post_merge_have_by_id),
+        ]:
+        print(state_name + ':')
+        changes = build_vlan_name_changes(haves, effective_state)
+        print("Calculated Changes:")
+        pprint(changes)
+        print("Rendered Config:")
+        pprint(render_vlan_name_commands(changes))
 
 
 def run_render_test() -> None:
@@ -382,7 +433,6 @@ def build_replaced_state(
     return dict(sorted(replaced.items()))
 
 
-
 def build_overridden_state(
     have_by_id: dict[int, dict[str, Any]],
     want_by_id: dict[int, dict[str, Any]],
@@ -482,11 +532,25 @@ def render_vlan_name_commands(
     
     return commands
 
+
+def run_tests() -> None:
+    run_parser_tests()
+    run_index_tests()
+    run_state_tests()
+    run_change_test()
+    run_render_test()
+    run_idempotency_test()
+
+
 def main() -> None:
     parsed = parse_vlan_config(RUNNING_CONFIG)
+    post_merge_parsed = parse_vlan_config(POST_MERGE_RUNNING_CONFIG)
     have_by_id = index_vlan_data(parsed)
+    post_merge_have_by_id = index_vlan_data(post_merge_parsed)
     print("Haves:")
     pprint(have_by_id)
+    print("Haves (POST MERGE):")
+    pprint(post_merge_have_by_id)
     want_by_id = index_vlan_data(want)
     print("Wants:")
     pprint(want_by_id)
@@ -499,9 +563,14 @@ def main() -> None:
     print("Common Key Name States:")
     pprint(diff_vlan_name_states(have_by_id, want_by_id, common))
     ####
+    ### MERGED TESTING ###
     print("Merged:")
     merged_by_id = build_merged_state(have_by_id, want_by_id)
     pprint(merged_by_id)
+    print("Merged (POST):")
+    post_merged_by_id = build_merged_state(post_merge_have_by_id, want_by_id)
+    pprint(post_merged_by_id)
+    ### REPLACED TESTING ###
     print("Replaced:")
     replaced_by_id = build_replaced_state(have_by_id, want_by_id)
     pprint(replaced_by_id)
@@ -511,24 +580,42 @@ def main() -> None:
     print("Deleted:")
     deleted_by_id = build_deleted_state(have_by_id, delete_want_by_id)
     pprint(deleted_by_id)
-    for state_name, effective_state in [
-        ("MERGED", merged_by_id),
-        ("REPLACED", replaced_by_id),
-        ("OVERRIDDEN", overridden_by_id),
-        ("DELETED", deleted_by_id)
+    for state_name, effective_state, haves in [
+        ("MERGED", merged_by_id, have_by_id),
+        ("MERGED (POST)", post_merged_by_id, post_merge_have_by_id),
+        ("REPLACED", replaced_by_id, have_by_id),
+        ("OVERRIDDEN", overridden_by_id, have_by_id),
+        ("DELETED", deleted_by_id, have_by_id)
         ]:
         print(state_name + ':')
-        changes = build_vlan_name_changes(have_by_id, effective_state)
+        changes = build_vlan_name_changes(haves, effective_state)
         print("Calculated Changes:")
         pprint(changes)
         print("Rendered Config:")
         pprint(render_vlan_name_commands(changes))
-        
 
-run_parser_tests()
-run_index_tests()
-run_state_tests()
-run_change_test()
-run_render_test()
 
-# main()
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="VLAN have/want state engine demo."
+    )
+    parser.add_argument(
+        "--run",
+        choices=("main", "tests", "both"),
+        default="main",
+        help=(
+            "What to execute: 'main' runs the demo (default), "
+            "'tests' runs the test suite only, 'both' runs the demo then the tests."
+        ),
+    )
+    return parser.parse_args(argv)
+
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    if args.run in ("main", "both"):
+        main()
+
+    if args.run in ("tests", "both"):
+        run_tests()
