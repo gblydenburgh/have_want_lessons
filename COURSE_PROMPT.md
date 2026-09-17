@@ -403,6 +403,8 @@ Comments should explain intent, reasoning, invariants, or non-obvious behavior r
 
 Use docstrings where appropriate for functions or components whose purpose, inputs, outputs, side effects, or constraints are not obvious from a good name and signature. Do not require a verbose docstring on every trivial helper merely to satisfy a mechanical rule.
 
+Prefer comments and docstrings that are clear, concise, and specific. Favor the shortest wording that accurately conveys purpose or intent; do not make documentation more verbose than necessary merely to sound formal.
+
 Naming criticism should distinguish between names that are merely stylistic alternatives and names that are misleading, ambiguous, inconsistent, or hide an important transformation. Prefer names that make data origin and transformation clear when that helps trace the reconciliation pipeline.
 
 Keep these standards proportional to the current lesson. Do not bury the reconciliation concept under unrelated refactoring, but do raise professional-form issues as normal review criticisms. Those criticisms are subject to the same resolution rule above and must be fixed or successfully defended before moving on.
