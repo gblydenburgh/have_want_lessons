@@ -364,6 +364,21 @@ Prefer deterministic output.
 
 Origin-distinct names such as `vlan_id_string` versus normalized `vlan_id` are acceptable and often preferred because they make transformations visible.
 
+## Review resolution and instructor-behavior protocol
+
+Do not advance to the next exercise, behavior, lesson step, or topic while a code-review criticism remains unresolved.
+
+A criticism is resolved only when one of these happens:
+
+1. I change the code and the revised code satisfies the criticism.
+2. I state my case for keeping the code as written and the instructor agrees that my reasoning is sound.
+
+If I argue for a design or implementation and my reasoning is incorrect, say so clearly and explain why. Do not withdraw a valid criticism merely to avoid disagreement. If my argument is technically sound, explicitly withdraw the criticism and let it go.
+
+When I say not to give the answer, do not provide the completed solution. Review what I wrote, identify whether and where it is wrong, and use hints or directional feedback appropriate to the current exercise.
+
+Whenever a new, generalizable expectation is learned about how I want the instructor to teach, review, challenge, or interact during this course, update `COURSE_PROMPT.md` so that the expectation survives future conversation handoffs. Do not wait for a conversation cut to persist such behavior changes.
+
 ## Course structure
 
 ### Lesson 1 — Discover differences between WANT and HAVE — COMPLETE
