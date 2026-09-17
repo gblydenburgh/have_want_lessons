@@ -39,6 +39,8 @@ normalized_effective_by_id = {
     10: {"vlan_id": 10, "name": "USERS"}
 }
 
+# Representation of the portion of the running config retrieved
+# from a cisco_ios device
 RUNNING_CONFIG = """
 hostname SW01
 !
@@ -61,7 +63,8 @@ vlan 40
 vlan 60
 !
 """
-
+# Representation of the portion of the running config retrieved
+# from a cisco_ios device, after a merge change was successfully run.
 POST_MERGE_RUNNING_CONFIG = """
 hostname SW01
 !
@@ -131,16 +134,24 @@ def simple_result_compare(expected_result: T, test_result: T, title: str) -> Non
 
 
 def run_idempotency_test() -> None:
-    # The intended config in indexed form.
+    '''
+    This is a test to verify the idempotence of the playbook using the
+    merged state as the example.
+    
+    I does two configuration renders, one for the initial state that does not
+    match the want state, and the second for the state where the want is already
+    applied.
+    
+    After the first pass is run the result should be a populated list.
+    
+    After the second pass is run the result should be an empty list.
+    '''
+    
     want_by_id = index_vlan_data(want)
     
-    # Mock initial config retrieval and conversion to structured data
     first_pass_parsed = parse_vlan_config(RUNNING_CONFIG)
-    # Index the structured data around the main resource identity (vlan_id) 
     first_pass_have_by_id = index_vlan_data(first_pass_parsed)
-    # first pass build the merged state
     first_pass_merged_state = build_merged_state(first_pass_have_by_id, want_by_id)
-    # The expected initial rendered config commamd list
     expected_first_pass_rendered_cmds = [
         'vlan 10',
         ' name STAFF',
@@ -150,20 +161,26 @@ def run_idempotency_test() -> None:
         ' name PRINTERS'
     ]
     
-    # Mock second pass config retrieval after the first pass finishes
     second_pass_parsed = parse_vlan_config(POST_MERGE_RUNNING_CONFIG)
-    # Second pass data indexing
     second_pass_have_by_id = index_vlan_data(second_pass_parsed)
-    # second pass build the merged state
     second_pass_merged_state = build_merged_state(second_pass_have_by_id, want_by_id)
-    # The expected second pass rendered config command list
     expected_second_pass_rendered_cmds = []
     
-    for test_name, effective_state, haves, expected_result in [
-        ("IDEMPOTENCY FIRST PASS TEST", first_pass_merged_state, first_pass_have_by_id, expected_first_pass_rendered_cmds),
-        ("IDEMPOTENCY SECOND PASS TEST", second_pass_merged_state, second_pass_have_by_id, expected_second_pass_rendered_cmds)
-        ]:
-        changes = build_vlan_name_changes(haves, effective_state)
+    for test_name, effective_state, have_by_id, expected_result in [
+        (
+            "IDEMPOTENCY FIRST PASS TEST",
+            first_pass_merged_state,
+            first_pass_have_by_id,
+            expected_first_pass_rendered_cmds
+        ),
+        (
+            "IDEMPOTENCY SECOND PASS TEST",
+            second_pass_merged_state,
+            second_pass_have_by_id,
+            expected_second_pass_rendered_cmds
+        )
+    ]:
+        changes = build_vlan_name_changes(have_by_id, effective_state)
         test_result = render_vlan_name_commands(changes)
 
         simple_result_compare(expected_result, test_result, test_name)
