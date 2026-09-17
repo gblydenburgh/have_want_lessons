@@ -4,8 +4,9 @@ import argparse
 import copy
 from pprint import pprint
 import re
-from lesson5_inputs import PARTIAL_APPLY_RUNNING_CONFIG
 T = TypeVar("T")
+
+from lesson5_inputs import PARTIAL_APPLY_RUNNING_CONFIG
 
 have = [
     {"vlan_id": 10, "name": "USERS"},
@@ -138,9 +139,12 @@ def run_idempotency_test() -> None:
     """
     Verify idempotency for the merged reconciliation path.
 
-    The first pass represents a device that requires configuration changes and
-    should produce the expected command list. The second pass represents the same
-    device after those changes have been applied and should produce no commands.
+    - The first pass represents a device that requires configuration changes and
+      should produce the expected command list. 
+    - The second pass represents the same device after those changes have been 
+      applied and should produce no commands.
+    - The partial apply pass represents a device that had an incomplete/interrupted
+      config applied.
     """
     
     want_by_id = index_vlan_data(want)
