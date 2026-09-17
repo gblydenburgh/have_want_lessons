@@ -141,8 +141,8 @@ def run_idempotency_test() -> None:
     Verify idempotency for the merged reconciliation path.
 
     - The first pass represents a device that requires configuration changes and
-      should produce the expected command list. 
-    - The second pass represents the same device after those changes have been 
+      should produce the expected command list.
+    - The second pass represents the same device after those changes have been
       applied and should produce no commands.
     - The partial apply pass represents a device that had an incomplete/interrupted
       config applied.
