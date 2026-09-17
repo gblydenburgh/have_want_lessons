@@ -4,6 +4,7 @@ import argparse
 import copy
 from pprint import pprint
 import re
+from lesson5_inputs import PARTIAL_APPLY_RUNNING_CONFIG
 T = TypeVar("T")
 
 have = [
@@ -161,6 +162,11 @@ def run_idempotency_test() -> None:
     second_pass_merged_state = build_merged_state(second_pass_have_by_id, want_by_id)
     expected_second_pass_rendered_cmds = []
     
+    partial_apply_parsed = parse_vlan_config(PARTIAL_APPLY_RUNNING_CONFIG)
+    partial_apply_have_by_id = index_vlan_data(partial_apply_parsed)
+    partial_apply_merged_state = build_merged_state(partial_apply_have_by_id, want_by_id)
+    expected_partial_apply_rendered_cmds = ['vlan 60', ' name PRINTERS']
+    
     for test_name, effective_state, have_by_id, expected_result in [
         (
             "IDEMPOTENCY FIRST PASS TEST",
@@ -173,6 +179,12 @@ def run_idempotency_test() -> None:
             second_pass_merged_state,
             second_pass_have_by_id,
             expected_second_pass_rendered_cmds
+        ),
+        (
+            "IDEMPOTENCY PARTIAL APPLY TEST",
+            partial_apply_merged_state,
+            partial_apply_have_by_id,
+            expected_partial_apply_rendered_cmds
         )
     ]:
         changes = build_vlan_name_changes(have_by_id, effective_state)
