@@ -4,9 +4,10 @@ import argparse
 import copy
 from pprint import pprint
 import re
-T = TypeVar("T")
 
 from lesson5_inputs import PARTIAL_APPLY_RUNNING_CONFIG
+
+T = TypeVar("T")
 
 have = [
     {"vlan_id": 10, "name": "USERS"},
