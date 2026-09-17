@@ -134,24 +134,13 @@ def simple_result_compare(expected_result: T, test_result: T, title: str) -> Non
 
 
 def run_idempotency_test() -> None:
-    '''
-    This is a test to verify the idempotency of the code using the
-    merged state as the example.
-    
-    It does two configuration renders, one for the initial state that does not
-    match the want state, and the second for the state where the want is already
-    applied.
-    
-    The first pass represent a device that needs to have its config updated.
-    
-    The second pass represents a device that has already been updated.
-    
-    After the first pass is run the `test_result` variable should be a populated list
-    of commands to be run on the device to bring it into compliance with the want state.
-    
-    After the second pass is run the `test_result` variable should be an empty list
-    as the device is already in compliance with the want state.
-    '''
+    """
+    Verify idempotency for the merged reconciliation path.
+
+    The first pass represents a device that requires configuration changes and
+    should produce the expected command list. The second pass represents the same
+    device after those changes have been applied and should produce no commands.
+    """
     
     want_by_id = index_vlan_data(want)
     
