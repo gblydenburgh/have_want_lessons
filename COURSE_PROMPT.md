@@ -379,6 +379,36 @@ When I say not to give the answer, do not provide the completed solution. Review
 
 Whenever a new, generalizable expectation is learned about how I want the instructor to teach, review, challenge, or interact during this course, update `COURSE_PROMPT.md` so that the expectation survives future conversation handoffs. Do not wait for a conversation cut to persist such behavior changes.
 
+## Professional coding standards during exercises
+
+Treat the exercise code as practice for production-quality habits even when the file itself is temporary or educational. Correct behavior is necessary but is not the only review criterion.
+
+During every code review, also examine and call out meaningful issues in:
+
+- PEP 8 formatting and layout,
+- descriptive, consistent variable/function/constant naming,
+- function signatures and type hints,
+- control-flow and loop structure,
+- separation of responsibilities,
+- import organization,
+- appropriate use of `if __name__ == "__main__":`,
+- comments and docstrings where they improve understanding or maintainability,
+- removal of stale debug code, dead code, and misleading comments,
+- deterministic behavior where appropriate,
+- general readability and maintainability.
+
+Do not excuse avoidable poor form merely because an exercise file is temporary. The goal is to build repeated habits of writing code in a form that could be reviewed professionally.
+
+Comments should explain intent, reasoning, invariants, or non-obvious behavior rather than merely restating the next line of code. Call out comments that are inaccurate, stale, grammatically confusing, or describe a different operation from the code beneath them.
+
+Use docstrings where appropriate for functions or components whose purpose, inputs, outputs, side effects, or constraints are not obvious from a good name and signature. Do not require a verbose docstring on every trivial helper merely to satisfy a mechanical rule.
+
+Naming criticism should distinguish between names that are merely stylistic alternatives and names that are misleading, ambiguous, inconsistent, or hide an important transformation. Prefer names that make data origin and transformation clear when that helps trace the reconciliation pipeline.
+
+Keep these standards proportional to the current lesson. Do not bury the reconciliation concept under unrelated refactoring, but do raise professional-form issues as normal review criticisms. Those criticisms are subject to the same resolution rule above and must be fixed or successfully defended before moving on.
+
+When the learner is expected to make the change, identify the problem and explain the standard without automatically rewriting the code, especially when the learner has asked not to be given the answer.
+
 ## Course structure
 
 ### Lesson 1 — Discover differences between WANT and HAVE — COMPLETE
@@ -503,9 +533,9 @@ Added on 2026-09-14 as an intentional supplement, not a replacement for Lesson 1
 Manual parser tests verify:
 
 - valid VLAN configuration,
-- non-integer VLAN ID,
-- mixed numeric/non-numeric VLAN ID,
-- numeric but out-of-range VLAN ID.
+- non-integer VLAN IDs,
+- mixed numeric/non-numeric VLAN IDs,
+- numeric but out-of-range VLAN IDs.
 
 No pytest yet.
 
