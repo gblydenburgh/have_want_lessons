@@ -135,16 +135,22 @@ def simple_result_compare(expected_result: T, test_result: T, title: str) -> Non
 
 def run_idempotency_test() -> None:
     '''
-    This is a test to verify the idempotence of the playbook using the
+    This is a test to verify the idempotency of the code using the
     merged state as the example.
     
-    I does two configuration renders, one for the initial state that does not
+    It does two configuration renders, one for the initial state that does not
     match the want state, and the second for the state where the want is already
     applied.
     
-    After the first pass is run the result should be a populated list.
+    The first pass represent a device that needs to have its config updated.
     
-    After the second pass is run the result should be an empty list.
+    The second pass represents a device that has already been updated.
+    
+    After the first pass is run the `test_result` variable should be a populated list
+    of commands to be run on the device to bring it into compliance with the want state.
+    
+    After the second pass is run the `test_result` variable should be an empty list
+    as the device is already in compliance with the want state.
     '''
     
     want_by_id = index_vlan_data(want)
