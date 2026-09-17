@@ -131,14 +131,14 @@ def simple_result_compare(expected_result: T, test_result: T, title: str) -> Non
 
 
 def run_idempotency_test() -> None:
-    # The intended config the indexed form.
+    # The intended config in indexed form.
     want_by_id = index_vlan_data(want)
     
     # Mock initial config retrieval and conversion to structured data
     first_pass_parsed = parse_vlan_config(RUNNING_CONFIG)
-    # Index the structured data around the main resource (vlan_id) 
+    # Index the structured data around the main resource identity (vlan_id) 
     first_pass_have_by_id = index_vlan_data(first_pass_parsed)
-    # first pass
+    # first pass build the merged state
     first_pass_merged_state = build_merged_state(first_pass_have_by_id, want_by_id)
     # The expected initial rendered config commamd list
     expected_first_pass_rendered_cmds = [
@@ -154,7 +154,7 @@ def run_idempotency_test() -> None:
     second_pass_parsed = parse_vlan_config(POST_MERGE_RUNNING_CONFIG)
     # Second pass data indexing
     second_pass_have_by_id = index_vlan_data(second_pass_parsed)
-    # second pass render cisco ios commands - should return and empty list
+    # second pass build the merged state
     second_pass_merged_state = build_merged_state(second_pass_have_by_id, want_by_id)
     # The expected second pass rendered config command list
     expected_second_pass_rendered_cmds = []
