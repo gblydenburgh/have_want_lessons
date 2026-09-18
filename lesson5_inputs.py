@@ -106,8 +106,9 @@ vlan 60
 
 # Fault case 3: the logical device state is converged, but one resource identity
 # violates the normalized internal contract by using strings instead of ints.
-# The comparison layer should not silently repair this.  The exercise is to
-# trace why logically equivalent device state can still produce a false diff.
+# In the merged path, this malformed identity causes the state builder to fail
+# when it attempts to sort mixed integer and string keys. The fixture demonstrates
+# why reconciliation code depends on normalized internal state.
 BAD_TYPE_HAVE_BY_ID: dict[int | str, dict[str, Any]] = {
     "10": {"vlan_id": "10", "name": "STAFF"},
     20: {"vlan_id": 20, "name": "SERVERS"},
