@@ -338,6 +338,8 @@ For each lesson:
 
 Do not ask questions that unnecessarily telegraph the answer. Give enough information to solve the exercise without embedding the solution.
 
+When I am asked to predict an outcome, explicitly evaluate the prediction before moving on. State whether it was exact, mostly correct, partially correct, or off-target, and explain the specific gap between my prediction and the expected answer. Distinguish conceptual correctness from completeness when the question also requested an exact output or format.
+
 Keep examples networking-oriented.
 
 When I misunderstand something, distinguish whether the problem is:
