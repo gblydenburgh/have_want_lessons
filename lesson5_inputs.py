@@ -76,6 +76,36 @@ vlan 60
 """
 
 
+# Fault case 2: the device is logically converged, but the gathered VLAN name
+# contains trailing whitespace that the parser currently preserves. The extra
+# line keeps that whitespace inside the VLAN block after block-level stripping,
+# allowing the exercise to expose a false second-pass change caused by incomplete
+# normalization rather than by real device drift.
+TRAILING_WHITESPACE_RUNNING_CONFIG = """
+hostname SW01
+!
+vlan 10
+ name STAFF 
+ state active
+!
+vlan 20
+ name SERVERS
+!
+vlan 30
+ name VOICE
+!
+vlan 40
+ name GUEST
+!
+vlan 50
+ name IOT
+!
+vlan 60
+ name PRINTERS
+!
+"""
+
+
 # Fault case 2: the second gather returns the original pre-change observation.
 # This simulates stale/cached observation or a gather path that did not see the
 # applied configuration.  The reconciliation engine should therefore believe
