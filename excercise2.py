@@ -5,7 +5,7 @@ import copy
 from pprint import pprint
 import re
 
-from lesson5_inputs import *
+import lesson5_inputs
 
 T = TypeVar("T")
 
@@ -167,7 +167,7 @@ def run_idempotency_test() -> None:
     second_pass_merged_state = build_merged_state(second_pass_have_by_id, want_by_id)
     expected_second_pass_rendered_cmds = []
     
-    partial_apply_parsed = parse_vlan_config(PARTIAL_APPLY_RUNNING_CONFIG)
+    partial_apply_parsed = parse_vlan_config(lesson5_inputs.PARTIAL_APPLY_RUNNING_CONFIG)
     partial_apply_have_by_id = index_vlan_data(partial_apply_parsed)
     partial_apply_merged_state = build_merged_state(partial_apply_have_by_id, want_by_id)
     expected_partial_apply_rendered_cmds = ['vlan 60', ' name PRINTERS']
@@ -281,11 +281,15 @@ def run_state_tests() -> None:
     simple_result_compare(expected_merged_result, merged_result, "STATE MERGED TEST")
     
     try:
-        false_diff_merge_result = build_merged_state(FALSE_DIFF_HAVE_BY_ID, want_by_id)
+        false_diff_merge_result = build_merged_state(lesson5_inputs.FALSE_DIFF_HAVE_BY_ID, want_by_id)
     except TypeError as e:
         print("\n####\n# FALSE DIFF MERGE TEST\n####")
-        print(f"FALSE DIFF MERGE TEST: PASS (TypeError raised as expected)")
-        print(f"TypeError: {str(e)}")
+        if str(e) == "'<' not supported between instances of 'int' and 'str'":
+            print(f"FALSE DIFF MERGE TEST: PASS (TypeError raised as expected)")
+            print(f"TypeError: {str(e)}")
+        else:
+            print(f"FALSE DIFF MERGE TEST: FAIL (Unexpected TypeError raised)")
+            print(f"TypeError: {str(e)}")
     else:
         print("\n####\n# FALSE DIFF MERGE TEST\n####")
         print(f"FALSE DIFF MERGE TEST: FAIL (TypeError not raised)")
