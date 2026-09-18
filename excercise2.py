@@ -5,7 +5,7 @@ import copy
 from pprint import pprint
 import re
 
-from lesson5_inputs import PARTIAL_APPLY_RUNNING_CONFIG
+from lesson5_inputs import *
 
 T = TypeVar("T")
 
@@ -172,6 +172,8 @@ def run_idempotency_test() -> None:
     partial_apply_merged_state = build_merged_state(partial_apply_have_by_id, want_by_id)
     expected_partial_apply_rendered_cmds = ['vlan 60', ' name PRINTERS']
     
+
+    
     for test_name, effective_state, have_by_id, expected_result in [
         (
             "IDEMPOTENCY FIRST PASS TEST",
@@ -278,6 +280,18 @@ def run_state_tests() -> None:
 
     simple_result_compare(expected_merged_result, merged_result, "STATE MERGED TEST")
     
+    try:
+        false_diff_merge_result = build_merged_state(FALSE_DIFF_HAVE_BY_ID, want_by_id)
+    except TypeError as e:
+        print("\n####\n# FALSE DIFF MERGE TEST\n####")
+        print(f"FALSE DIFF MERGE TEST: PASS (TypeError raised as expected)")
+        print(f"TypeError: {str(e)}")
+    else:
+        print("\n####\n# FALSE DIFF MERGE TEST\n####")
+        print(f"FALSE DIFF MERGE TEST: FAIL (TypeError not raised)")
+        print(f"Result: {false_diff_merge_result}")
+
+
     replaced_result = build_replaced_state(have_by_id, want_by_id)
     expected_replaced_result = {
         10: {'name': 'STAFF', 'vlan_id': 10},
