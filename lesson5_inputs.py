@@ -106,7 +106,7 @@ vlan 60
 """
 
 
-# Fault case 2: the second gather returns the original pre-change observation.
+# Fault case 3: the second gather returns the original pre-change observation.
 # This simulates stale/cached observation or a gather path that did not see the
 # applied configuration.  The reconciliation engine should therefore believe
 # the original changes are still required.
@@ -134,7 +134,7 @@ vlan 60
 """
 
 
-# Fault case 3: the logical device state is converged, but one resource identity
+# Fault case 4: the logical device state is converged, but one resource identity
 # violates the normalized internal contract by using strings instead of ints.
 # In the merged path, this malformed identity causes the state builder to fail
 # when it attempts to sort mixed integer and string keys. The fixture demonstrates
