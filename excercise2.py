@@ -281,19 +281,19 @@ def run_state_tests() -> None:
     simple_result_compare(expected_merged_result, merged_result, "STATE MERGED TEST")
     
     try:
-        false_diff_merge_result = build_merged_state(lesson5_inputs.FALSE_DIFF_HAVE_BY_ID, want_by_id)
+        bad_type_merge_result = build_merged_state(lesson5_inputs.BAD_TYPE_HAVE_BY_ID, want_by_id)
     except TypeError as e:
-        print("\n####\n# FALSE DIFF MERGE TEST\n####")
+        print("\n####\n# BAD TYPE MERGE TEST\n####")
         if str(e) == "'<' not supported between instances of 'int' and 'str'":
-            print(f"FALSE DIFF MERGE TEST: PASS (TypeError raised as expected)")
+            print("BAD TYPE MERGE TEST: PASS (TypeError raised as expected)")
             print(f"TypeError: {str(e)}")
         else:
-            print(f"FALSE DIFF MERGE TEST: FAIL (Unexpected TypeError raised)")
+            print("BAD TYPE MERGE TEST: FAIL (Unexpected TypeError raised)")
             print(f"TypeError: {str(e)}")
     else:
-        print("\n####\n# FALSE DIFF MERGE TEST\n####")
-        print(f"FALSE DIFF MERGE TEST: FAIL (TypeError not raised)")
-        print(f"Result: {false_diff_merge_result}")
+        print("\n####\n# BAD TYPE MERGE TEST\n####")
+        print("BAD TYPE MERGE TEST: FAIL (TypeError not raised)")
+        print(f"Result: {bad_type_merge_result}")
 
 
     replaced_result = build_replaced_state(have_by_id, want_by_id)

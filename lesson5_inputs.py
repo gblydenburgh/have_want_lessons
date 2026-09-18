@@ -108,7 +108,7 @@ vlan 60
 # violates the normalized internal contract by using strings instead of ints.
 # The comparison layer should not silently repair this.  The exercise is to
 # trace why logically equivalent device state can still produce a false diff.
-FALSE_DIFF_HAVE_BY_ID: dict[int | str, dict[str, Any]] = {
+BAD_TYPE_HAVE_BY_ID: dict[int | str, dict[str, Any]] = {
     "10": {"vlan_id": "10", "name": "STAFF"},
     20: {"vlan_id": 20, "name": "SERVERS"},
     30: {"vlan_id": 30, "name": "VOICE"},
