@@ -172,7 +172,6 @@ def run_idempotency_test() -> None:
     partial_apply_merged_state = build_merged_state(partial_apply_have_by_id, want_by_id)
     expected_partial_apply_rendered_cmds = ['vlan 60', ' name PRINTERS']
     
-    
     for test_name, effective_state, have_by_id, expected_result in [
         (
             "IDEMPOTENCY FIRST PASS TEST",
@@ -293,7 +292,6 @@ def run_state_tests() -> None:
         print("\n####\n# BAD TYPE MERGE TEST\n####")
         print("BAD TYPE MERGE TEST: FAIL (TypeError not raised)")
         print(f"Result: {bad_type_merge_result}")
-
 
     replaced_result = build_replaced_state(have_by_id, want_by_id)
     expected_replaced_result = {
