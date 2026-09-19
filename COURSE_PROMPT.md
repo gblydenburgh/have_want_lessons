@@ -598,7 +598,7 @@ commands == []
 
 Do not merely state that the process is idempotent. Make the code prove it.
 
-Deliberately introduce at least one bug that causes a false second-pass change, diagnose it through the pipeline, and fix it.
+Reason explicitly about the conditions that can cause a non-empty second pass after an attempted apply: incomplete/failed application, stale or broken gathering, parser/transport corruption, or device canonicalization that differs from the desired representation. Do not manufacture artificial false-idempotency cases once the working pipeline has already proven convergence and the remaining scenarios would only duplicate those boundaries.
 
 The direct empty-renderer behavior can be checked here as part of the no-change second pass.
 
