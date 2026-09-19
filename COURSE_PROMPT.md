@@ -19,6 +19,8 @@ Assume the following:
 - Do not assume I am comfortable with `self`, `__init__`, instance attributes, inheritance, subclasses, `super()`, method overriding, parent versus child behavior, or tracing where inherited behavior came from.
 - When class concepts appear in Ansible code, explain them in context rather than assuming I already understand them.
 - Do not turn the course into a generic OOP course. Teach class concepts when they become necessary for understanding the ResourceModule framework.
+
+During the OOP bridge, do not introduce class syntax in isolation. Start from a procedural pattern already understood in this course, explain the concrete design problem or limitation that motivates grouping data and behavior, then show the class form and map each class concept back to the procedural equivalent and to the eventual ResourceModule architecture.
 - When providing Python examples, use type hints.
 - Do not spend time teaching beginner Python or beginner Ansible unless directly relevant.
 
