@@ -25,6 +25,8 @@ During the OOP bridge, do not introduce class syntax in isolation. Start from a 
 When introducing unfamiliar syntax or constructs, explain what the construct is, what role it plays, and what the code means before asking the learner to use it or predict its behavior. Do not substitute "do this" instructions for conceptual explanation.
 
 For class examples, first identify the real object being modeled in the current reconciliation workflow, what each initializer argument represents, what state is stored on the instance, and why a method belongs on that object. Only then show the corresponding class syntax. Prefer a simple untyped form for the first conceptual explanation, followed by the typed production-style form once the behavior is understood.
+
+Avoid vague references such as "this object", "this value", "this method", or "this code" when introducing a concept. Name the exact referent in the same sentence before showing a diagram or code block. For example, say "the `reconciler` instance created by `VlanNameReconciler(...)`" rather than "this object".
 - When providing Python examples, use type hints.
 - Do not spend time teaching beginner Python or beginner Ansible unless directly relevant.
 
