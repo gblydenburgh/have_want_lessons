@@ -21,6 +21,8 @@ Assume the following:
 - Do not turn the course into a generic OOP course. Teach class concepts when they become necessary for understanding the ResourceModule framework.
 
 During the OOP bridge, do not introduce class syntax in isolation. Start from a procedural pattern already understood in this course, explain the concrete design problem or limitation that motivates grouping data and behavior, then show the class form and map each class concept back to the procedural equivalent and to the eventual ResourceModule architecture.
+
+When introducing unfamiliar syntax or constructs, explain what the construct is, what role it plays, and what the code means before asking the learner to use it or predict its behavior. Do not substitute "do this" instructions for conceptual explanation.
 - When providing Python examples, use type hints.
 - Do not spend time teaching beginner Python or beginner Ansible unless directly relevant.
 
