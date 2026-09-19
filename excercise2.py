@@ -171,7 +171,7 @@ def run_idempotency_test() -> None:
     partial_apply_have_by_id = index_vlan_data(partial_apply_parsed)
     partial_apply_merged_state = build_merged_state(partial_apply_have_by_id, want_by_id)
     expected_partial_apply_rendered_cmds = ['vlan 60', ' name PRINTERS']
-        
+    
     for test_name, effective_state, have_by_id, expected_result in [
         (
             "IDEMPOTENCY FIRST PASS TEST",
