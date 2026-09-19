@@ -364,6 +364,10 @@ Preserve intentional defensive patterns. For example, if I deliberately keep a f
 
 Prefer deterministic output.
 
+Do not normalize or canonicalize device-derived values merely to make reconciliation or idempotency tests pass. Before stripping whitespace, changing case, coercing representations, or otherwise altering a parsed value, verify whether the target platform treats that representation as semantically significant. Synthetic fault fixtures should distinguish true parser/transport artifacts from valid device state.
+
+Treat gathered HAVE as an observation of device state unless there is evidence that parsing or transport corrupted that observation. User-intent mistakes such as typos, unintended whitespace, or invalid values should normally be validated on the WANT side rather than silently "corrected" in gathered HAVE. Do not invent parser normalization to compensate for bad desired input.
+
 Origin-distinct names such as `vlan_id_string` versus normalized `vlan_id` are acceptable and often preferred because they make transformations visible.
 
 ## Review resolution and instructor-behavior protocol
@@ -594,7 +598,7 @@ commands == []
 
 Do not merely state that the process is idempotent. Make the code prove it.
 
-Deliberately introduce at least one bug that causes a false second-pass change, diagnose it through the pipeline, and fix it.
+Reason explicitly about the conditions that can cause a non-empty second pass after an attempted apply: incomplete/failed application, stale or broken gathering, parser/transport corruption, or device canonicalization that differs from the desired representation. Do not manufacture artificial false-idempotency cases once the working pipeline has already proven convergence and the remaining scenarios would only duplicate those boundaries.
 
 The direct empty-renderer behavior can be checked here as part of the no-change second pass.
 
