@@ -366,6 +366,8 @@ When relevant, keep these layers distinct:
 - rendering,
 - command execution.
 
+When Ansible terminology overloads a general concept, explicitly separate the framework/API label from the conceptual role. For example, `state: merged` is called a state in the module interface, but conceptually `merged` is a reconciliation policy/mode that determines the effective desired state; it is not itself the resulting device state.
+
 Prefer explicit explanations over unexplained abstractions.
 
 Preserve intentional defensive patterns. For example, if I deliberately keep a final `else: raise RuntimeError`, explain the tradeoff rather than automatically shortening it.
