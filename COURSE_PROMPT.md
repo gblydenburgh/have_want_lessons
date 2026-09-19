@@ -366,6 +366,8 @@ Prefer deterministic output.
 
 Do not normalize or canonicalize device-derived values merely to make reconciliation or idempotency tests pass. Before stripping whitespace, changing case, coercing representations, or otherwise altering a parsed value, verify whether the target platform treats that representation as semantically significant. Synthetic fault fixtures should distinguish true parser/transport artifacts from valid device state.
 
+Treat gathered HAVE as an observation of device state unless there is evidence that parsing or transport corrupted that observation. User-intent mistakes such as typos, unintended whitespace, or invalid values should normally be validated on the WANT side rather than silently "corrected" in gathered HAVE. Do not invent parser normalization to compensate for bad desired input.
+
 Origin-distinct names such as `vlan_id_string` versus normalized `vlan_id` are acceptable and often preferred because they make transformations visible.
 
 ## Review resolution and instructor-behavior protocol
