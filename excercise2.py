@@ -147,7 +147,7 @@ def run_idempotency_test() -> None:
     - The partial apply pass represents a device that had an incomplete/interrupted
       config applied.
     - The trailing whitespace pass represents a device with a seemingly converged config,
-      but one of the VLAN names has trailing whitespace the on one of the VLANs.
+      but one of the VLAN names has trailing whitespace.
     """
     
     want_by_id = index_vlan_data(want)
