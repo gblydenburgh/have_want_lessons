@@ -468,3 +468,73 @@ commands == []
 Deliberately introduce at least one bug that causes a false second-pass change, diagnose it, and fix it.
 
 Do not start the class bridge until Lesson 5 is complete. After Lesson 5, proceed to the focused Python classes bridge before direct `ResourceModule` study.
+
+
+# Checkpoint update: 2026-09-19 — Lesson 5 complete
+
+## Lesson 5 — Idempotency — COMPLETE
+
+The plain-Python pipeline now proves idempotency directly.
+
+Completed cases:
+
+- the initial merge pass produces the expected VLAN-name commands,
+- the converged second pass produces an empty command list,
+- a partial-apply observation correctly produces only the remaining VLAN 60 command,
+- stale second-gather behavior was analyzed as an observation/gather boundary issue rather than a new reconciliation behavior,
+- malformed mixed-type resource identity was used to show that violating the normalized internal contract can fail earlier in the state-builder path,
+- the learner distinguished idempotency from correctness of human intent.
+
+The key acceptance condition was demonstrated:
+
+```python
+commands == []
+```
+
+The learner also correctly challenged an attempted trailing-whitespace normalization exercise. The course initially treated a trailing space in gathered HAVE as non-semantic, but that assumption was not justified by device semantics. The exercise was withdrawn.
+
+A general rule was retained:
+
+```text
+HAVE = observed device state
+WANT = intended user/module input
+```
+
+Do not silently normalize or "repair" valid device-derived HAVE merely to make idempotency pass. User-intent mistakes should normally be handled on the WANT/input-validation side unless there is evidence that transport or parsing corrupted the observation.
+
+The course also rejected further artificial false-idempotency fixtures once the remaining possibilities reduced to boundary failures such as:
+
+- incomplete/failed apply,
+- stale/broken gather,
+- parser/transport corruption,
+- device canonicalization that differs from desired representation.
+
+The earlier requirement to deliberately manufacture an additional false second-pass command was therefore retired as unnecessary for this simplified resource.
+
+## Working-code checkpoint
+
+Latest reviewed `excercise2.py` blob:
+
+```text
+5bdca55dd79f880406cbac9d4af53bcc05f9f281
+```
+
+The working file contains the accepted first-pass, converged second-pass, partial-apply, bad-type normalization-contract, parser, state, change, and render tests.
+
+A whitespace-only blank-line detail remained visible in one fetched range, but it was explicitly withdrawn as a blocking criticism because it was non-substantive and no longer useful to the learning objective.
+
+## Next phase
+
+Proceed to the focused Python classes/OOP bridge.
+
+The purpose of the bridge is not to rewrite the procedural engine for style. It is to make the learner comfortable reading the class relationships used by Ansible's ResourceModule framework, especially:
+
+- `class Child(Parent)`,
+- `__init__`,
+- `self`,
+- instance attributes,
+- `super()`,
+- inherited versus overridden methods,
+- tracing where a method or attribute was defined.
+
+Only after that bridge should the course move into direct `ResourceModule` internals.
