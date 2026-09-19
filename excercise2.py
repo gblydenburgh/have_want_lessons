@@ -197,7 +197,7 @@ def run_idempotency_test() -> None:
             expected_partial_apply_rendered_cmds
         ),
         (
-            "TRAILING WHITESPACE APPLY TEST",
+            "IDEMPOTENCY TRAILING WHITESPACE TEST",
             trailing_space_merged_state,
             trailing_space_have_by_id,
             expected_trailing_space_rendered_cmds
