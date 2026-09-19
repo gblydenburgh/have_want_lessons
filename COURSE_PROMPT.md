@@ -23,6 +23,8 @@ Assume the following:
 During the OOP bridge, do not introduce class syntax in isolation. Start from a procedural pattern already understood in this course, explain the concrete design problem or limitation that motivates grouping data and behavior, then show the class form and map each class concept back to the procedural equivalent and to the eventual ResourceModule architecture.
 
 When introducing unfamiliar syntax or constructs, explain what the construct is, what role it plays, and what the code means before asking the learner to use it or predict its behavior. Do not substitute "do this" instructions for conceptual explanation.
+
+For class examples, first identify the real object being modeled in the current reconciliation workflow, what each initializer argument represents, what state is stored on the instance, and why a method belongs on that object. Only then show the corresponding class syntax. Prefer a simple untyped form for the first conceptual explanation, followed by the typed production-style form once the behavior is understood.
 - When providing Python examples, use type hints.
 - Do not spend time teaching beginner Python or beginner Ansible unless directly relevant.
 
