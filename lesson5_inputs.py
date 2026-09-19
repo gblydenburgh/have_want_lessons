@@ -76,34 +76,32 @@ vlan 60
 """
 
 
-# Fault case 2: the device is logically converged, but the gathered VLAN name
-# contains trailing whitespace that the parser currently preserves. The extra
-# line keeps that whitespace inside the VLAN block after block-level stripping,
-# allowing the exercise to expose a false second-pass change caused by incomplete
-# normalization rather than by real device drift.
-TRAILING_WHITESPACE_RUNNING_CONFIG = """
-hostname SW01
-!
-vlan 10
- name STAFF 
- state active
-!
-vlan 20
- name SERVERS
-!
-vlan 30
- name VOICE
-!
-vlan 40
- name GUEST
-!
-vlan 50
- name IOT
-!
-vlan 60
- name PRINTERS
-!
-"""
+# Fault case 2: the device is logically converged, but the gathered text uses
+# CRLF line endings. The current VLAN-name regex can capture the carriage return
+# as part of the name value, producing a false second-pass change. The carriage
+# return belongs to the line terminator, not to the configured VLAN name.
+CRLF_RUNNING_CONFIG = (
+    "hostname SW01\r\n"
+    "!\r\n"
+    "vlan 10\r\n"
+    " name STAFF\r\n"
+    "!\r\n"
+    "vlan 20\r\n"
+    " name SERVERS\r\n"
+    "!\r\n"
+    "vlan 30\r\n"
+    " name VOICE\r\n"
+    "!\r\n"
+    "vlan 40\r\n"
+    " name GUEST\r\n"
+    "!\r\n"
+    "vlan 50\r\n"
+    " name IOT\r\n"
+    "!\r\n"
+    "vlan 60\r\n"
+    " name PRINTERS\r\n"
+    "!\r\n"
+)
 
 
 # Fault case 3: the second gather returns the original pre-change observation.
