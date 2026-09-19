@@ -364,6 +364,8 @@ Preserve intentional defensive patterns. For example, if I deliberately keep a f
 
 Prefer deterministic output.
 
+Do not normalize or canonicalize device-derived values merely to make reconciliation or idempotency tests pass. Before stripping whitespace, changing case, coercing representations, or otherwise altering a parsed value, verify whether the target platform treats that representation as semantically significant. Synthetic fault fixtures should distinguish true parser/transport artifacts from valid device state.
+
 Origin-distinct names such as `vlan_id_string` versus normalized `vlan_id` are acceptable and often preferred because they make transformations visible.
 
 ## Review resolution and instructor-behavior protocol
