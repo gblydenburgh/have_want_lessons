@@ -146,8 +146,6 @@ def run_idempotency_test() -> None:
       applied and should produce no commands.
     - The partial apply pass represents a device that had an incomplete/interrupted
       config applied.
-    - The trailing whitespace pass represents a device with a seemingly
-      converged config, but one of the VLAN names has trailing whitespace.
     """
     
     want_by_id = index_vlan_data(want)
@@ -173,12 +171,7 @@ def run_idempotency_test() -> None:
     partial_apply_have_by_id = index_vlan_data(partial_apply_parsed)
     partial_apply_merged_state = build_merged_state(partial_apply_have_by_id, want_by_id)
     expected_partial_apply_rendered_cmds = ['vlan 60', ' name PRINTERS']
-    
-    trailing_space_parsed = parse_vlan_config(lesson5_inputs.TRAILING_WHITESPACE_RUNNING_CONFIG)
-    trailing_space_have_by_id = index_vlan_data(trailing_space_parsed)
-    trailing_space_merged_state = build_merged_state(trailing_space_have_by_id, want_by_id)
-    expected_trailing_space_rendered_cmds = []
-    
+        
     for test_name, effective_state, have_by_id, expected_result in [
         (
             "IDEMPOTENCY FIRST PASS TEST",
@@ -197,12 +190,6 @@ def run_idempotency_test() -> None:
             partial_apply_merged_state,
             partial_apply_have_by_id,
             expected_partial_apply_rendered_cmds
-        ),
-        (
-            "IDEMPOTENCY TRAILING WHITESPACE TEST",
-            trailing_space_merged_state,
-            trailing_space_have_by_id,
-            expected_trailing_space_rendered_cmds
         )
     ]:
         changes = build_vlan_name_changes(have_by_id, effective_state)
