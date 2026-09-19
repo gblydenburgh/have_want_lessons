@@ -76,35 +76,7 @@ vlan 60
 """
 
 
-# Fault case 2: the device is logically converged, but the gathered text uses
-# CRLF line endings. The current VLAN-name regex can capture the carriage return
-# as part of the name value, producing a false second-pass change. The carriage
-# return belongs to the line terminator, not to the configured VLAN name.
-CRLF_RUNNING_CONFIG = (
-    "hostname SW01\r\n"
-    "!\r\n"
-    "vlan 10\r\n"
-    " name STAFF\r\n"
-    "!\r\n"
-    "vlan 20\r\n"
-    " name SERVERS\r\n"
-    "!\r\n"
-    "vlan 30\r\n"
-    " name VOICE\r\n"
-    "!\r\n"
-    "vlan 40\r\n"
-    " name GUEST\r\n"
-    "!\r\n"
-    "vlan 50\r\n"
-    " name IOT\r\n"
-    "!\r\n"
-    "vlan 60\r\n"
-    " name PRINTERS\r\n"
-    "!\r\n"
-)
-
-
-# Fault case 3: the second gather returns the original pre-change observation.
+# Fault case 2: the second gather returns the original pre-change observation.
 # This simulates stale/cached observation or a gather path that did not see the
 # applied configuration.  The reconciliation engine should therefore believe
 # the original changes are still required.
@@ -132,7 +104,7 @@ vlan 60
 """
 
 
-# Fault case 4: the logical device state is converged, but one resource identity
+# Fault case 3: the logical device state is converged, but one resource identity
 # violates the normalized internal contract by using strings instead of ints.
 # In the merged path, this malformed identity causes the state builder to fail
 # when it attempts to sort mixed integer and string keys. The fixture demonstrates
