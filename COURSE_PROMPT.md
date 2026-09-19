@@ -571,38 +571,44 @@ The indexer should not silently repair parser normalization mistakes. If desired
 
 The optional `GigabitEthernet1/0/1` versus `Gi1/0/1` example was not forced into a VLAN-name resource that has no interface attribute.
 
-### Lesson 5 — Idempotency — NEXT
+### Lesson 5 — Idempotency — COMPLETE
 
-Start Lesson 5 in the **new conversation after the 2026-09-15 hard cut**.
+Idempotency was proven through the plain-Python reconciliation pipeline.
 
-Teach idempotency as a first-class property of the entire pipeline.
+Completed cases:
 
-Required cycle:
+- first pass from the original HAVE produces the expected VLAN-name commands,
+- second pass from the converged post-merge HAVE produces `[]`,
+- partial application correctly produces only the remaining VLAN 60 command,
+- stale second-gather behavior was reasoned through and correctly identified as an observation/gather boundary issue rather than a new reconciliation behavior,
+- malformed mixed-type identity state was used to demonstrate that violating the normalized internal contract can fail earlier in the state builder,
+- the distinction between idempotency and correct human intent was made explicit.
 
-```text
-gather
-→ parse/normalize
-→ compare
-→ render
-→ apply or simulate apply
-→ gather again
-→ parse/normalize again
-→ compare again
-```
-
-The acceptance condition on the second pass is:
+The acceptance condition was demonstrated directly:
 
 ```python
 commands == []
 ```
 
-Do not merely state that the process is idempotent. Make the code prove it.
+Important conclusions:
 
-Reason explicitly about the conditions that can cause a non-empty second pass after an attempted apply: incomplete/failed application, stale or broken gathering, parser/transport corruption, or device canonicalization that differs from the desired representation. Do not manufacture artificial false-idempotency cases once the working pipeline has already proven convergence and the remaining scenarios would only duplicate those boundaries.
+```text
+successful apply
+    + faithful gather
+    + valid normalized state
+    -> converged second pass
+    -> no commands
+```
 
-The direct empty-renderer behavior can be checked here as part of the no-change second pass.
+A non-empty second pass after an attempted apply requires a meaningful boundary condition such as incomplete/failed application, stale or broken gathering, parser/transport corruption, or device canonicalization that differs from desired representation.
 
-Do not start the class bridge until Lesson 5 is complete.
+Do not normalize valid device-derived HAVE merely to make idempotency tests pass. User-intent mistakes belong on the WANT/input-validation side unless there is evidence that gathering or parsing corrupted the observation.
+
+Artificial false-idempotency scenarios were explicitly rejected once they stopped teaching new pipeline behavior.
+
+The direct empty-renderer path is exercised by the converged second pass.
+
+The next phase is the focused Python classes/OOP bridge before direct ResourceModule study.
 
 ## Python classes bridge — AFTER LESSON 5
 
@@ -784,7 +790,7 @@ The prior conversation became large. Lessons 1–4 and their retrospective clean
 
 ## Current checkpoint
 
-As of 2026-09-15:
+As of 2026-09-19:
 
 ```text
 Lesson 1                         COMPLETE
@@ -796,18 +802,18 @@ Normalization false-diff demo    COMPLETE
 Retrospective Lesson 1 tests     COMPLETE
 Retrospective Lesson 2 tests     COMPLETE
 Retrospective Lesson 3 tests     COMPLETE
-Lesson 5                         NEXT — NEW CHAT
-OOP bridge                       AFTER LESSON 5
+Lesson 5                         COMPLETE
+OOP bridge                       NEXT
 Lessons 6–12                     NOT YET COMPLETE
 ```
 
-Latest reviewed working-code blob before the cut:
+Latest reviewed working-code blob:
 
 ```text
-bd043f2626930bfd763a404f6cf9ee96df1bf1fa
+5bdca55dd79f880406cbac9d4af53bcc05f9f281
 ```
 
-The next instructor should fetch the current `excercise2.py` from GitHub before beginning Lesson 5 rather than assuming the blob has not changed.
+The next instructor should begin the focused Python classes/OOP bridge and continue to use the current `excercise2.py` as the procedural reference implementation.
 
 ## Conversation continuity
 
