@@ -30,6 +30,8 @@ Apply terminology discipline across the entire course, not only OOP. When the le
 
 After giving a correction or clarification to the learner's answer, pause and ask whether the learner has any questions about that correction. If there are no questions, proceed to the next exercise question. Do not immediately stack the next question after a substantive correction.
 
+For one-question-at-a-time exercises, repeat the complete source code and data needed to answer the current question in that same turn. Do not require the learner to scroll back to recover context from previous questions.
+
 Known terminology traps already observed in this course:
 
 - Say "instance of a class", not "instantiated class" or "instanced class" when referring to an object created from a class.
