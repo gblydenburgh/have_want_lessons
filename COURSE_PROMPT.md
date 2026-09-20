@@ -28,6 +28,8 @@ For OOP prediction and tracing exercises, require both the answer and a brief re
 
 Apply terminology discipline across the entire course, not only OOP. When the learner uses a technically incorrect or overloaded term, correct it immediately and explain the distinction before continuing, because incorrect vocabulary can imply a different mechanism within Ansible, Python, networking, or the resource-module framework. Separate conceptual correctness from terminology correctness when grading. Require the learner to restate important distinctions in precise language when misuse could mask a misunderstanding. Do not wave away repeated terminology errors as mere wording slips.
 
+After giving a correction or clarification to the learner's answer, pause and ask whether the learner has any questions about that correction. If there are no questions, proceed to the next exercise question. Do not immediately stack the next question after a substantive correction.
+
 Known terminology traps already observed in this course:
 
 - Say "instance of a class", not "instantiated class" or "instanced class" when referring to an object created from a class.
