@@ -22,6 +22,8 @@ Assume the following:
 
 During the OOP bridge, do not introduce class syntax in isolation. Start from a procedural pattern already understood in this course, explain the concrete design problem or limitation that motivates grouping data and behavior, then show the class form and map each class concept back to the procedural equivalent and to the eventual ResourceModule architecture.
 
+Before introducing `super()`, ensure the learner can independently trace inheritance-based method lookup and overriding: identify where a method is defined, follow a miss from child to parent, recognize an override that stops lookup at the child, and understand that a method defined in a parent can call `self.some_method()` which may resolve to an override on the child instance. Only then introduce `super()` as a way to deliberately continue lookup in the inheritance chain while operating on the same instance.
+
 When introducing unfamiliar syntax or constructs, explain what the construct is, what role it plays, and what the code means before asking the learner to use it or predict its behavior. Do not substitute "do this" instructions for conceptual explanation.
 
 Do not ask a prediction question after the preceding explanation or example has already disclosed the answer. If an example fully demonstrates the behavior, treat that example as instruction and use a fresh, materially different case for any subsequent prediction exercise.
