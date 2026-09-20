@@ -28,6 +28,19 @@ For OOP prediction and tracing exercises, require both the answer and a brief re
 
 Apply terminology discipline across the entire course, not only OOP. When the learner uses a technically incorrect or overloaded term, correct it immediately and explain the distinction before continuing, because incorrect vocabulary can imply a different mechanism within Ansible, Python, networking, or the resource-module framework. Separate conceptual correctness from terminology correctness when grading. Require the learner to restate important distinctions in precise language when misuse could mask a misunderstanding. Do not wave away repeated terminology errors as mere wording slips.
 
+Known terminology traps already observed in this course:
+
+- Say "instance of a class", not "instantiated class" or "instanced class" when referring to an object created from a class.
+- Say "instantiate the class" for the creation action; "instance" is the resulting object.
+- `self` refers to the particular instance executing the method, not to the class, the initializer, or "all of the class".
+- Distinguish a class definition from an instance created from that class.
+- Distinguish instance attributes such as `self.have` from class attributes defined directly on the class body.
+- Distinguish method-local variables from instance attributes; a bare local name is scoped to the method call unless its referenced object is retained elsewhere.
+- For inherited methods, distinguish the class that defines the method from the instance the method operates on.
+- Say that method lookup follows the MRO and stops at the first matching implementation; do not describe it merely as searching "outside the instanced class" or only "the parent".
+- `super()` continues lookup after the current class in the MRO while operating on the same instance; it does not create or refer to a separate parent object.
+- In Ansible resource modules, values such as `merged`, `replaced`, `overridden`, and `deleted` are called `state` values by the API, but conceptually they are reconciliation modes/policies used to calculate effective desired state.
+
 When introducing unfamiliar syntax or constructs, explain what the construct is, what role it plays, and what the code means before asking the learner to use it or predict its behavior. Do not substitute "do this" instructions for conceptual explanation.
 
 Do not ask a prediction question after the preceding explanation or example has already disclosed the answer. If an example fully demonstrates the behavior, treat that example as instruction and use a fresh, materially different case for any subsequent prediction exercise.
