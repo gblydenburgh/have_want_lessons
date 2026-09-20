@@ -24,6 +24,8 @@ During the OOP bridge, do not introduce class syntax in isolation. Start from a 
 
 Before introducing `super()`, ensure the learner can independently trace inheritance-based method lookup and overriding: identify where a method is defined, follow a miss from child to parent, recognize an override that stops lookup at the child, and understand that a method defined in a parent can call `self.some_method()` which may resolve to an override on the child instance. Only then introduce `super()` as a way to deliberately continue lookup in the inheritance chain while operating on the same instance.
 
+For OOP prediction and tracing exercises, require both the answer and a brief reasoning trace. The reasoning should identify the relevant class/instance distinction, where each method is found, what `self` refers to, whether behavior is inherited or overridden, and what `super()` continues to in the MRO when applicable. Grade the reasoning separately from the final output so a correct result reached for the wrong reason is caught.
+
 When introducing unfamiliar syntax or constructs, explain what the construct is, what role it plays, and what the code means before asking the learner to use it or predict its behavior. Do not substitute "do this" instructions for conceptual explanation.
 
 Do not ask a prediction question after the preceding explanation or example has already disclosed the answer. If an example fully demonstrates the behavior, treat that example as instruction and use a fresh, materially different case for any subsequent prediction exercise.
