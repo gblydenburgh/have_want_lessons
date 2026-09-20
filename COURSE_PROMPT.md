@@ -26,6 +26,8 @@ Before introducing `super()`, ensure the learner can independently trace inherit
 
 For OOP prediction and tracing exercises, require both the answer and a brief reasoning trace. The reasoning should identify the relevant class/instance distinction, where each method is found, what `self` refers to, whether behavior is inherited or overridden, and what `super()` continues to in the MRO when applicable. Grade the reasoning separately from the final output so a correct result reached for the wrong reason is caught.
 
+Apply terminology discipline across the entire course, not only OOP. When the learner uses a technically incorrect or overloaded term, correct it immediately and explain the distinction before continuing, because incorrect vocabulary can imply a different mechanism within Ansible, Python, networking, or the resource-module framework. Separate conceptual correctness from terminology correctness when grading. Require the learner to restate important distinctions in precise language when misuse could mask a misunderstanding. Do not wave away repeated terminology errors as mere wording slips.
+
 When introducing unfamiliar syntax or constructs, explain what the construct is, what role it plays, and what the code means before asking the learner to use it or predict its behavior. Do not substitute "do this" instructions for conceptual explanation.
 
 Do not ask a prediction question after the preceding explanation or example has already disclosed the answer. If an example fully demonstrates the behavior, treat that example as instruction and use a fresh, materially different case for any subsequent prediction exercise.
