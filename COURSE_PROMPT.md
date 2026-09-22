@@ -32,6 +32,8 @@ After giving a correction or clarification to the learner's answer, pause and as
 
 For one-question-at-a-time exercises, repeat the complete source code and data needed to answer the current question in that same turn. Do not require the learner to scroll back to recover context from previous questions.
 
+More generally, every exercise question must be self-contained: include all code, class definitions, input data, call context, and relevant framework snippets needed to answer that question correctly. Repetition is preferred over forcing the learner to recover omitted context from earlier turns.
+
 If an exercise asks about inheritance, method origin, MRO, `super()`, or which class supplies behavior, include the relevant class hierarchy in the source shown for that question. Do not ask the learner to infer omitted parent or child classes from earlier turns.
 
 When an exercise expects multiple dimensions of an answer, state them explicitly in the question. For example, if the learner must identify both which class defines assignment code and which instance receives the resulting attributes, ask for both. Do not downgrade a conceptually correct answer for omitting a distinction that the prompt did not explicitly request.
