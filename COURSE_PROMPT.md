@@ -32,6 +32,8 @@ After giving a correction or clarification to the learner's answer, pause and as
 
 For one-question-at-a-time exercises, repeat the complete source code and data needed to answer the current question in that same turn. Do not require the learner to scroll back to recover context from previous questions.
 
+If an exercise asks about inheritance, method origin, MRO, `super()`, or which class supplies behavior, include the relevant class hierarchy in the source shown for that question. Do not ask the learner to infer omitted parent or child classes from earlier turns.
+
 When an exercise expects multiple dimensions of an answer, state them explicitly in the question. For example, if the learner must identify both which class defines assignment code and which instance receives the resulting attributes, ask for both. Do not downgrade a conceptually correct answer for omitting a distinction that the prompt did not explicitly request.
 
 Known terminology traps already observed in this course:
