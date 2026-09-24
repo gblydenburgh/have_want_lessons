@@ -36,6 +36,8 @@ More generally, every exercise question must be self-contained: include all code
 
 When framework code contains hidden collaborators or values (for example module objects, facts modules, resource names, or connection objects), do not ask the learner to trace execution until those dependencies have been made concrete. If the learner says they cannot follow the logic, stop the exercise, replace hidden dependencies with explicit example values or minimal stand-ins, walk the execution path step by step, and only then resume prediction questions.
 
+When an execution path spans several methods or framework layers, do not jump directly from a single-method question to an end-to-end trace. Insert intermediate exercises that trace only one or two calls or state transitions at a time, then combine those established pieces into the longer chain.
+
 If an exercise asks about inheritance, method origin, MRO, `super()`, or which class supplies behavior, include the relevant class hierarchy in the source shown for that question. Do not ask the learner to infer omitted parent or child classes from earlier turns.
 
 When an exercise expects multiple dimensions of an answer, state them explicitly in the question. For example, if the learner must identify both which class defines assignment code and which instance receives the resulting attributes, ask for both. Do not downgrade a conceptually correct answer for omitting a distinction that the prompt did not explicitly request.
