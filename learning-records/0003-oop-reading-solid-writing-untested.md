@@ -6,4 +6,4 @@ I have **not written** any of it. Assume I can follow class code but can't yet d
 
 **Evidence:** self-reported at the start of the route-compare conversation (2026-09-26). The drills themselves weren't recorded in this repo, so spot-check one or two tracing questions before building on this.
 
-**Implications:** the curriculum's OOP bridge (Lesson 8) is half done. Skip the reading drills and go straight to writing: first framework-shaped code (subclass a base, override one method, call `super()`, as `ResourceModule` code does), then design judgment (route-compare).
+**Implications:** don't re-drill reading. The gap is writing: first code shaped like a framework (subclass a base, override a method, call `super()`, as `ResourceModule` code does), then design judgment about what deserves to be a class.
