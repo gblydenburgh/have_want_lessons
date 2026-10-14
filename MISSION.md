@@ -11,7 +11,7 @@ These aren't two separate goals. The resource-module framework is built from cla
 
 ## Success looks like
 - **I understand how resource modules work inside:** I can trace a module from input to device and back, and say which class owns each step.
-- **Object-oriented design, the judgment part.** I can already read and trace class code. The goal is to *write* it and to decide what deserves to be a class and what should stay a function.
+- **Object-oriented design, the judgment part.** I can trace short, simple classes from teaching exercises, but not real-world code. The goal is to read real class code, *write* my own, and to decide what deserves to be a class and what should stay a function.
 - I can fix a real bug in a resource module, add a feature to one, and eventually build my own, with tests.
 
 ## Constraints
