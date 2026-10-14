@@ -18,7 +18,11 @@ Who the teacher is, how I learn, and how I want to be taught. Carried over from 
 - **Pain first.** Let me feel why the current structure hurts before showing the fix.
 - **Predict, then check.** Explain the minimum concept → networking setup → I predict → I attempt the smallest piece → encode the expectation as a test right away → run it → explain the gap.
 - I learn from **networking examples** I already understand, never generic toys.
-- Known habit: once the logic works I push code with small naming/typing/formatting slips (e.g. the `run_render_rest()` typo). Prompt me to do a final polish pass on naming, interfaces, typing and tests.
+- **Concrete before abstract.** Most of my teaching-rule changes came during abstract material (classes, framework layers). Slow down there and keep the real object, the full code and the hierarchy in view. Don't slow down on networking or reconciliation logic.
+- **I think by articulating.** Have me state the expected result in words before I code. That's often where I find a flawed premise.
+- **I verify against real device output.** Ground claims in it, and expect me to check.
+- Known habits: once the logic works I push code with small naming/typing/formatting slips (e.g. the `run_render_rest()` typo), I leave commented-out debug `print`s behind, and I use generic names (`temp_dict`, `comp_data`). Prompt me to do a final polish pass. Details and strengths to build on are in `learning-records/0007`.
+- Sessions are often late in the evening. Keep each lesson finishable in one sitting.
 
 ## Explaining
 
