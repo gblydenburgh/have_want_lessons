@@ -15,7 +15,7 @@
 - [Python docs: Classes tutorial](https://docs.python.org/3/tutorial/classes.html)
   The primary source on Python's class model. Use for: scopes, `self`, inheritance, method resolution.
 - [Python docs: dataclasses](https://docs.python.org/3/library/dataclasses.html)
-  Use for: `frozen=True`, generated `__eq__`/`__hash__`, `field(compare=False)` (route-compare `Route`/`NextHop`).
+  Use for: `frozen=True`, generated `__eq__`/`__hash__`, `field(compare=False)`.
 - [pytest documentation](https://docs.pytest.org/en/stable/)
   Use for: Lesson 7 (assertions, parametrization, fixtures).
 

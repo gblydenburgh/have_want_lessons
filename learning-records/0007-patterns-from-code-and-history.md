@@ -3,7 +3,7 @@
 Read from the `have_want_lessons` repo (97 commits, 2026-09-14 to 09-23; old exercise code now in `archive/web-chat-course/code/`), my 2021 route-compare script, and the course history. These are habits and traits backed by evidence, not one-off events.
 
 ## Strengths that show up in the code (build on these)
-- **I think in invariants.** In `build_vlan_name_changes`: a `missing = object()` sentinel to tell an absent key from a `None` value, and a final `else: raise RuntimeError(...)` for "can't happen". This will matter for the None-vs-0 decisions in route-compare and for absent-vs-default semantics in resource modules.
+- **I think in invariants.** In `build_vlan_name_changes`: a `missing = object()` sentinel to tell an absent key from a `None` value, and a final `else: raise RuntimeError(...)` for "can't happen". This will matter for absent-vs-default semantics in resource modules.
 - **Mutation awareness.** I use `copy.deepcopy` when building state from HAVE.
 - **Contracts at boundaries:** range checks and `raise ... from e` in the parser, names that show origin (`vlan_id_string` → `vlan_id`), sorted output for determinism.
 - **I modularize on my own.** I split the 681-line `excercise2.py` into parser/states/diff/renderer/tests modules without being asked.

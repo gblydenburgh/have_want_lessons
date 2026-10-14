@@ -17,13 +17,11 @@ These aren't two separate goals. The resource-module framework is built from cla
 ## Constraints
 - A one-on-one teacher–student exchange, not a lecture.
 - I write the code; it gets reviewed.
-- Lessons are fresh and network-automation based, not a continuation of the old VLAN exercise.
+- Lessons are fresh and network-automation based, not a continuation of old exercises.
+- No predefined project. If the teacher judges a project necessary, the teacher designs it.
 - I work on a headless Linux host through VS Code Remote-SSH.
 
 ## Out of scope
 - Lab and infrastructure work (EVE-NG, AWX, k3s, pyATS setup). It's my strong ground and the lab is in good enough shape. The skill I'm building is writing code; if a session drifts into infrastructure, park it.
 - OOP for its own sake: don't force code into classes.
 - Beginner Python and beginner Ansible.
-
-## Practice project
-`route-compare` (`practice/route-compare/`): a real tool other engineers will use, and a place to practise class design (starting with `Route`). It serves the mission; it doesn't replace it.
