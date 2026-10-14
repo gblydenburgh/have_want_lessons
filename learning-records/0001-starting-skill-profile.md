@@ -2,7 +2,7 @@
 
 Senior Network Engineer and experienced Ansible user. I write procedural/functional Python (earlier scripting was mostly Perl). Teach from here: skip beginner Python and Ansible, and build new ideas on network examples.
 
-**Evidence:** self-reported, plus `PROGRESS_EVALUATION.md` (2026-09-15, after Lessons 1–4).
+**Evidence:** self-reported, plus `archive/web-chat-course/PROGRESS_EVALUATION.md` (2026-09-15, after Lessons 1–4).
 
 | Area | Level |
 |---|---|
