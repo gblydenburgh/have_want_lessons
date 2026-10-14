@@ -1,24 +1,28 @@
-# Mission: Ansible network resource modules, from the inside
+# Mission: Object-oriented Python, to work inside Ansible resource modules
 
 ## Why
-I use Cisco IOS/NX-OS resource modules every day. I want to be able to diagnose, modify and eventually write one myself, for example fixing a real defect like the `cisco.nxos.nxos_snmp_server` SNMPv3 idempotency/state problem, instead of filing a bug and waiting.
+I want to learn to design and write object-oriented Python so I can understand, fix and extend Ansible network resource modules, not just use them.
+
+I've only ever used these modules from the outside. My real-world practice was to find a standard block of config, push it, and check by hand afterwards ("spray it and hope for the best"). I've never built anything idempotent myself. The end goal is to fix bugs I hit in the modules, add features, and eventually build my own.
+
+My coding background never needed classes: Perl scripting, then procedural Python, all end-user automation where functions and dicts were enough. The code I want to work in (Ansible collections, and pyATS/Genie too) is built around classes. Until I can design them, I can read that code but can't change it with confidence.
+
+These aren't two separate goals. The resource-module framework is built from classes, so OOP is the gap between where I am and the code I want to work in.
 
 ## Success looks like
-- I can trace a resource module end to end: argspec → `self.want`, Facts/template → `self.have`, state handling, `compare()`, NetworkTemplate rendering, `run_commands()`, and say which class owns each step.
-- I can write the class code a module needs: subclass `ResourceModule`, override the right methods, use `super()`, and know what `self` holds at each point.
-- I can design the data model, state semantics (`merged`, `replaced`, `overridden`, `deleted`, `gathered`, `rendered`, `parsed`) and parser/render templates for a real IOS/NX-OS feature.
-- I can test it the way the collection does: unit tests with mocked connections, every state, and an idempotency round trip.
-- I can decide what deserves to be a class in my own tools, and say plainly when a function or dict is fine.
+- **How resource modules work inside.** First the logic in plain Python: WANT vs HAVE, what each state means, working out changes, rendering CLI, parsing, idempotency. Then the Ansible machinery it maps onto (`ResourceModule`, `NetworkTemplate`, `Facts`, argspec), tested with pytest. Last, a real Cisco feature built end to end.
+- **Object-oriented design, the judgment part.** I can already read and trace class code. The goal is to *write* it and to decide what deserves to be a class and what should stay a function.
+- I can fix a real bug in a resource module and explain which class owns the behaviour I changed.
 
 ## Constraints
-- I write the code. The teacher explains, sets exercises and reviews; it does not write my solutions.
+- A one-on-one teacher–student exchange, not a lecture. The syllabus is shaped through back-and-forth.
+- I write the code; it gets reviewed.
 - I work on a headless Linux host through VS Code Remote-SSH.
-- Lessons are built on network examples I already understand, never generic OOP toys.
 
 ## Out of scope
-- Lab and infrastructure troubleshooting (EVE-NG, AWX, SSH, device configs). If a session drifts there, park it and come back to the lesson.
-- A general OOP or application-development course. Teach class concepts when the framework or my tools need them.
+- Lab and infrastructure work (EVE-NG, AWX, k3s, pyATS setup). It's my strong ground and the lab is in good enough shape. The skill I'm building is writing code; if a session drifts into infrastructure, park it.
+- OOP for its own sake: don't force code into classes.
 - Beginner Python and beginner Ansible.
 
 ## Practice project
-`route-compare` (see `practice/route-compare/`) is my practice ground for *writing* classes and making design calls. It serves the mission and doesn't replace it: work on it only when it trains a skill on the path above, and only with fixtures I already have.
+`route-compare` (`practice/route-compare/`): a real tool other engineers will use, and a place to practise class design (starting with `Route`). It serves the mission; it doesn't replace it.
