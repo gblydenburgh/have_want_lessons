@@ -10,12 +10,12 @@ My coding background never needed classes: Perl scripting, then procedural Pytho
 These aren't two separate goals. The resource-module framework is built from classes, so OOP is the gap between where I am and the code I want to work in.
 
 ## Success looks like
-- **How resource modules work inside.** First the logic in plain Python: WANT vs HAVE, what each state means, working out changes, rendering CLI, parsing, idempotency. Then the Ansible machinery it maps onto (`ResourceModule`, `NetworkTemplate`, `Facts`, argspec), tested with pytest. Last, a real Cisco feature built end to end.
+- **I understand how resource modules work inside:** I can trace a module from input to device and back, and say which class owns each step.
 - **Object-oriented design, the judgment part.** I can already read and trace class code. The goal is to *write* it and to decide what deserves to be a class and what should stay a function.
-- I can fix a real bug in a resource module and explain which class owns the behaviour I changed.
+- I can fix a real bug in a resource module, add a feature to one, and eventually build my own, with tests.
 
 ## Constraints
-- A one-on-one teacher–student exchange, not a lecture. The syllabus is shaped through back-and-forth.
+- A one-on-one teacher–student exchange, not a lecture.
 - I write the code; it gets reviewed.
 - I work on a headless Linux host through VS Code Remote-SSH.
 
