@@ -1,6 +1,6 @@
 # Patterns from my code, commits and course history
 
-Read from the `have_want_lessons` repo (97 commits, 2026-09-14 to 09-23), my 2021 route-compare script, and the course history. These are habits and traits backed by evidence, not one-off events.
+Read from the `have_want_lessons` repo (97 commits, 2026-09-14 to 09-23; old exercise code now in `archive/web-chat-course/code/`), my 2021 route-compare script, and the course history. These are habits and traits backed by evidence, not one-off events.
 
 ## Strengths that show up in the code (build on these)
 - **I think in invariants.** In `build_vlan_name_changes`: a `missing = object()` sentinel to tell an absent key from a `None` value, and a final `else: raise RuntimeError(...)` for "can't happen". This will matter for the None-vs-0 decisions in route-compare and for absent-vs-default semantics in resource modules.

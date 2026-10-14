@@ -17,6 +17,7 @@ These aren't two separate goals. The resource-module framework is built from cla
 ## Constraints
 - A one-on-one teacher–student exchange, not a lecture.
 - I write the code; it gets reviewed.
+- Lessons are fresh and network-automation based, not a continuation of the old VLAN exercise.
 - I work on a headless Linux host through VS Code Remote-SSH.
 
 ## Out of scope
