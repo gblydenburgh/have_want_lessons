@@ -1,5 +1,7 @@
 # Course State
 
+> **Superseded 2026-10-14.** The course now runs with `/teach`. Current state lives in `MISSION.md`, `NOTES.md` and `learning-records/`. The checkpoint below (Lesson 5) is stale: Lesson 5 is complete. Kept for history.
+
 This file is the **single mutable source of truth** for where the course currently is.
 
 `COURSE_PROMPT_RESTRUCTURED.md` contains standing teaching instructions and the curriculum.
