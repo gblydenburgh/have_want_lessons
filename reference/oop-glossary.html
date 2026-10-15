@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OOP Glossary</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Reference</p>
+    <h1>OOP glossary</h1>
+    <p class="subtitle">The terms every lesson uses, and the wrong versions they replace.</p>
+  </header>
+
+  <p>Each entry gives the precise meaning and, in italics, the slip it replaces. The slips are the
+    ones in <a href="../learning-records/0006-terminology-traps.md">LR-0006</a>: each one hides a
+    wrong mental model, not just wrong wording. Primary source: the Python tutorial,
+    <a href="https://docs.python.org/3/tutorial/classes.html">Classes</a>.</p>
+
+  <h2>Objects</h2>
+  <dl class="glossary">
+    <dt>class</dt>
+    <dd>The object a <code>class</code> statement creates. It holds the attributes and methods its
+      instances share. <code>NxosIpInterfaceBrief</code> is a class.
+      <span class="not">A class definition is not an instance created from it.</span></dd>
+
+    <dt>instance (of a class)</dt>
+    <dd>An object created by calling the class: <code>nx = NxosIpInterfaceBrief(...)</code> makes
+      <code>nx</code> an instance of <code>NxosIpInterfaceBrief</code>.
+      <span class="not">Not “instantiated class” or “instanced class”.</span></dd>
+
+    <dt>instantiate</dt>
+    <dd>The action of creating an instance by calling the class. The instance is the result.</dd>
+
+    <dt><code>self</code></dt>
+    <dd>The particular instance the method is running on. In <code>nx.gather()</code>,
+      <code>self</code> is <code>nx</code>.
+      <span class="not">Not the class, not the initializer, not “all of the class”.</span></dd>
+  </dl>
+
+  <h2>Attributes and names</h2>
+  <dl class="glossary">
+    <dt>instance attribute</dt>
+    <dd>Stored on one instance, usually set as <code>self.name = …</code>; it appears in that
+      instance's <code>__dict__</code>.
+      (<a href="https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables">§9.3.5</a>)</dd>
+
+    <dt>class attribute</dt>
+    <dd>Defined in the class body, shared by every instance and found through lookup;
+      it is not in the instance's <code>__dict__</code>.
+      <span class="not">Not the same as an instance attribute, even when accessed as <code>self.x</code>.</span></dd>
+
+    <dt>method-local variable</dt>
+    <dd>A bare name assigned inside a method (<code>fields = …</code>). It disappears when the call
+      returns, unless the object it refers to is kept somewhere else.
+      <span class="not">Not an instance attribute.</span></dd>
+  </dl>
+
+  <h2>Inheritance and lookup</h2>
+  <dl class="glossary">
+    <dt>override</dt>
+    <dd>A subclass defines a method (or attribute) with the same name as one in a base class;
+      lookup finds the subclass's version first.
+      (<a href="https://docs.python.org/3/tutorial/classes.html#inheritance">§9.5</a>)</dd>
+
+    <dt>method lookup, MRO</dt>
+    <dd>Python searches the instance, then the classes in the method resolution order
+      (<code>type(obj).__mro__</code>), and stops at the first match.
+      <span class="not">Not “searching outside the instanced class” or “going to the parent”.</span></dd>
+
+    <dt>defining class vs operating instance</dt>
+    <dd>For an inherited method, the class that <em>defines</em> it is where the code lives;
+      the instance it <em>operates on</em> is <code>self</code>. They are different things.</dd>
+
+    <dt><code>super()</code></dt>
+    <dd>Continues the lookup in the MRO after the current class, on the <em>same</em> instance.
+      (<a href="https://docs.python.org/3/library/functions.html#super">docs</a>)
+      <span class="not">It doesn't create or refer to a separate parent object.</span></dd>
+  </dl>
+
+  <h2>Reconciliation and Ansible</h2>
+  <dl class="glossary">
+    <dt>HAVE / WANT</dt>
+    <dd>HAVE is <em>observed</em> device state; WANT is <em>intended</em> input. Don't
+      normalize valid HAVE to make a test pass.</dd>
+
+    <dt><code>state</code> (<code>merged</code>, <code>replaced</code>, <code>overridden</code>, <code>deleted</code>)</dt>
+    <dd>Ansible calls these state values, but each is a <em>reconciliation policy</em>: a rule
+      for combining HAVE and WANT.
+      (<a href="https://docs.ansible.com/ansible/latest/network/user_guide/network_resource_modules.html">user guide</a>)
+      <span class="not">Not the resulting device state.</span></dd>
+
+    <dt><code>collections.Counter</code></dt>
+    <dd>A class (a <code>dict</code> subclass). Usually the right move is to use an instance of it,
+      not define a new class.</dd>
+  </dl>
+
+  <footer>
+    <p>Used by <a href="../lessons/0001-tracing-check.html">lesson 0001</a>. New terms are added
+      here as lessons introduce them.</p>
+  </footer>
+</main>
+</body>
+</html>
