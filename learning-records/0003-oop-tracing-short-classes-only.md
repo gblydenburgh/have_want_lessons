@@ -1,5 +1,7 @@
 # OOP: I can trace short, simple classes; nothing elaborate yet
 
+**Status:** partly superseded by [LR-0008](0008-tracing-check-dispatch-solid-storage-not.md) (2026-10-15): method dispatch and `super()` confirmed; instance `__dict__` vs class attributes not demonstrated.
+
 I can trace **short, primitive classes**: class vs instance, what `self` refers to, instance `__dict__` vs class attributes, `__init__` resolution through inheritance, a parent method calling `self.method()` that resolves to a child override, `type()` vs `isinstance()`, `super()` including chained dispatch, and simple composition.
 
 The limits matter:

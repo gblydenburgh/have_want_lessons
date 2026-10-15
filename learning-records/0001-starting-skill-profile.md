@@ -14,7 +14,7 @@ Senior Network Engineer and experienced Ansible user. I write procedural/functio
 | Type hints | Developing: uses annotations and basic `TypeVar`; data models still `dict[str, Any]` |
 | Software design / modularity | Developing: pipeline separation is good, overall structure still script-like |
 | Testing | Developing: manual isolated tests understood; no pytest yet |
-| OOP | Beginner: can trace short teaching examples, not real code; hasn't written classes (see LR-0003) |
+| OOP | Beginner: can trace short teaching examples, not real code; hasn't written classes (see LR-0003; revised by LR-0008) |
 | ResourceModule / NetworkTemplate / Facts / argspec | Not yet demonstrated |
 
 **Implications:** stretch me on design, typing, testing and classes, not on networking. My best learning move is skepticism: questioning labels, checking real device output, asking what an annotation actually does. Use it.
