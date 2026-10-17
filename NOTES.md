@@ -121,6 +121,20 @@ If a session turns into lab, infra or tool troubleshooting, say so and steer me 
 
 Headless Linux host via VS Code Remote-SSH, Python 3.10+. Don't try to open a browser; I view lessons with VS Code Live Preview. Tell me which file to open from the Explorer sidebar; right-clicking a link in the chat only offers "Copy link".
 
+## Route to layer 3 (direction, not a fixed syllabus)
+
+Agreed 2026-10-17. Each topic is taught at layer 2 first, then its layer 3 mechanism once the foundation is in place.
+
+1. Classes, instances, methods: layer 2 in lesson 0001.
+2. Names refer to objects (bridge from Perl's `@{}`): the foundation for everything below.
+3. Attribute lookup: instance first, then the class. Layer 3: `__dict__`, search order, assignment writes to the instance.
+4. How methods get `self`. Layer 3: functions as descriptors, bound methods.
+5. Inheritance and overriding. Layer 3: the MRO, what `super()` searches.
+6. `property`. Layer 3: data descriptors, and why they take priority over the instance dict.
+7. Special methods (`__init__`, `__str__`, `__eq__`). Layer 3: the data model.
+
+Topics 3–6 are what Ansible resource-module classes rely on. Layer 3 primary source: the Python Descriptor HowTo Guide (verify the current content before use, and translate it into plain words).
+
 ## Next session
 
 - 2026-10-17: course reset; lesson 0001 (what a class is, from dicts and functions) rewritten in plain language with Think Python as the primary source. Pick up with: my quiz first-try score, then a two-pass review of `lessons/code/l0001_device.py`. Plan: a "names refer to objects" lesson, bridging from Perl's `@{}` (LR-0001), must come before any lesson on aliasing, identity or mutation.
