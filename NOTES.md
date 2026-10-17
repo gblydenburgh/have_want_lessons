@@ -54,6 +54,8 @@ Who the teacher is, how I learn, and how I want to be taught. **When you learn a
 - Make hidden collaborators concrete (module objects, connections, facts) before asking me to trace. If I say I can't follow, stop, replace them with explicit stand-ins, walk through it, then resume.
 - Build long traces from short ones: one or two calls at a time, then combine.
 - Don't introduce a new tool until I can do what it builds on (e.g. trace method lookup and overrides on my own before `super()`).
+- **Design exercises: plan the data before the code, briefly.** When an exercise asks me to design something (which classes, what goes in them, what stays a function), I first write a few lines: the steps, and what each piece of data must support (what I'll look up, compare or change). Show me real sample output first; I need to see the data. Then I code in small, runnable steps so I still see output often. Once it works, look back at the plan: did it hold up, and what would break if the requirements grew?
+- **Pain first applies to design too.** Sometimes let me code it my usual way, then change the requirements so my data shape breaks, and compare it with the shape the operations called for.
 
 ## Grading and correction
 
@@ -62,6 +64,7 @@ Who the teacher is, how I learn, and how I want to be taught. **When you learn a
 - **Correct me specifically:** name the concept and where my reasoning went wrong, and say which layer the misunderstanding is in.
 - **Terminology discipline, everywhere.** Correct wrong or overloaded terms immediately, because wrong vocabulary can imply a different mechanism. Grade concept and terminology separately. Make me restate important distinctions precisely. Don't excuse repeated slips as just wording. The glossary (`reference/oop-glossary.html`) holds the distinctions to enforce.
 - **After a substantive correction, pause** and ask whether I have questions before giving the next exercise.
+- **Mastery means transfer.** Don't record a concept as learned until I've applied it, without hints, to a different problem in a later session. A working program shows the code works for the cases tested; it doesn't show the design is good or that I could do it again.
 
 ## Code review
 
@@ -105,6 +108,7 @@ _(teacher maintains; newest last)_
 - 2026-10-17: the first attempt at classes used vocabulary it never taught (namespace, MRO, `__dict__`, identity), and I couldn't tell what answers were wanted. Restarted classes from zero, building on dicts and functions.
 - 2026-10-17: confused that `hostname` is written inside the class but stored on the instance. Resolved by separating the `def` lines (run once, stored on the class) from the `self.x = …` lines (run per instance), mapping it to my dict version, and checking with `vars()` in the REPL. I then restated it correctly. Code location vs storage location is worth making explicit in future lessons.
 - 2026-10-17: called the lesson 0001 "where things are stored" paragraph the clearest explanation of `self` I'd read. The pattern that worked: (1) map it onto procedural code I already write, (2) show the mechanism (what's stored where), (3) give the design reason (per-device data vs shared code), so the rule follows from the design. Use this pattern to explain each new concept.
+- 2026-10-17: (my own account, not yet seen in an exercise) when I write a script, I already know the requirements (what data I need, what to check after a change), but I keep the plan in my head as a list of steps in order and code one step at a time. I decide the data shape only after I've printed the real output. The gap is choosing the data shape from the operations I'll need, not knowing the requirements. Rule added under Exercises ("plan the data before the code"). Watch whether my exercises bear this out.
 
 ## Session length
 
@@ -139,3 +143,4 @@ Topics 3–6 are what Ansible resource-module classes rely on. Layer 3 primary s
 ## Next session
 
 - 2026-10-17: lesson 0001 complete (LR-0002). Next: lesson 0002, names refer to objects (route step 2), bridging from Perl's `@{}`. Open it with 2–3 spaced-retrieval questions on lesson 0001 (where data vs methods are stored; what `self` is in a call).
+- 2026-10-17 (repo review): lesson 0001's step-by-step says "The instance is given the name r1", which suggests the object owns a name. In lesson 0002, correct it openly ("one correction to what lesson 0001 said…"): `Device(...)` returns the object, then the name `r1` is made to refer to it. Leave lesson 0001 unedited. Also: lesson 0001 already shows attribute lookup informally ("Python looks for `describe` on r1… then in the class"), so lesson 0003 should name it as something I've already seen, not present it as new.

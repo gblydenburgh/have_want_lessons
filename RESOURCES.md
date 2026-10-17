@@ -18,6 +18,8 @@
   Beginner-friendly alternative with a glossary. Calls `__init__` a constructor, so terms differ from this course. Use for: a second explanation.
 - [Python docs: Classes tutorial](https://docs.python.org/3/tutorial/classes.html)
   The exact rules, but written for people who already program in other languages (compares with C++, uses CS terms). Use for: backing up claims, translated into plain words; not as first reading.
+- [Python docs: Descriptor HowTo Guide](https://docs.python.org/3/howto/descriptor.html)
+  **Layer 3 primary source** (route steps 4 and 6): how functions become bound methods, and how `property` works. Written for experienced programmers. Use for: the "Under the hood" sections, translated into plain words. (Not yet checked against the current docs; verify before first use.)
 - [Python docs: dataclasses](https://docs.python.org/3/library/dataclasses.html)
   Use for: `frozen=True`, generated `__eq__`/`__hash__`, `field(compare=False)`.
 - [Ned Batchelder: Facts and Myths about Python names and values (PyCon 2015 video)](https://youtube.com/watch?v=_AEJHKGk9ns) ([text version](https://nedbatchelder.com/text/names1.html))
