@@ -104,6 +104,7 @@ _(teacher maintains; newest last)_
 - 2026-10-14: (from repo history) friction spikes on abstract material such as classes and framework layers, not on networking logic. Concrete, fully shown code reduced it.
 - 2026-10-17: the first attempt at classes used vocabulary it never taught (namespace, MRO, `__dict__`, identity), and I couldn't tell what answers were wanted. Restarted classes from zero, building on dicts and functions.
 - 2026-10-17: confused that `hostname` is written inside the class but stored on the instance. Resolved by separating the `def` lines (run once, stored on the class) from the `self.x = …` lines (run per instance), mapping it to my dict version, and checking with `vars()` in the REPL. I then restated it correctly. Code location vs storage location is worth making explicit in future lessons.
+- 2026-10-17: called the lesson 0001 "where things are stored" paragraph the clearest explanation of `self` I'd read. The pattern that worked: (1) map it onto procedural code I already write, (2) show the mechanism (what's stored where), (3) give the design reason (per-device data vs shared code), so the rule follows from the design. Use this pattern to explain each new concept.
 
 ## Session length
 
