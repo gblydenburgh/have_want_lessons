@@ -138,4 +138,4 @@ Topics 3–6 are what Ansible resource-module classes rely on. Layer 3 primary s
 
 ## Next session
 
-- 2026-10-17: course reset; lesson 0001 (what a class is, from dicts and functions) rewritten in plain language with Think Python as the primary source. Pick up with: my quiz first-try score, then a two-pass review of `lessons/code/l0001_device.py`. Plan: a "names refer to objects" lesson, bridging from Perl's `@{}` (LR-0001), must come before any lesson on aliasing, identity or mutation.
+- 2026-10-17: lesson 0001 complete (LR-0002). Next: lesson 0002, names refer to objects (route step 2), bridging from Perl's `@{}`. Open it with 2–3 spaced-retrieval questions on lesson 0001 (where data vs methods are stored; what `self` is in a call).
