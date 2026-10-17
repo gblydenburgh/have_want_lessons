@@ -12,8 +12,12 @@
   Production IOS resource modules, their templates and tests. Use for: real examples of config classes, Facts, rm_templates, and unit tests.
 - [Source: ansible-network/cli_rm_builder](https://github.com/ansible-network/cli_rm_builder)
   The scaffolding tool. Use for: what's generated vs what the developer writes.
+- [Think Python, 3rd edition (Allen B. Downey, 2023), free online](https://allendowney.github.io/ThinkPython/)
+  **Primary source for classes.** Written "for people who have never programmed before". Chapters 14–17 build classes from functions, then methods (ch. 15 moves existing functions into the class), then inheritance. Calls `__init__` "the init method", not constructor. Use for: lesson reading.
+- [Python for Everybody, ch. 14 Object-oriented programming](https://www.py4e.com/html3/14-objects)
+  Beginner-friendly alternative with a glossary. Calls `__init__` a constructor, so terms differ from this course. Use for: a second explanation.
 - [Python docs: Classes tutorial](https://docs.python.org/3/tutorial/classes.html)
-  The primary source on Python's class model. Use for: scopes, `self`, inheritance, method resolution.
+  The exact rules, but written for people who already program in other languages (compares with C++, uses CS terms). Use for: backing up claims, translated into plain words; not as first reading.
 - [Python docs: dataclasses](https://docs.python.org/3/library/dataclasses.html)
   Use for: `frozen=True`, generated `__eq__`/`__hash__`, `field(compare=False)`.
 - [Ned Batchelder: Facts and Myths about Python names and values (PyCon 2015 video)](https://youtube.com/watch?v=_AEJHKGk9ns) ([text version](https://nedbatchelder.com/text/names1.html))

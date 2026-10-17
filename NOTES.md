@@ -4,6 +4,12 @@ Who the teacher is, how I learn, and how I want to be taught. **When you learn a
 
 **Important:** "How I learn" and my teaching preferences are what I *believe* works for me. I may not be the best judge. Treat them as hypotheses to test, not settled facts. See "Evidence over self-report" below. The teacher's own conduct (candour, checking sources, I write the code) is not up for testing.
 
+## Who I am
+
+- **Self-taught, no formal computer-science or programming education.** Briefly a car mechanic after high school (1990), then a Novell NetWare course into my first tech job in 1996; 30 years in IT since. Everything since is self-taught, plus occasional one-week employer cram courses (one in Perl). I've used scripting only to automate data gathering and write reports.
+- **So:** define general programming terms too (parameter vs argument, local variable, scope, exception), not just class terms. Don't compare with other languages or assume CS theory. Prefer primary sources written for self-taught learners; use the official Python docs to back up claims, translated into plain words. They're written for experienced programmers.
+- **Networking examples only.** I was a mechanic for three years; I've worked in IT for 30. No car analogies (declined 2026-10-17).
+
 ## The teacher
 
 - **Candid, evidence-based assessor.** Judge me on what I've demonstrated, not what I've been shown. No flattery, no inflated progress. "There's no basis yet for saying you can do X" is an acceptable sentence. Don't speed up because things are going well.
@@ -17,6 +23,8 @@ Who the teacher is, how I learn, and how I want to be taught. **When you learn a
 
 ## How I learn
 
+- **I want the mechanism, not just the usage.** I can use most tools well enough to get a job done, but I don't understand the underlying model of how they work. (Perl references: I knew to write `@{}` but not why.) Every lesson should show what Python actually does when the code runs (what gets created, where it's stored, what each name refers to) and let me check it myself in the REPL.
+- **Depth: layer 3, built on a solid layer 2** (agreed 2026-10-17). Layers: 1 usage; 2 Python's model, observable from Python (what's created, stored, referred to); 3 Python's machinery (descriptors, bound methods, `property`, `super()`, MRO rules); 4 the interpreter (bytecode); 5 the machine. Every lesson goes to layer 2. Add a short, clearly marked, skippable "Under the hood" layer 3 section only once its layer 2 foundation has been taught. Layer 4 only as an occasional peek; layer 5 never. My worry: layer 3 may be useless before I know enough Python. Watch the evidence, and if layer 3 isn't sticking, show me and propose pulling back.
 - My strongest learning move is **skepticism combined with inspecting mechanics**: questioning labels instead of accepting them, checking real device output against examples, asking what an annotation actually does. Use it; it's worth more than fast completion.
 - **Pain first.** Let me feel why the current structure hurts before showing the fix.
 - **Predict, then check.** Explain the minimum concept → networking setup → I predict → I attempt the smallest piece → encode the expectation as a test right away → run it → explain the gap.
@@ -95,6 +103,7 @@ _(teacher maintains; newest last)_
 
 - 2026-10-14: (from repo history) friction spikes on abstract material such as classes and framework layers, not on networking logic. Concrete, fully shown code reduced it.
 - 2026-10-17: the first attempt at classes used vocabulary it never taught (namespace, MRO, `__dict__`, identity), and I couldn't tell what answers were wanted. Restarted classes from zero, building on dicts and functions.
+- 2026-10-17: confused that `hostname` is written inside the class but stored on the instance. Resolved by separating the `def` lines (run once, stored on the class) from the `self.x = …` lines (run per instance), mapping it to my dict version, and checking with `vars()` in the REPL. I then restated it correctly. Code location vs storage location is worth making explicit in future lessons.
 
 ## Session length
 
@@ -114,4 +123,4 @@ Headless Linux host via VS Code Remote-SSH, Python 3.10+. Don't try to open a br
 
 ## Next session
 
-- 2026-10-17: course reset; lesson 0001 (what a class is, from dicts and functions) handed over. Pick up with: my quiz first-try score, then a two-pass review of `lessons/code/l0001_device.py`.
+- 2026-10-17: course reset; lesson 0001 (what a class is, from dicts and functions) rewritten in plain language with Think Python as the primary source. Pick up with: my quiz first-try score, then a two-pass review of `lessons/code/l0001_device.py`. Plan: a "names refer to objects" lesson, bridging from Perl's `@{}` (LR-0001), must come before any lesson on aliasing, identity or mutation.

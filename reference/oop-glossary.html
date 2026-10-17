@@ -15,8 +15,8 @@
   </header>
 
   <p>Each entry gives the meaning in plain words and, in italics, a common wrong version to avoid.
-    Terms are added here as lessons teach them. Primary source: the Python tutorial,
-    <a href="https://docs.python.org/3/tutorial/classes.html">Classes</a>.</p>
+    Terms are added here as lessons teach them. Primary source: <a href="https://allendowney.github.io/ThinkPython/">Think Python</a>, 3rd edition,
+    chapters 14–17.</p>
 
   <h2>The basics</h2>
   <dl class="glossary">
@@ -51,13 +51,22 @@
     <dt>initializer (<code>__init__</code>)</dt>
     <dd>The method Python runs automatically on each new instance, to store its starting attributes.
       It runs once per <code>Device(...)</code> call.
-      <span class="not">Often called the “constructor”, but the instance already exists when it runs
-        (<a href="https://docs.python.org/3/reference/datamodel.html#object.__init__">data model</a>).</span></dd>
+      <span class="not">Often called the “constructor”, but Python has already created the instance when
+        it runs; it only fills it in. <em>Think Python</em> calls it “the init method”.</span></dd>
 
-    <dt>parameter vs attribute</dt>
-    <dd>In <code>def __init__(self, mgmt_ip)</code>, <code>mgmt_ip</code> is a parameter: a local name
-      that exists only during the call. <code>self.mgmt_ip = mgmt_ip</code> stores its value as an
-      attribute, which stays on the instance.</dd>
+    <dt>parameter</dt>
+    <dd>The name in a <code>def</code> line that receives a value: in <code>def describe(device)</code>,
+      <code>device</code>.</dd>
+
+    <dt>argument</dt>
+    <dd>The value passed in when a function or method is called: in <code>describe(r1)</code>,
+      <code>r1</code>.</dd>
+
+    <dt>local variable</dt>
+    <dd>A name that exists only while a function or method runs, including its parameters. It's gone
+      when the function returns.
+      <span class="not">Not an attribute: in <code>__init__</code>, the parameter <code>mgmt_ip</code>
+        disappears, while <code>self.mgmt_ip = mgmt_ip</code> stores the value on the instance, where it stays.</span></dd>
   </dl>
 
   <h2>Reconciliation and Ansible</h2>

@@ -44,19 +44,25 @@ print(r1.describe())                                  # call a method; same as D
 
   <h2>Rules to remember</h2>
   <ul>
-    <li><code>r1.describe()</code> is exactly <code>Device.describe(r1)</code>
-      (<a href="https://docs.python.org/3/tutorial/classes.html#method-objects">tutorial §9.3.4</a>).</li>
-    <li><code>self</code> is only a naming convention for the first parameter
-      (<a href="https://docs.python.org/3/tutorial/classes.html#random-remarks">§9.4</a>).</li>
-    <li><code>__init__</code> runs once per <code>Device(...)</code> call, after the new instance exists
-      (<a href="https://docs.python.org/3/reference/datamodel.html#object.__init__">data model</a>).
-      Tutorials often call it the constructor.</li>
+    <li><code>r1.describe()</code> is the same call as <code>Device.describe(r1)</code>: Python passes the
+      instance before the dot as <code>self</code>.</li>
+    <li><code>self</code> is just the name everyone uses for a method's first parameter.</li>
+    <li><code>__init__</code> runs once per <code>Device(...)</code> call, on the new instance. Tutorials
+      often call it the constructor.</li>
+    <li><strong>Written vs stored:</strong> <code>def</code> lines run once and store methods in the class;
+      <code>self.x = …</code> lines run per instance and store data on that instance.
+      Check with <code>vars(r1)</code> and <code>vars(Device)</code>.</li>
+    <li>Inside a method, always write <code>self.hostname</code>; a bare <code>hostname</code> is a local
+      variable, and raises <code>NameError</code> if there isn't one.</li>
     <li>Each instance has its own attributes. Creating <code>sw1</code> doesn't change <code>r1</code>.</li>
     <li>A parameter (<code>mgmt_ip</code>) is a local name for the argument; <code>self.mgmt_ip = mgmt_ip</code>
       is what stores it on the instance.</li>
     <li>When a dict and a few functions do the job, keep them. Use a class when data and the functions
       that belong to it should travel together.</li>
   </ul>
+
+  <p class="cite">Sources: <a href="https://allendowney.github.io/ThinkPython/chap15.html">Think Python, chapter 15</a>;
+    for the exact rules, the <a href="https://docs.python.org/3/tutorial/classes.html#a-first-look-at-classes">Python tutorial §9.3</a>.</p>
 
   <footer>
     <p>From <a href="../lessons/0001-what-a-class-is.html">lesson 0001</a> ·
