@@ -161,6 +161,7 @@ pre.listing .ln::before {
   border-radius: 0 4px 4px 0;
 }
 .aside { border-left-color: var(--rule); background: var(--surface); }
+.aside-inline { color: var(--muted); font-size: 0.9em; }
 .note > :first-child, .aside > :first-child { margin-top: 0; }
 .note > :last-child, .aside > :last-child { margin-bottom: 0; }
 
@@ -223,6 +224,51 @@ dl.glossary dt {
 dl.glossary dd { margin: 0.2rem 0 0 0; }
 dl.glossary .not { color: var(--muted); font-style: italic; }
 
+/* Multiple-choice quiz, used with assets/quiz.js */
+fieldset.mcq {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 1.8rem 0 0;
+  padding: 0.8rem 0 0;
+}
+fieldset.mcq legend { padding: 0; font-weight: 600; margin-bottom: 0.5rem; }
+fieldset.mcq label {
+  display: block;
+  padding: 0.45rem 0.7rem;
+  margin: 0.3rem 0;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 1rem;
+}
+fieldset.mcq label:hover { background: var(--surface); }
+fieldset.mcq input { margin-right: 0.5rem; }
+fieldset.mcq label.chosen-right { border-color: var(--ok); background: var(--surface); }
+fieldset.mcq label.chosen-wrong { border-color: var(--accent); background: var(--accent-soft); }
+fieldset.mcq .feedback {
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.8rem;
+  border-left: 3px solid var(--rule);
+  background: var(--surface);
+  font-size: 0.98rem;
+}
+.quiz-score { font-family: var(--sans); font-weight: 600; color: var(--ok); margin-top: 1.2rem; }
+
+/* Two-column comparison (e.g. procedural vs class) */
+.compare { display: grid; gap: 0 1.2rem; }
+@media (min-width: 760px) { .compare { grid-template-columns: 1fr 1fr; } }
+.compare .label { font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0.6rem 0 0.2rem; }
+.compare pre { margin-top: 0; }
+
+/* Reference tables */
+table.ref { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.95rem; }
+table.ref th, table.ref td { text-align: left; vertical-align: top; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--rule); }
+table.ref th { font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+table.ref td:first-child { white-space: nowrap; width: 1%; }
+@media (max-width: 600px) { table.ref td:first-child { white-space: normal; } }
+.cite { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); }
+
 footer {
   margin-top: 3rem;
   font-family: var(--sans);
@@ -231,6 +277,7 @@ footer {
 }
 
 @media print {
+  fieldset.mcq .feedback { display: none; }
   :root { --bg: #fff; --surface: #fff; --code-bg: #f6f6f6; }
   body { font-size: 11pt; }
   main, main.with-listing { display: block; max-width: none; padding: 0; }

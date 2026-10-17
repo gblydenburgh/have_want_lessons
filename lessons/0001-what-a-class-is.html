@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What a Class Is</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/listing.js" defer></script>
+  <script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+<main class="with-listing">
+
+  <aside class="listing-pane">
+    <p class="label">The class in this lesson</p>
+<pre class="listing" id="code">class Device:
+    def __init__(self, hostname, mgmt_ip, platform):
+        self.hostname = hostname
+        self.mgmt_ip = mgmt_ip
+        self.platform = platform
+
+    def describe(self):
+        return f"{self.hostname} ({self.platform}) at {self.mgmt_ip}"
+
+
+r1 = Device("r1", "10.0.0.1", "ios")
+sw1 = Device("sw1", "10.0.0.2", "nxos")
+print(r1.describe())</pre>
+  </aside>
+
+  <div class="flow">
+  <header>
+    <p class="kicker">Lesson 0001 · Classes from the ground up</p>
+    <h1>What a class is</h1>
+    <p class="subtitle">You already write the same thing with a dict and some functions. A class is that, bundled.</p>
+    <div class="meta">
+      <span>About 20 minutes</span>
+      <span>Assumes nothing about classes</span>
+      <span>Ends with code you write</span>
+    </div>
+  </header>
+
+  <h2>Start with what you know</h2>
+  <p>Here's a device, written the way you'd write it today: a dict, a function that builds it,
+    and a function that works on it.</p>
+<pre>def make_device(hostname, mgmt_ip, platform):
+    return {"hostname": hostname, "mgmt_ip": mgmt_ip, "platform": platform}
+
+def describe(device):
+    return f"{device['hostname']} ({device['platform']}) at {device['mgmt_ip']}"
+
+
+r1 = make_device("r1", "10.0.0.1", "ios")
+print(describe(r1))     # r1 (ios) at 10.0.0.1</pre>
+  <p>Nothing wrong with that. For a short script, it's the right choice, and you shouldn't
+    replace it with a class. But notice two things:</p>
+  <ul>
+    <li><strong>Nothing ties <code>describe</code> to device dicts.</strong> You could pass it an
+      interface dict or a VLAN dict, and you'd only find out when it raised <code>KeyError</code>.</li>
+    <li><strong>The data and the functions that belong to it live apart.</strong> In a big codebase
+      with device dicts, interface dicts and VLAN dicts, you have to remember which functions go
+      with which dict.</li>
+  </ul>
+  <p>A class fixes both by keeping the data and its functions together. It matters for the
+    mission because the Ansible resource-module code you want to work in is written this way.</p>
+
+  <h2>The same thing as a class</h2>
+  <div class="compare">
+    <div>
+      <p class="label">What you write today</p>
+<pre>def make_device(hostname, mgmt_ip, platform):
+    return {"hostname": hostname,
+            "mgmt_ip": mgmt_ip,
+            "platform": platform}
+
+def describe(device):
+    return (f"{device['hostname']} "
+            f"({device['platform']}) "
+            f"at {device['mgmt_ip']}")
+
+
+r1 = make_device("r1", "10.0.0.1", "ios")
+print(describe(r1))</pre>
+    </div>
+    <div>
+      <p class="label">As a class</p>
+<pre>class Device:
+    def __init__(self, hostname, mgmt_ip, platform):
+        self.hostname = hostname
+        self.mgmt_ip = mgmt_ip
+        self.platform = platform
+
+    def describe(self):
+        return (f"{self.hostname} "
+                f"({self.platform}) "
+                f"at {self.mgmt_ip}")
+
+
+r1 = Device("r1", "10.0.0.1", "ios")
+print(r1.describe())</pre>
+    </div>
+  </div>
+  <p>Both print <code>r1 (ios) at 10.0.0.1</code>. Here's how each piece of the left side turns
+    into the right side, and the name for each piece.</p>
+
+  <table class="ref">
+    <thead><tr><th>Dict and functions</th><th>Class</th><th>What it's called</th></tr></thead>
+    <tbody>
+      <tr><td>(no equivalent)</td><td><code>class Device:</code></td>
+        <td>The <strong>class</strong>: the definition, a blueprint for devices. It is not a device itself.</td></tr>
+      <tr><td><code>make_device(...)</code></td><td><code>Device(...)</code></td>
+        <td>Calling the class <strong>creates an instance</strong> (also called an <em>object</em>).
+          Creating one is called <strong>instantiating</strong> the class.</td></tr>
+      <tr><td>the dict <code>r1</code></td><td>the instance <code>r1</code></td>
+        <td>An <strong>instance</strong>: one particular device built from the blueprint.</td></tr>
+      <tr><td><code>device["hostname"]</code></td><td><code>r1.hostname</code></td>
+        <td>An <strong>attribute</strong>: a named value stored on an instance. Like a dict key,
+          but written with a dot.</td></tr>
+      <tr><td>body of <code>make_device</code></td><td><code>def __init__(self, ...)</code></td>
+        <td>The <strong>initializer</strong>. Python runs it automatically on each new instance, to
+          fill in its attributes.</td></tr>
+      <tr><td><code>def describe(device)</code></td><td><code>def describe(self)</code>, inside the class</td>
+        <td>A <strong>method</strong>: a function defined inside a class, which works on one instance.</td></tr>
+      <tr><td>the <code>device</code> parameter</td><td>the <code>self</code> parameter</td>
+        <td><strong><code>self</code></strong>: the instance the method is working on. It plays the
+          role your <code>device</code> parameter played.</td></tr>
+      <tr><td><code>describe(r1)</code></td><td><code>r1.describe()</code></td>
+        <td><strong>Calling a method.</strong> Python passes <code>r1</code> in as <code>self</code> for you.</td></tr>
+    </tbody>
+  </table>
+
+  <p>That last row is the key to <code>self</code>. The Python tutorial says
+    “the call <code>x.f()</code> is exactly equivalent to <code>MyClass.f(x)</code>”
+    (<a href="https://docs.python.org/3/tutorial/classes.html#method-objects">§9.3.4</a>).
+    So <code>r1.describe()</code> is the same call as <code>Device.describe(r1)</code>: your old
+    <code>describe(r1)</code>, with the function now living inside the class. And
+    <code>self</code> is just a parameter name; “the name <code>self</code> has absolutely no
+    special meaning to Python” (<a href="https://docs.python.org/3/tutorial/classes.html#random-remarks">§9.4</a>).
+    Everyone uses it by convention.</p>
+
+  <h2>What happens, step by step</h2>
+  <p>The listing on the right (or at the top, on a narrow screen) is the class you'll use from
+    here on. Line numbers refer to it.</p>
+
+  <h3>Line 11: <code>r1 = Device("r1", "10.0.0.1", "ios")</code></h3>
+  <ol>
+    <li>Python creates a new, empty instance of <code>Device</code>.</li>
+    <li>It calls <code>__init__</code> automatically, with <code>self</code> = that new instance,
+      <code>hostname</code> = <code>"r1"</code>, <code>mgmt_ip</code> = <code>"10.0.0.1"</code>,
+      <code>platform</code> = <code>"ios"</code>
+      (<a href="https://docs.python.org/3/tutorial/classes.html#class-objects">§9.3.2</a>).</li>
+    <li>Lines 3–5 store three attributes on that instance: <code>self.hostname = hostname</code>
+      means “on this instance, store the value under the name <code>hostname</code>”.</li>
+    <li><code>__init__</code> finishes, and the instance, now holding three attributes, is
+      assigned to the name <code>r1</code>.</li>
+  </ol>
+  <p>Line 12 does the same again and builds a <em>second, separate</em> instance, <code>sw1</code>,
+    with its own three attributes. The class is written once; each call makes a new instance.</p>
+  <div class="aside">
+    <p><strong>A word you'll meet:</strong> many tutorials, including the video below, call
+      <code>__init__</code> the <em>constructor</em>. Python's own reference says
+      <code>__init__</code> is “called after the instance has been created”
+      (<a href="https://docs.python.org/3/reference/datamodel.html#object.__init__">data model</a>),
+      so it doesn't construct the instance. It fills in one that already exists. That's why this
+      course calls it the <em>initializer</em>.</p>
+  </div>
+
+  <h3>Line 13: <code>print(r1.describe())</code></h3>
+  <ol>
+    <li><code>r1.describe()</code> calls the method <code>describe</code>, with <code>self</code> = <code>r1</code>.</li>
+    <li>Line 8 reads <code>self.hostname</code>, <code>self.platform</code> and <code>self.mgmt_ip</code>.
+      Because <code>self</code> is <code>r1</code>, those are <code>r1</code>'s values.</li>
+    <li>It returns <code>"r1 (ios) at 10.0.0.1"</code>, and <code>print</code> shows it.</li>
+  </ol>
+  <p><code>sw1.describe()</code> would run the <em>same</em> method code, with <code>self</code> = <code>sw1</code>,
+    and return <code>"sw1 (nxos) at 10.0.0.2"</code>.</p>
+
+  <h2>Check yourself</h2>
+  <p>Six quick questions about the listing. Pick an answer and you'll see right away whether it's
+    right and why. Only your first pick counts toward the score, but read the explanations for
+    the other options too.</p>
+
+  <fieldset class="mcq" data-answer="a">
+    <legend>1. After line 11 runs, what is <code>r1</code>?</legend>
+    <label><input type="radio" name="q1" value="a"> A new instance of the class Device</label>
+    <label><input type="radio" name="q1" value="b"> The class Device under another name</label>
+    <label><input type="radio" name="q1" value="c"> The value returned by describe()</label>
+    <div class="feedback" data-for="a">Right. Calling <code>Device(...)</code> creates a new instance and
+      runs <code>__init__</code> on it; <code>r1</code> names that instance.</div>
+    <div class="feedback" data-for="b">Not quite. <code>Device</code> is the class, the blueprint.
+      <em>Calling</em> it with <code>Device(...)</code> builds a new instance from it, and that instance is
+      what <code>r1</code> names. (<code>r1 = Device</code>, without the parentheses, would be the class under another name.)</div>
+    <div class="feedback" data-for="c">Not quite. <code>describe</code> isn't called on line 11 at all.
+      Line 11 calls the class, which creates an instance and runs <code>__init__</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>2. Line 13 calls <code>r1.describe()</code>. While line 8 runs, what is <code>self</code>?</legend>
+    <label><input type="radio" name="q2" value="a"> The class named Device</label>
+    <label><input type="radio" name="q2" value="b"> The instance named r1</label>
+    <label><input type="radio" name="q2" value="c"> The method named describe</label>
+    <div class="feedback" data-for="a">Not quite. <code>self</code> is never the class in an ordinary method.
+      <code>r1.describe()</code> is the same as <code>Device.describe(r1)</code>: <code>r1</code> is
+      passed in as <code>self</code>.</div>
+    <div class="feedback" data-for="b">Right. Python passes the instance before the dot, <code>r1</code>,
+      as the first argument, <code>self</code>.</div>
+    <div class="feedback" data-for="c">Not quite. <code>describe</code> is the method that's running;
+      <code>self</code> is the instance it's working on: <code>r1</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>3. Which line stores the attribute <code>mgmt_ip</code> on <code>r1</code>?</legend>
+    <label><input type="radio" name="q3" value="a"> Line 2</label>
+    <label><input type="radio" name="q3" value="b"> Line 4</label>
+    <label><input type="radio" name="q3" value="c"> Line 8</label>
+    <div class="feedback" data-for="a">Not quite. Line 2 only says <code>__init__</code> takes a
+      <em>parameter</em> called <code>mgmt_ip</code>. A parameter is a local name for the argument;
+      nothing is stored on the instance until line 4 runs.</div>
+    <div class="feedback" data-for="b">Right. <code>self.mgmt_ip = mgmt_ip</code> stores the parameter's
+      value on the instance as an attribute. It runs when line 11 calls <code>Device(...)</code>.</div>
+    <div class="feedback" data-for="c">Not quite. Line 8 <em>reads</em> <code>self.mgmt_ip</code>; it
+      doesn't store anything. The attribute must already exist, or line 8 would fail.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="c">
+    <legend>4. <code>r1.describe()</code> is exactly the same call as which of these?</legend>
+    <label><input type="radio" name="q4" value="a"> describe(Device, r1)</label>
+    <label><input type="radio" name="q4" value="b"> r1.describe(r1)</label>
+    <label><input type="radio" name="q4" value="c"> Device.describe(r1)</label>
+    <div class="feedback" data-for="a">Not quite. There's no function called <code>describe</code> outside
+      the class any more, so this would raise <code>NameError</code>.</div>
+    <div class="feedback" data-for="b">Not quite. Python already passes <code>r1</code> as <code>self</code>,
+      so this passes it twice. <code>describe</code> takes only <code>self</code>, so you'd get a
+      <code>TypeError</code> about too many arguments.</div>
+    <div class="feedback" data-for="c">Right. This is the tutorial's “<code>x.f()</code> is exactly
+      equivalent to <code>MyClass.f(x)</code>”: the instance becomes <code>self</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="a">
+    <legend>5. After line 12 creates <code>sw1</code>, what is <code>r1.hostname</code>?</legend>
+    <label><input type="radio" name="q5" value="a"> "r1"</label>
+    <label><input type="radio" name="q5" value="b"> "sw1"</label>
+    <label><input type="radio" name="q5" value="c"> hostname</label>
+    <div class="feedback" data-for="a">Right. Each instance has its own attributes. Creating
+      <code>sw1</code> ran <code>__init__</code> on a <em>different</em> instance, so <code>r1</code> is untouched.</div>
+    <div class="feedback" data-for="b">Not quite. Line 12 made a separate instance and stored
+      <code>"sw1"</code> on <em>it</em>. <code>r1</code> still holds what line 11 stored.</div>
+    <div class="feedback" data-for="c">Not quite. <code>hostname</code> is the attribute's name;
+      <code>r1.hostname</code> gives you its value, which is <code>"r1"</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>6. When does <code>__init__</code> run?</legend>
+    <label><input type="radio" name="q6" value="a"> Once, when Python reads the class</label>
+    <label><input type="radio" name="q6" value="b"> Each time Device(...) is called</label>
+    <label><input type="radio" name="q6" value="c"> Each time describe() is called</label>
+    <div class="feedback" data-for="a">Not quite. Reading the class only defines its methods.
+      <code>__init__</code> runs on each new instance, so it runs twice here: line 11 and line 12.</div>
+    <div class="feedback" data-for="b">Right. Every <code>Device(...)</code> creates a new instance and runs
+      <code>__init__</code> on it: twice in this listing, at lines 11 and 12.</div>
+    <div class="feedback" data-for="c">Not quite. Calling a method doesn't re-run <code>__init__</code>.
+      <code>describe</code> uses the attributes <code>__init__</code> already stored.</div>
+  </fieldset>
+  <p class="quiz-score" data-quiz-score></p>
+
+  <h2>Your turn: add to the class</h2>
+  <p>In your procedural scripts you'd write <code>ssh_target(device)</code> to build a login string
+    like <code>netops@10.0.0.1</code>. Add that to the class instead, in
+    <code>lessons/code/l0001_device.py</code> (open it from the Explorer sidebar).</p>
+  <ol>
+    <li><strong>Store a username.</strong> Give <code>__init__</code> a fourth parameter,
+      <code>username</code>, and store it on the instance as an attribute called <code>username</code>.</li>
+    <li><strong>Add a method.</strong> Add a method <code>ssh_target</code> that returns the username,
+      <code>@</code>, and the management IP, for example <code>"netops@10.0.0.1"</code>.</li>
+    <li><strong>Update the example</strong> at the bottom of the file so the call to <code>Device(...)</code>
+      passes a username, and print <code>r1.ssh_target()</code>.</li>
+    <li><strong>Check it:</strong>
+<pre>python3 lessons/code/l0001_check.py</pre>
+      It tells you which step passed or what's wrong. Fix until it says “All checks passed.”</li>
+  </ol>
+  <p>Then tell me in the chat: your first-try quiz score, and that the file is ready. I'll read
+    and review it directly. You don't need to paste it.</p>
+
+  <h2>Read or watch</h2>
+  <p><strong>Primary source:</strong> the Python tutorial,
+    <a href="https://docs.python.org/3/tutorial/classes.html#a-first-look-at-classes">§9.3 A First Look at Classes</a>,
+    sections 9.3.1 to 9.3.4. They're short, and you can now read them with the vocabulary above.
+    If you'd like a video first: Corey Schafer's
+    <a href="https://www.youtube.com/watch?v=ZDa-Z5JzLYM">Classes and Instances</a> (about 15 minutes)
+    builds the same ideas with an employee example.</p>
+  <p>The terms are collected in the <a href="../reference/class-anatomy.html">class anatomy</a> sheet.</p>
+
+  <div class="note">
+    <p><strong>Ask me anything,</strong> especially if a word in this lesson isn't clear. If you
+      can't follow something, that's my problem to fix, not yours. Say which sentence lost you.</p>
+  </div>
+
+  <footer>
+    <p>Next: lesson 0002.</p>
+  </footer>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class Anatomy</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Reference</p>
+    <h1>Class anatomy</h1>
+    <p class="subtitle">The parts of a class, what each is called, and the dict-and-functions code it replaces.</p>
+  </header>
+
+  <h2>The parts</h2>
+<pre>class Device:                                         # the CLASS (the blueprint)
+    def __init__(self, hostname, mgmt_ip, platform):  # the INITIALIZER; runs on each new instance
+        self.hostname = hostname                      # stores an ATTRIBUTE on the instance
+        self.mgmt_ip = mgmt_ip
+        self.platform = platform
+
+    def describe(self):                               # a METHOD; self = the instance it works on
+        return f"{self.hostname} ({self.platform}) at {self.mgmt_ip}"
+
+
+r1 = Device("r1", "10.0.0.1", "ios")                  # INSTANTIATE: creates an INSTANCE, runs __init__
+print(r1.hostname)                                    # read an attribute: 'r1'
+print(r1.describe())                                  # call a method; same as Device.describe(r1)</pre>
+
+  <h2>From dicts and functions to a class</h2>
+  <table class="ref">
+    <thead><tr><th>Dict and functions</th><th>Class</th><th>Term</th></tr></thead>
+    <tbody>
+      <tr><td><code>make_device(...)</code></td><td><code>Device(...)</code></td><td>instantiate: create an instance</td></tr>
+      <tr><td>the dict</td><td>the instance (object)</td><td>instance</td></tr>
+      <tr><td><code>device["hostname"]</code></td><td><code>r1.hostname</code></td><td>attribute</td></tr>
+      <tr><td>body of <code>make_device</code></td><td><code>__init__</code></td><td>initializer</td></tr>
+      <tr><td><code>def describe(device)</code></td><td><code>def describe(self)</code> in the class</td><td>method</td></tr>
+      <tr><td><code>describe(r1)</code></td><td><code>r1.describe()</code></td><td>method call; <code>r1</code> becomes <code>self</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Rules to remember</h2>
+  <ul>
+    <li><code>r1.describe()</code> is exactly <code>Device.describe(r1)</code>
+      (<a href="https://docs.python.org/3/tutorial/classes.html#method-objects">tutorial §9.3.4</a>).</li>
+    <li><code>self</code> is only a naming convention for the first parameter
+      (<a href="https://docs.python.org/3/tutorial/classes.html#random-remarks">§9.4</a>).</li>
+    <li><code>__init__</code> runs once per <code>Device(...)</code> call, after the new instance exists
+      (<a href="https://docs.python.org/3/reference/datamodel.html#object.__init__">data model</a>).
+      Tutorials often call it the constructor.</li>
+    <li>Each instance has its own attributes. Creating <code>sw1</code> doesn't change <code>r1</code>.</li>
+    <li>A parameter (<code>mgmt_ip</code>) is a local name for the argument; <code>self.mgmt_ip = mgmt_ip</code>
+      is what stores it on the instance.</li>
+    <li>When a dict and a few functions do the job, keep them. Use a class when data and the functions
+      that belong to it should travel together.</li>
+  </ul>
+
+  <footer>
+    <p>From <a href="../lessons/0001-what-a-class-is.html">lesson 0001</a> ·
+      Terms: <a href="oop-glossary.html">glossary</a></p>
+  </footer>
+</main>
+</body>
+</html>
