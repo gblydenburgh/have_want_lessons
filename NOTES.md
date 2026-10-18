@@ -130,6 +130,7 @@ Agreed 2026-10-18.
   - Already taught here (LR-0003): names refer to objects, `==` vs `is`, arguments as assignment. The other course uses and reviews these; it doesn't teach them again.
   - If one course needs something the other owns before it's been taught, teach the minimum, say so, and record it in a learning record.
 - **At the start of each session, skim the other course's `learning-records/`** to use what it has taught (as practice) instead of teaching it again.
+- **"I think I already covered that."** When I say a topic was covered in the other course, stop and check how: its lesson file (the angle, depth and examples), its session record (what I actually showed) and its learning record. Then tell me which case applies: (1) covered the same way and shown, so use it as review and practice; (2) covered from a different angle or depth, so teach only the difference and link back; (3) presented but never shown, so treat it as not yet learned. (Agreed 2026-10-18.)
 - **One vocabulary.** Terms both courses use must match `reference/oop-glossary.html`.
 
 ## Session length
