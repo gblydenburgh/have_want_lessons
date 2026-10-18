@@ -124,6 +124,7 @@ Agreed 2026-10-18.
 - **The split, so the two courses don't teach the same thing twice:**
   - *This course owns classes:* route steps 3–7 (attribute lookup, `self` binding, inheritance and `super()`, `property`, special methods), then the resource-module framework.
   - *The other course owns general Python:* mutability and copies (including the `deepcopy` question lesson 0002 deferred), hashability, scope, iteration, plus data structures, algorithms and design.
+  - *Class mechanics here, class-design judgment there* (agreed 2026-10-18; the other course's `docs/adr/0001`): this course teaches how classes work and how the resource-module framework uses them. The other course teaches when a class, a function or a dict is the better design, and composition vs inheritance, using only mechanics this course's learning records show.
   - Already taught here (LR-0003): names refer to objects, `==` vs `is`, arguments as assignment. The other course uses and reviews these; it doesn't teach them again.
   - If one course needs something the other owns before it's been taught, teach the minimum, say so, and record it in a learning record.
 - **At the start of each session, skim the other course's `learning-records/`** to use what it has taught (as practice) instead of teaching it again.

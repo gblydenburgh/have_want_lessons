@@ -11,7 +11,7 @@ These aren't two separate goals. The resource-module framework is built from cla
 
 ## Success looks like
 - **I understand how resource modules work inside:** I can trace a module from input to device and back, and say which class owns each step.
-- **Object-oriented design, the judgment part.** I can trace short, simple classes from teaching exercises, but not real-world code. The goal is to read real class code, *write* my own, and to decide what deserves to be a class and what should stay a function.
+- **Object-oriented design, the judgment part.** I can trace short, simple classes from teaching exercises, but not real-world code. The goal is to read real class code, *write* my own, and to understand why framework code such as the resource modules divides its work across the classes it does. The general judgment of when a class, a function or a dict is the better design is taught in the parallel course (`/home/gary/Projects/python-design-course`, its `docs/adr/0001`), using the mechanics this course teaches.
 - I can fix a real bug in a resource module, add a feature to one, and eventually build my own, with tests.
 
 ## Constraints
