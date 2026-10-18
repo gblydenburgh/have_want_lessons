@@ -35,7 +35,9 @@
 
     <dt>attribute</dt>
     <dd>A named value stored on an instance, read with a dot: <code>r1.hostname</code>. Like a dict key,
-      written differently.</dd>
+      written differently. Like any name, it <em>refers to</em> an object: after
+      <code>self.hostname = hostname</code>, the attribute and the parameter refer to the same string.
+      <span class="not">Not a copy of the value.</span></dd>
 
     <dt>method</dt>
     <dd>A function defined inside a class, which works on one instance at a time:
@@ -66,7 +68,58 @@
     <dd>A name that exists only while a function or method runs, including its parameters. It's gone
       when the function returns.
       <span class="not">Not an attribute: in <code>__init__</code>, the parameter <code>mgmt_ip</code>
-        disappears, while <code>self.mgmt_ip = mgmt_ip</code> stores the value on the instance, where it stays.</span></dd>
+        disappears, while <code>self.mgmt_ip = mgmt_ip</code> makes an attribute on the instance refer
+        to the same object, and the attribute stays.</span></dd>
+
+    <dt>expression</dt>
+    <dd>Code that produces a value: <code>have == expected</code>, <code>"r1"</code>,
+      <code>merge_want(have, overrides)</code>. Any expression can be put in parentheses without
+      changing its value.
+      <span class="not">A comma inside the parentheses makes a tuple: <code>("r1", "sw1")</code>.</span></dd>
+
+    <dt>statement</dt>
+    <dd>An instruction Python carries out: an assignment, <code>if</code>, <code>def</code>,
+      <code>return</code>, <code>assert</code>. <code>assert &lt;condition&gt;, &lt;message&gt;</code>
+      is a statement made of two expressions.
+      <span class="not">Not a function: the assert's message isn't an argument.</span></dd>
+  </dl>
+
+  <h2>Names and objects</h2>
+  <p>From <a href="../lessons/0002-names-refer-to-objects.html">lesson 0002</a>. Primary source:
+    Ned Batchelder, <a href="https://nedbatchelder.com/text/names1.html">Facts and Myths about Python names and values</a>.</p>
+  <dl class="glossary">
+    <dt>object</dt>
+    <dd>Any value Python has created: a dict, a list, a string, a number, a <code>Device</code> instance.</dd>
+
+    <dt>name (variable)</dt>
+    <dd>A label that refers to an object: <code>have</code>, <code>r1</code>. Parameters and attributes
+      are names too.
+      <span class="not">A name doesn't contain or own its object, and an object doesn't know its names.</span></dd>
+
+    <dt>refer to / reference</dt>
+    <dd>A name <em>refers to</em> an object; the link is a <em>reference</em>. Python follows it
+      automatically every time the name is used, so there's no <code>@{}</code> or <code>-&gt;</code>.</dd>
+
+    <dt>assignment</dt>
+    <dd><code>name = expression</code> makes the name refer to the object on the right
+      (the Python reference: the name is “bound” to the object).
+      <span class="not">Never a copy: <code>want = have</code> makes no new dict.</span></dd>
+
+    <dt>aliased / alias</dt>
+    <dd>An object is aliased when two or more names refer to it; each name is an alias. A change to
+      the object is seen through all of them.</dd>
+
+    <dt>mutate</dt>
+    <dd>Change an object itself: <code>want["name"] = …</code>, <code>.update()</code>,
+      <code>.append()</code>, <code>r1.mgmt_ip = …</code>.</dd>
+
+    <dt>rebind</dt>
+    <dd>Make a name refer to a different object: <code>want = {...}</code>. Only that name changes.
+      <span class="not">Doesn't change the object the name referred to before.</span></dd>
+
+    <dt>equal (<code>==</code>) / identical (<code>is</code>)</dt>
+    <dd>Equal: same contents. Identical: the same object. Two separately built dicts with the same
+      keys and values are equal but not identical. Think Python says “equivalent” for equal.</dd>
   </dl>
 
   <h2>Reconciliation and Ansible</h2>
@@ -84,6 +137,8 @@
 
   <footer>
     <p>Used by <a href="../lessons/0001-what-a-class-is.html">lesson 0001</a> ·
+      <a href="../lessons/0002-names-refer-to-objects.html">lesson 0002</a> ·
+      <a href="names-and-objects.html">names and objects</a> ·
       <a href="class-anatomy.html">class anatomy</a></p>
   </footer>
 </main>

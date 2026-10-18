@@ -269,6 +269,20 @@ table.ref td:first-child { white-space: nowrap; width: 1%; }
 @media (max-width: 600px) { table.ref td:first-child { white-space: normal; } }
 .cite { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); }
 
+/* Name → object diagrams, built by assets/refs-diagram.js */
+figure.refs { margin: 1.2rem 0; }
+figure.refs svg { display: block; max-width: 100%; height: auto; font-family: var(--mono); font-size: 13px; }
+figure.refs text { fill: var(--text); }
+figure.refs .ref-name rect { fill: var(--surface); stroke: var(--muted); stroke-width: 1; }
+figure.refs .ref-obj rect { fill: var(--code-bg); stroke: var(--accent); stroke-width: 1.3; }
+figure.refs .ref-type, figure.refs .ref-note { fill: var(--muted); font-family: var(--sans); font-size: 11px; }
+figure.refs .ref-arrow { stroke: var(--text); stroke-width: 1.4; }
+figure.refs .ref-head { fill: var(--text); }
+figure.refs .faded { opacity: 0.35; }
+figure.refs figcaption { font-family: var(--sans); font-size: 0.85rem; color: var(--muted); margin-top: 0.35rem; }
+.refs-row { display: grid; gap: 0 1.5rem; }
+@media (min-width: 760px) { .refs-row { grid-template-columns: 1fr 1fr; } }
+
 footer {
   margin-top: 3rem;
   font-family: var(--sans);

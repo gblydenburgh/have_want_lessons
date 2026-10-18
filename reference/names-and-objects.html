@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Names and Objects</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/refs-diagram.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Reference</p>
+    <h1>Names and objects</h1>
+    <p class="subtitle">What assignment does, mutating vs rebinding, and the Perl you already know.</p>
+  </header>
+
+  <h2>The rules</h2>
+  <ol>
+    <li><strong>Names refer to objects.</strong> A name (variable, attribute, parameter) never
+      contains an object; it refers to one.</li>
+    <li><strong>Assignment makes the name on the left refer to the object on the right.</strong></li>
+    <li><strong>Assignment never copies.</strong> <code>want = have</code> gives one object, two names.</li>
+    <li><strong>Mutating an object</strong> is seen through every name that refers to it.</li>
+    <li><strong>Rebinding a name</strong> moves only that name. Other names, and the old object, are untouched.</li>
+    <li><strong>Passing an argument is assignment:</strong> the parameter refers to the caller's object.</li>
+    <li><strong>A separate object must be built on purpose.</strong> No assignment gives you one.</li>
+  </ol>
+
+  <div class="refs-row">
+    <figure class="refs" data-refs='{
+      "names": [{"name": "have", "to": "d1"}, {"name": "want", "to": "d1"}],
+      "objects": [{"id": "d1", "type": "dict", "lines": ["&#39;vlan_id&#39;: 10", "&#39;name&#39;: &#39;staff&#39;"]}]
+    }'><figcaption><code>want = have</code>, then <code>want["name"] = "staff"</code>: aliased, so HAVE changed too.</figcaption></figure>
+    <figure class="refs" data-refs='{
+      "names": [{"name": "have", "to": "d1"}, {"name": "want", "to": "d2"}],
+      "objects": [{"id": "d1", "type": "dict", "lines": ["&#39;vlan_id&#39;: 10", "&#39;name&#39;: &#39;users&#39;"]},
+                  {"id": "d2", "type": "dict", "lines": ["&#39;vlan_id&#39;: 10", "&#39;name&#39;: &#39;staff&#39;"]}]
+    }'><figcaption>Two separate dicts: equal contents would still not be identical.</figcaption></figure>
+  </div>
+
+  <h2>Mutate or rebind?</h2>
+  <table class="ref">
+    <thead><tr><th>Kind</th><th>Looks like</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>rebind</td><td><code>want = …</code> (a bare name on the left)</td>
+        <td>Only that name moves to another object.</td></tr>
+      <tr><td>mutate</td><td><code>want["name"] = …</code>, <code>want.update(…)</code>,
+        <code>vlans.append(…)</code>, <code>r1.mgmt_ip = …</code></td>
+        <td>The object changes. Every alias sees it.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Equal or identical?</h2>
+  <table class="ref">
+    <thead><tr><th>Write</th><th>Asks</th></tr></thead>
+    <tbody>
+      <tr><td><code>a == b</code></td><td>Same contents? (<strong>equal</strong>)</td></tr>
+      <tr><td><code>a is b</code></td><td>Same object? (<strong>identical</strong>)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>From Perl</h2>
+  <table class="ref">
+    <thead><tr><th>Perl</th><th>Python</th></tr></thead>
+    <tbody>
+      <tr><td><code>$want_ref = $have_ref;</code></td><td><code>want = have</code> (one hash/dict, two references)</td></tr>
+      <tr><td><code>$want_ref-&gt;{name}</code>, <code>%{$ref}</code>, <code>@{$ref}</code></td>
+        <td>Not needed: every name is a reference, and Python always follows it.</td></tr>
+      <tr><td><code>%want = %have;</code> (copies)</td><td>No assignment copies. Build a new object on purpose.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>HAVE and WANT</h2>
+  <ul>
+    <li>Build WANT as a new dict; never change the HAVE dict to get it.</li>
+    <li>If WANT and HAVE are one object, every comparison finds nothing to do, and the module
+      silently reports no change.</li>
+    <li>netcommon's <code>dict_merge(base, other)</code> “Return[s] a new dict object”.</li>
+  </ul>
+
+  <h2>Check in the REPL</h2>
+<pre>>>> want is have      # one object?
+>>> want == have      # same contents?
+>>> d.hostname is name   # attributes refer to objects too</pre>
+
+  <p class="cite">Sources: Ned Batchelder, <a href="https://nedbatchelder.com/text/names1.html">Facts and Myths about Python names and values</a>;
+    Python reference, <a href="https://docs.python.org/3/reference/simple_stmts.html#assignment-statements">assignment statements</a>
+    and <a href="https://docs.python.org/3/reference/expressions.html#is-not">identity comparisons</a>;
+    <a href="https://allendowney.github.io/ThinkPython/chap09.html#aliasing">Think Python §9.9–9.11</a>;
+    <a href="https://perldoc.perl.org/perlreftut">perlreftut</a>.</p>
+
+  <footer>
+    <p>From <a href="../lessons/0002-names-refer-to-objects.html">lesson 0002</a> ·
+      Terms: <a href="oop-glossary.html">glossary</a> · <a href="class-anatomy.html">class anatomy</a></p>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Names Refer to Objects</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/refs-diagram.js" defer></script>
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/answer-sheet.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Lesson 0002 · Classes from the ground up</p>
+    <h1>Names refer to objects</h1>
+    <p class="subtitle">Every Python name works like a Perl reference, and Python follows it for you.
+      That's why you never write <code>@{}</code>, and why <code>want = have</code> can wreck a diff.</p>
+    <div class="meta">
+      <span>About 30 minutes</span>
+      <span>Builds on <a href="0001-what-a-class-is.html">lesson 0001</a></span>
+      <span>Depth: layer 2 (what Python creates, and what each name refers to)</span>
+    </div>
+  </header>
+
+  <h2>Warm-up: from memory</h2>
+  <p>Before reading on, answer these without opening lesson 0001. Struggling to recall is what
+    makes it stick, so a wrong or partial answer here is useful. Your answers stay in this browser
+    until you copy them at the end of the page.</p>
+
+  <div class="question">
+    <div class="part">
+      <p><span class="part-label">R1</span>This code has run:</p>
+<pre>class Device:
+    def __init__(self, hostname, mgmt_ip, platform):
+        self.hostname = hostname
+        self.mgmt_ip = mgmt_ip
+        self.platform = platform
+
+    def describe(self):
+        return f"{self.hostname} ({self.platform}) at {self.mgmt_ip}"
+
+
+r1 = Device("r1", "10.0.0.1", "ios")</pre>
+      <p>What is stored in the class <code>Device</code>, and what is stored on the instance
+        <code>r1</code>? Answer as two lines: <code>Device: …</code> and <code>r1: …</code></p>
+      <textarea data-answer="R1" data-label="R1. What's stored in Device, and what's on r1"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">R2</span>With the same code, rewrite <code>r1.describe()</code> as
+        the same call made through the class. Then say in one sentence what <code>self</code> is
+        while it runs.</p>
+      <textarea data-answer="R2" data-label="R2. r1.describe() through the class, and what self is"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">R3</span>A different class:</p>
+<pre>class Interface:
+    def __init__(self, name, access_vlan):
+        self.name = name
+        self.access_vlan = access_vlan
+
+    def access_cmd(self):
+        return f"switchport access vlan {self.access_vlan}"
+
+
+gi1 = Interface("Gi0/1", 10)</pre>
+      <p>What does <code>vars(gi1)</code> show? Is <code>access_cmd</code> in it? Answer: the dict,
+        then yes or no with a one-line reason.</p>
+      <textarea data-answer="R3" data-label="R3. vars(gi1), and is access_cmd in it"></textarea>
+    </div>
+  </div>
+
+  <h2>A bug to start with</h2>
+  <p>You've read a VLAN from a device (HAVE). The task asks for a new name. A natural first draft
+    builds WANT by starting from HAVE and changing the one key, then compares the two to decide
+    whether the device needs a change. The file is <code>lessons/code/l0002_demo.py</code>:</p>
+<pre>have = {"vlan_id": 10, "name": "users"}   # read from the device
+want = have                                # start from what the device has
+want["name"] = "staff"                     # apply the task's change
+
+print("HAVE:", have)
+print("WANT:", want)
+print("Needs a change:", want != have)</pre>
+
+  <div class="question">
+    <div class="part">
+      <p><span class="part-label">P1</span><strong>Before you run it,</strong> write the three
+        lines you expect it to print.</p>
+      <textarea data-answer="P1" data-label="P1. Predicted output of l0002_demo.py"></textarea>
+    </div>
+  </div>
+  <p>Now run it:</p>
+<pre>python3 lessons/code/l0002_demo.py</pre>
+  <p>This is what it printed when this lesson was written:</p>
+<pre>HAVE: {'vlan_id': 10, 'name': 'staff'}
+WANT: {'vlan_id': 10, 'name': 'staff'}
+Needs a change: False</pre>
+  <p>HAVE says <code>staff</code>, though the device still has <code>users</code>. The comparison
+    says nothing needs changing, so a module built this way would report <code>changed: false</code>
+    and leave the device as it is. No error, no warning. Line 2 is the cause, and to see why you
+    need Python's model of names.</p>
+
+  <h2>Names and objects</h2>
+  <p>A few words first.</p>
+  <dl class="glossary">
+    <dt>object</dt>
+    <dd>Any value Python has created: a dict, a list, a string, a number, a <code>Device</code>
+      instance. Each object exists once, in memory, until nothing uses it any more.</dd>
+    <dt>name</dt>
+    <dd>What you've always called a variable: <code>have</code>, <code>want</code>,
+      <code>r1</code>. A name isn't an object, and it doesn't contain one. It <strong>refers
+      to</strong> one.</dd>
+    <dt>reference</dt>
+    <dd>The link from a name to an object. “<code>have</code> refers to the dict” and
+      “<code>have</code> is a reference to the dict” mean the same thing.</dd>
+  </dl>
+
+  <p>Now the two rules everything else follows from (both from
+    <a href="https://nedbatchelder.com/text/names1.html">Ned Batchelder's talk</a>, backed by the
+    <a href="https://docs.python.org/3/reference/simple_stmts.html#assignment-statements">Python reference</a>:
+    “the name is bound to the object”):</p>
+  <div class="note">
+    <p><strong>1. Assignment makes the name on the left refer to the object on the right.</strong></p>
+    <p><strong>2. Assignment never copies.</strong> If the right side is an object that already
+      exists, the name ends up referring to that same object.</p>
+  </div>
+
+  <p>Line 1, <code>have = {"vlan_id": 10, "name": "users"}</code>: the <code>{…}</code> on the
+    right creates a new dict object, and the assignment makes the name <code>have</code> refer to it.</p>
+  <figure class="refs" data-refs='{
+    "names": [{"name": "have", "to": "d1"}],
+    "objects": [{"id": "d1", "type": "dict", "lines": ["&#39;vlan_id&#39;: 10", "&#39;name&#39;: &#39;users&#39;"]}]
+  }'><figcaption>After line 1: one name, one object.</figcaption></figure>
+
+  <p>Line 2, <code>want = have</code>: the right side is just the name <code>have</code>, so
+    Python follows it to the dict it refers to, and makes <code>want</code> refer to <em>that
+    same dict</em>. Nothing is copied, and no second dict exists.</p>
+  <figure class="refs" data-refs='{
+    "names": [{"name": "have", "to": "d1"}, {"name": "want", "to": "d1"}],
+    "objects": [{"id": "d1", "type": "dict", "lines": ["&#39;vlan_id&#39;: 10", "&#39;name&#39;: &#39;users&#39;"]}]
+  }'><figcaption>After line 2: two names, still one object.</figcaption></figure>
+
+  <p>Line 3, <code>want["name"] = "staff"</code>: Python follows <code>want</code> to the dict and
+    changes the dict. <code>have</code> refers to the same dict, so it sees the change. Then
+    <code>want != have</code> compares a dict with itself, which can only be <code>False</code>.</p>
+  <figure class="refs" data-refs='{
+    "names": [{"name": "have", "to": "d1"}, {"name": "want", "to": "d1"}],
+    "objects": [{"id": "d1", "type": "dict", "lines": ["&#39;vlan_id&#39;: 10", "&#39;name&#39;: &#39;staff&#39;"]}]
+  }'><figcaption>After line 3: the one dict has changed, so both names show the change.</figcaption></figure>
+
+  <p>When two or more names refer to one object, the object is <strong>aliased</strong>, and each
+    name is an <strong>alias</strong> (Think Python,
+    <a href="https://allendowney.github.io/ThinkPython/chap09.html#aliasing">§9.10</a>).</p>
+
+  <h3>Checking it: <code>is</code> and <code>==</code></h3>
+  <p>Python has two different questions you can ask about two names:</p>
+  <table class="ref">
+    <thead><tr><th>Write</th><th>It asks</th><th>Term</th></tr></thead>
+    <tbody>
+      <tr><td><code>a == b</code></td><td>Do the two objects have the same contents?</td><td><strong>equal</strong></td></tr>
+      <tr><td><code>a is b</code></td><td>Do both names refer to the very same object?
+        (<a href="https://docs.python.org/3/reference/expressions.html#is-not">reference §6.10.3</a>:
+        “<code>x is y</code> is true if and only if <em>x</em> and <em>y</em> are the same object”)</td>
+        <td><strong>identical</strong></td></tr>
+    </tbody>
+  </table>
+  <p>After the demo, <code>want is have</code> is <code>True</code>. Two separately built dicts
+    with the same contents are equal but not identical: <code>==</code> gives <code>True</code>,
+    <code>is</code> gives <code>False</code>.</p>
+
+  <h2>Where Perl's <code>@{}</code> went</h2>
+  <p>Perl has two kinds of variable for a hash. <code>%have</code> <em>is</em> the hash. A scalar
+    like <code>$have_ref</code> holds a <em>reference</em> to a hash, made with a backslash
+    (<a href="https://perldoc.perl.org/perlreftut#Make-Rule-1">perlreftut, Make Rule 1</a>).
+    The two behave differently when you assign them:</p>
+<pre>my %want = %have;             # copies the hash: two separate hashes
+$want{name} = 'staff';        # %have still says 'users'
+
+my $have_ref = \%have;
+my $want_ref = $have_ref;     # copies the reference: one hash, two references
+$want_ref->{name} = 'staff';  # %have now says 'staff'</pre>
+  <p class="cite">Checked with Perl 5.38. perlreftut on the second case:
+    “You get two references to the same array.” (<a href="https://perldoc.perl.org/perlreftut#Use-Rule-1">perlreftut</a>)</p>
+  <p>To use what a Perl reference refers to, you <em>dereference</em> it: <code>@{$aref}</code>,
+    <code>%{$href}</code>, or <code>-&gt;</code>. Without that, Perl would treat
+    <code>$have_ref</code> as the reference itself, not the hash. That is what <code>@{}</code>
+    was for.</p>
+  <p><strong>Python has only the second kind.</strong> Every name is like <code>$have_ref</code>:
+    it always holds a reference, never the object itself. Because there's no other kind, Python
+    always follows the reference for you, every time you use the name. There's no choice to
+    make, so there's nothing like <code>@{}</code> to write.</p>
+  <table class="ref">
+    <thead><tr><th>Perl</th><th>Python</th></tr></thead>
+    <tbody>
+      <tr><td><code>my $want_ref = $have_ref;</code></td><td><code>want = have</code> — one object, two references</td></tr>
+      <tr><td><code>$want_ref-&gt;{name} = 'staff';</code></td><td><code>want["name"] = "staff"</code> — following the reference is automatic</td></tr>
+      <tr><td><code>my %want = %have;</code></td><td>No assignment does this. A copy has to be built on purpose.</td></tr>
+    </tbody>
+  </table>
+  <p>So the demo's line 2 is Python's version of <code>$want_ref = $have_ref</code>. If you'd
+    read it as <code>%want = %have</code>, the bug is invisible.</p>
+
+  <h2>Changing an object, or moving a name</h2>
+  <p>Line 3 changed the dict. A different kind of line moves a name instead. The two look
+    similar but do very different things:</p>
+  <table class="ref">
+    <thead><tr><th>Kind</th><th>Examples</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td><strong>mutate</strong> (change the object)</td>
+        <td><code>want["name"] = "staff"</code><br><code>want.update(...)</code><br><code>vlans.append(30)</code><br><code>r1.mgmt_ip = "10.0.0.9"</code></td>
+        <td>The object itself changes. Every name that refers to it sees the change.</td></tr>
+      <tr><td><strong>rebind</strong> (move a name)</td>
+        <td><code>want = {...}</code></td>
+        <td>Only that one name changes: it now refers to a different object. Other names, and the
+          object it used to refer to, are untouched.</td></tr>
+    </tbody>
+  </table>
+  <p>The test: is there a bare name, and nothing else, on the left of the <code>=</code>? Then
+    it's a rebind. A subscript (<code>want[…]</code>), an attribute (<code>r1.mgmt_ip</code>) or a
+    method call (<code>.append</code>) changes an object.</p>
+  <p>Here's a rebind after <code>want = have</code>:</p>
+<pre>have = {"vlan_id": 10, "name": "users"}
+want = have
+want = {"vlan_id": 10, "name": "staff"}    # a new dict; want now refers to it</pre>
+  <figure class="refs" data-refs='{
+    "names": [{"name": "have", "to": "d1"}, {"name": "want", "to": "d2"}],
+    "objects": [{"id": "d1", "type": "dict", "lines": ["&#39;vlan_id&#39;: 10", "&#39;name&#39;: &#39;users&#39;"]},
+                {"id": "d2", "type": "dict", "lines": ["&#39;vlan_id&#39;: 10", "&#39;name&#39;: &#39;staff&#39;"]}]
+  }'><figcaption>After the rebind: <code>want</code> moved to a new dict; <code>have</code> and its dict are as they were.</figcaption></figure>
+  <p>Being aliased isn't permanent. Line 2 doesn't link the two names. It just made them refer
+    to the same object for now.</p>
+
+  <h2>Two corrections to lesson 0001</h2>
+  <p>With this model in place, two sentences in lesson 0001 were imprecise. Lesson 0001 stays as
+    it was; the corrections are here.</p>
+  <ol>
+    <li><strong>“The instance is given the name <code>r1</code>.”</strong> That suggests the
+      instance owns a name. It doesn't. <code>Device(...)</code> creates the instance and returns
+      it, and then the assignment makes the name <code>r1</code> refer to it. The instance doesn't
+      know which names refer to it. After <code>core = r1</code>, two names refer to it. In
+      <code>Device("r9", "10.0.0.9", "ios").describe()</code>, none do. That's also why
+      <code>print(r1)</code> shows <code>&lt;__main__.Device object at 0x…&gt;</code> and no name.</li>
+    <li><strong>Quiz question 3 said line 3 “copied the value onto the instance”.</strong> Nothing is
+      copied. <code>self.hostname = hostname</code> makes the attribute <code>hostname</code> on
+      the instance refer to the same string object the parameter refers to. When
+      <code>__init__</code> returns, the parameter is gone, but the attribute still refers to the
+      string, so the string stays. <strong>Attributes are names too:</strong> they refer to objects
+      exactly as <code>have</code> and <code>want</code> do.</li>
+  </ol>
+
+  <h2>Passing an argument is an assignment too</h2>
+  <p>Ned Batchelder: “Function arguments are perhaps the most important thing that doesn't look
+    like an assignment, but is.” When you call a function, Python makes each parameter refer to
+    the object you passed in. So the parameter and your name are aliases of one object while the
+    function runs:</p>
+<pre>def shutdown(interface):
+    interface["enabled"] = False         # mutates the dict that was passed in
+
+
+gi1 = {"name": "GigabitEthernet0/1", "enabled": True}
+shutdown(gi1)
+print(gi1["enabled"])                     # False</pre>
+  <figure class="refs" data-refs='{
+    "names": [{"name": "gi1", "to": "d1"}, {"name": "interface", "to": "d1", "note": "local"}],
+    "objects": [{"id": "d1", "type": "dict", "lines": ["&#39;name&#39;: &#39;GigabitEthernet0/1&#39;", "&#39;enabled&#39;: False"]}]
+  }'><figcaption>While <code>shutdown</code> runs. When it returns, the local name
+    <code>interface</code> is gone, but the change it made to the dict stays.</figcaption></figure>
+
+  <h2>See it in Python</h2>
+  <p>Don't take this page's word for it. Start Python with <code>python3</code> and type each
+    line after the <code>&gt;&gt;&gt;</code> prompt. This is what it printed when this lesson
+    was written:</p>
+<pre>>>> have = {"vlan_id": 10, "name": "users"}
+>>> want = have
+>>> want is have                  # one object, two names
+True
+>>> want["name"] = "staff"        # mutate: change the object
+>>> have
+{'vlan_id': 10, 'name': 'staff'}
+>>> want = {"vlan_id": 10, "name": "staff"}   # rebind: a new dict
+>>> want is have
+False
+>>> want == have                  # different objects, same contents
+True
+>>> name = "r1"
+>>> class Device:
+...     def __init__(self, hostname):
+...         self.hostname = hostname
+...
+>>> d = Device(name)
+>>> d.hostname is name            # the attribute refers to the same string
+True</pre>
+
+  <h2>Check yourself</h2>
+  <p>Six questions. Each picks an answer <em>and</em> a reason, so read every option to the end.
+    The page tells you straight away whether you're right and why. Only your first pick counts.</p>
+
+  <fieldset class="mcq" data-answer="c">
+    <legend>1. What does the last line print, and why?</legend>
+<pre>vlans_seen = [10, 20]
+report = vlans_seen
+vlans_seen.append(30)
+print(report)</pre>
+    <label><input type="radio" name="q1" value="a"> [10, 20], because report has its own copy</label>
+    <label><input type="radio" name="q1" value="b"> [10, 20, 30], because append updated both copies</label>
+    <label><input type="radio" name="q1" value="c"> [10, 20, 30], because names share one list</label>
+    <div class="feedback" data-for="a">Not quite. Line 2 doesn't copy; assignment never does. It makes
+      <code>report</code> refer to the same list as <code>vlans_seen</code>.</div>
+    <div class="feedback" data-for="b">Right output, wrong reason. There are no copies to update: one
+      list exists, and both names refer to it. <code>append</code> changed that one list.</div>
+    <div class="feedback" data-for="c">Right. Line 2 made <code>report</code> refer to the same list.
+      Line 3 mutated that list, and both names see it.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="a">
+    <legend>2. What does the last line print, and why?</legend>
+<pre>want = {"vlan_id": 10, "name": "users"}
+have = want
+want = {"vlan_id": 10, "name": "staff"}
+print(have["name"])</pre>
+    <label><input type="radio" name="q2" value="a"> users: line 3 made want refer to a new dict</label>
+    <label><input type="radio" name="q2" value="b"> staff: line 3 replaced the dict that both names share</label>
+    <label><input type="radio" name="q2" value="c"> staff: have stays linked to want from line 2 on</label>
+    <div class="feedback" data-for="a">Right. Line 3 is a rebind: a bare name on the left. It creates
+      a new dict and moves <code>want</code> to it. <code>have</code> still refers to the first dict.</div>
+    <div class="feedback" data-for="b">Not quite. A bare name on the left of <code>=</code> never
+      changes an object. Line 3 builds a new dict and moves only <code>want</code> to it.</div>
+    <div class="feedback" data-for="c">Not quite. Line 2 doesn't link the names. It made them refer to
+      the same object at that moment. Line 3 moves <code>want</code> on its own.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>3. What does the last line print, and why?</legend>
+<pre>class Device:
+    def __init__(self, hostname, mgmt_ip, platform):
+        self.hostname = hostname
+        self.mgmt_ip = mgmt_ip
+        self.platform = platform
+
+    def describe(self):
+        return f"{self.hostname} ({self.platform}) at {self.mgmt_ip}"
+
+
+r1 = Device("r1", "10.0.0.1", "ios")
+core = r1
+core.mgmt_ip = "10.0.0.9"
+print(r1.describe())</pre>
+    <label><input type="radio" name="q3" value="a"> r1 (ios) at 10.0.0.1: core refers to a separate copy</label>
+    <label><input type="radio" name="q3" value="b"> r1 (ios) at 10.0.0.9: both names refer to one instance</label>
+    <label><input type="radio" name="q3" value="c"> r1 (ios) at 10.0.0.1: core got its own new mgmt_ip</label>
+    <div class="feedback" data-for="a">Not quite. <code>core = r1</code> creates nothing: only
+      <code>Device(...)</code> creates an instance, and it ran once.</div>
+    <div class="feedback" data-for="b">Right. One instance exists, and <code>core</code> and
+      <code>r1</code> both refer to it. Setting an attribute through <code>core</code> mutates that
+      instance.</div>
+    <div class="feedback" data-for="c">Not quite. <code>core.mgmt_ip = …</code> sets an attribute on
+      the object <code>core</code> refers to, and that's the same instance as <code>r1</code>. There's
+      no second instance to hold a separate attribute.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="c">
+    <legend>4. After the last line, does <code>want</code> have a <code>'name'</code> key, and why?</legend>
+<pre>def add_default_name(vlan):
+    vlan = {"vlan_id": vlan["vlan_id"], "name": f"VLAN{vlan['vlan_id']:04}"}
+    return vlan
+
+
+want = {"vlan_id": 30}
+result = add_default_name(want)</pre>
+    <label><input type="radio" name="q4" value="a"> No: the parameter vlan received a copy of the dict</label>
+    <label><input type="radio" name="q4" value="b"> Yes: vlan and want refer to the same dict object</label>
+    <label><input type="radio" name="q4" value="c"> No: line 2 made vlan refer to a new dict</label>
+    <div class="feedback" data-for="a">Right answer, wrong reason. Passing an argument never copies:
+      when the call starts, <code>vlan</code> and <code>want</code> refer to the same dict. The
+      reason is line 2, which rebinds <code>vlan</code> to a new dict and leaves the old one alone.</div>
+    <div class="feedback" data-for="b">Not quite. They do when the call starts, but line 2 is a
+      rebind: it builds a new dict and moves only <code>vlan</code> to it. The dict <code>want</code>
+      refers to is never changed.</div>
+    <div class="feedback" data-for="c">Right. The call makes <code>vlan</code> refer to the same dict
+      as <code>want</code>. Line 2 is a rebind: it builds a new dict (with <code>'name': 'VLAN0030'</code>)
+      and moves only <code>vlan</code> to it. <code>want</code> stays <code>{'vlan_id': 30}</code>;
+      <code>result</code> refers to the new dict.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="a">
+    <legend>5. What does the last line print?</legend>
+<pre>have = {"vlan_id": 10, "name": "users"}
+want = {"vlan_id": 10, "name": "users"}
+print(have == want, have is want)</pre>
+    <label><input type="radio" name="q5" value="a"> True False</label>
+    <label><input type="radio" name="q5" value="b"> False False</label>
+    <label><input type="radio" name="q5" value="c"> True True</label>
+    <div class="feedback" data-for="a">Right. Each <code>{…}</code> creates a new dict, so there are two
+      objects with the same contents: equal (<code>==</code>) but not identical (<code>is</code>).</div>
+    <div class="feedback" data-for="b">Not quite. <code>==</code> compares contents, and the contents
+      are the same, so it's <code>True</code>. Only <code>is</code> asks whether they're the same object.</div>
+    <div class="feedback" data-for="c">Not quite. Each <code>{…}</code> creates a new dict, so
+      <code>have</code> and <code>want</code> refer to two different objects, and <code>is</code> gives
+      <code>False</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>6. <code>have</code> refers to a dict. Python's <code>want = have</code> behaves like which Perl line?</legend>
+    <label><input type="radio" name="q6" value="a"> my %want = %have;</label>
+    <label><input type="radio" name="q6" value="b"> my $want_ref = $have_ref;</label>
+    <label><input type="radio" name="q6" value="c"> my %want = %{$have_ref};</label>
+    <div class="feedback" data-for="a">Not quite. That copies the hash into a second, separate hash.
+      Python assignment never copies.</div>
+    <div class="feedback" data-for="b">Right. Copying a reference gives two references to one hash.
+      Every Python name is a reference, so <code>want = have</code> does exactly that.</div>
+    <div class="feedback" data-for="c">Not quite. That dereferences and then copies the hash into a
+      new <code>%want</code>: two separate hashes. Python assignment never copies.</div>
+  </fieldset>
+  <p class="quiz-score" data-quiz-score></p>
+
+  <h2>Your turn: fix a WANT builder</h2>
+  <p>The demo's bug usually turns up inside a function. Open
+    <code>lessons/code/l0002_want.py</code> from the Explorer sidebar:</p>
+<pre>def merge_want(have: dict, overrides: dict) -> dict:
+    """Return the WANT for one VLAN: the device's settings with the overrides applied."""
+    want = have
+    want.update(overrides)
+    return want</pre>
+  <ol>
+    <li><strong>Run it</strong> (<code>python3 lessons/code/l0002_want.py</code>) and check that
+      it shows the same bug as the demo.</li>
+    <li><strong>Write the test first.</strong> In the <code>if __name__ == "__main__":</code>
+      block, after the call, add one <code>assert</code> that is true only if HAVE came through the
+      call untouched. An <code>assert</code> stops the script with <code>AssertionError</code> when
+      its condition is false. The format is
+      <code>assert &lt;condition&gt;, "&lt;message if it fails&gt;"</code>, for example
+      <code>assert len(want) == 3, "WANT lost a key"</code>. Run the file. Your
+      <code>assert</code> should fail now; if it passes, it isn't testing the bug.</li>
+    <li><strong>Fix <code>merge_want</code></strong> so that it returns a WANT with the overrides
+      applied, and changes neither <code>have</code> nor <code>overrides</code>. Remember rule 2:
+      no assignment will ever give you a second dict. Something has to <em>build</em> one. Run the
+      file again: your <code>assert</code> should pass.</li>
+    <li><strong>Check your work:</strong>
+<pre>python3 lessons/code/l0002_check.py</pre>
+      Keep going until it prints “All checks passed.” Then do a polish pass: is the docstring
+      still true, and is anything left over from debugging?</li>
+  </ol>
+  <p>Then copy your answers below and paste them into the chat with your quiz score. Say the file
+    is ready for review.</p>
+
+  <section data-answer-sheet="0002" data-title="Lesson 0002">
+    <div class="question">
+      <div class="part">
+        <p><span class="part-label">Q</span>Optional: anything in this lesson that lost you, or that
+          you want to argue with.</p>
+        <textarea data-answer="Q" data-label="Questions or objections"></textarea>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button type="button" data-sheet-copy>Copy my answers</button>
+      <button type="button" class="secondary" data-sheet-clear>Clear</button>
+      <span class="sheet-status"></span>
+    </div>
+    <pre class="sheet-output" hidden></pre>
+  </section>
+
+  <h2>After the exercise: the same rule in a real module</h2>
+  <p>Read this once your fix passes. In <code>cisco.ios</code>, the VLAN module's config class
+    builds WANT for <code>state: merged</code> by merging the task's input onto HAVE
+    (<a href="https://github.com/ansible-collections/cisco.ios/blob/675a661cea0639fb9a00b290f5f36ebef6d25957/plugins/module_utils/network/ios/config/vlans/vlans.py#L111-L113">vlans.py, lines 111–113</a>):</p>
+<pre># if state is merged, merge want onto have and then compare
+if self.state == "merged":
+    wantd = dict_merge(haved, wantd)</pre>
+  <p>The next lines compare <code>wantd</code> with <code>haved</code> to decide which commands to
+    send. If <code>dict_merge</code> changed <code>haved</code> the way the demo did, every
+    comparison would find nothing to do. It doesn't, and its docstring says so up front
+    (<a href="https://github.com/ansible-collections/ansible.netcommon/blob/a929db70577e5630c32b36690fe58362f8c17443/plugins/module_utils/network/common/utils.py#L321-L383">ansible.netcommon utils.py, lines 321–383</a>):</p>
+<pre>def dict_merge(base, other):
+    """Return a new dict object that combines base and other</pre>
+  <p>It builds that new dict on line 339 (<code>combined = dict()</code>) and returns it on line 383.
+    Line 341 also does something your fix may not, with <code>deepcopy</code>. Why real HAVE data
+    needs that is a later lesson.</p>
+  <p class="cite">Both links are pinned to the commit current on 2026-10-17, so the line numbers
+    stay valid.</p>
+
+  <h2>Read or watch</h2>
+  <p><strong>Primary source:</strong> Ned Batchelder,
+    <a href="https://nedbatchelder.com/text/names1.html">Facts and Myths about Python names and values</a>
+    (text), or the same talk as a <a href="https://youtube.com/watch?v=_AEJHKGk9ns">25-minute PyCon video</a>.
+    It's the standard explanation, with the same name-and-arrow pictures as this page. Everything up
+    to and including function arguments matches this lesson. His later points about which types can
+    be changed go beyond it, so skim those.</p>
+  <p><strong>For a beginner's angle:</strong> Think Python, 3rd edition,
+    <a href="https://allendowney.github.io/ThinkPython/chap09.html#objects-and-values">§9.9 Objects and values</a>,
+    <a href="https://allendowney.github.io/ThinkPython/chap09.html#aliasing">§9.10 Aliasing</a> and
+    <a href="https://allendowney.github.io/ThinkPython/chap09.html#list-arguments">§9.11 List arguments</a>.
+    It uses lists instead of dicts, and says “equivalent” where this page says equal.</p>
+  <p><strong>The Perl side:</strong> <a href="https://perldoc.perl.org/perlreftut">perlreftut</a>,
+    if you want to see what <code>@{}</code> was doing all those years.</p>
+  <p>The <a href="../reference/names-and-objects.html">names and objects</a> sheet has this lesson
+    on one page. New terms are in the <a href="../reference/oop-glossary.html">glossary</a>.</p>
+
+  <div class="note">
+    <p><strong>Ask your teacher anything,</strong> especially if a word or a step isn't clear. Say
+      which sentence lost you; unclear writing is the lesson's fault, not yours.</p>
+  </div>
+
+  <footer>
+    <p>Previous: <a href="0001-what-a-class-is.html">lesson 0001, What a class is</a> · Next: lesson 0003.</p>
+  </footer>
+</main>
+</body>
+</html>
