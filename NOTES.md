@@ -113,6 +113,22 @@ _(teacher maintains; newest last)_
 
 - 2026-10-18: lesson 0002 exercise. The fix was right the first time; the test took four rounds (one key only → inverted `!=` → duplicated, 170 characters → couldn't wrap). Twice I said "ready" when the file failed or was unchanged on disk. I didn't answer whether I run the file against the bug. When I hit a real knowledge gap (wrapping lines) I said so plainly, and the follow-up questions (why parentheses work, around any argument?) were good ones. Watch: test-writing, and running before saying "ready".
 
+## Scheduling, practice and the parallel course
+
+Agreed 2026-10-18.
+
+- **Ask first, every session.** When I start `/teach`, before anything else ask: is this extra practice on a past lesson, or moving on to the next lesson?
+- **One new lesson per session, and at least one night before the next new lesson.** Daily lessons are fine. The opening warm-up gives the spaced review.
+- **Extra practice sessions:** I'll use spare energy to ask for practice. Steer it to *mixed* review of earlier lessons (interleaving, fresh network-automation cases, immediate feedback), not more drills on the lesson I just finished. Same-day repetition builds fluency, not storage. A practice session teaches nothing new.
+- **A parallel course runs daily too:** `/home/gary/Projects/python-design-course` (program design, data structures and algorithms, Python's general model). This is a hypothesis: watch warm-up recall and error rates in both courses after it starts. If either drops, show me the evidence and propose a different schedule.
+- **The split, so the two courses don't teach the same thing twice:**
+  - *This course owns classes:* route steps 3–7 (attribute lookup, `self` binding, inheritance and `super()`, `property`, special methods), then the resource-module framework.
+  - *The other course owns general Python:* mutability and copies (including the `deepcopy` question lesson 0002 deferred), hashability, scope, iteration, plus data structures, algorithms and design.
+  - Already taught here (LR-0003): names refer to objects, `==` vs `is`, arguments as assignment. The other course uses and reviews these; it doesn't teach them again.
+  - If one course needs something the other owns before it's been taught, teach the minimum, say so, and record it in a learning record.
+- **At the start of each session, skim the other course's `learning-records/`** to use what it has taught (as practice) instead of teaching it again.
+- **One vocabulary.** Terms both courses use must match `reference/oop-glossary.html`.
+
 ## Session length
 
 - **Long sessions make the teacher less reliable**: details from early in the session get lost, and errors and made-up claims creep in. Keep an eye on how long this session has run, using whatever signals you have (context-usage information, the size of the conversation, how many lessons or long code reviews it holds).
@@ -149,6 +165,7 @@ Topics 3–6 are what Ansible resource-module classes rely on. Layer 3 primary s
 - 2026-10-17 (repo review): lesson 0001's step-by-step says "The instance is given the name r1", which suggests the object owns a name. In lesson 0002, correct it openly ("one correction to what lesson 0001 said…"): `Device(...)` returns the object, then the name `r1` is made to refer to it. Leave lesson 0001 unedited. Also: lesson 0001 already shows attribute lookup informally ("Python looks for `describe` on r1… then in the class"), so lesson 0003 should name it as something I've already seen, not present it as new.
 - 2026-10-17: lesson 0002 (names refer to objects) written and handed over, not yet done. Next session: grade R1–R3 (spaced retrieval of 0001), P1, the quiz score (watch Q1/Q4, where a right output can come with a wrong reason), and review `lessons/code/l0002_want.py`. Write LR-0003 only on that evidence.
 - 2026-10-17: a second imprecision in lesson 0001 was corrected in lesson 0002: quiz Q3 feedback said `self.hostname = hostname` "copied the value". It doesn't; the attribute refers to the same object. Lesson 0001 left unedited, as with the first correction.
-- Later-lesson material (not for 0003): `cisco.ios` `vlans.py` `segregate_resource` does `vlan_data.pop("member")` while looping over `self.want` and `self.have`, which mutates the HAVE and WANT dicts in place. Good real-code exercise once copies and nested data are taught: is it safe here, and why? Also `dict_merge` uses `deepcopy`; lesson 0002 deferred why (nested HAVE data).
+- Later-lesson material (not for 0003): `cisco.ios` `vlans.py` `segregate_resource` does `vlan_data.pop("member")` while looping over `self.want` and `self.have`, which mutates the HAVE and WANT dicts in place. Good real-code exercise once copies and nested data are taught (the parallel course owns copies; check its learning records): is it safe here, and why? Also `dict_merge` uses `deepcopy`; lesson 0002 deferred why (nested HAVE data).
 - New component: `assets/refs-diagram.js` draws name → object diagrams from a JSON spec. Use it for every aliasing, copy or attribute picture from now on.
 - 2026-10-18: lesson 0002 complete (LR-0003). Next: lesson 0003, attribute lookup (route step 3). Name the lookup as something already seen in lesson 0001. Open with spaced retrieval of 0002: a mutate-vs-rebind trace, an argument trace, and one question needing an attribute's *name* (not the `self.x` code that stores it). Starter files: keep every line ≤79 characters (my lesson 0002 docstring was 89).
+- 2026-10-18: next session, first ask "extra practice on a past lesson, or the next lesson?" (see Scheduling). If it's the next lesson: lesson 0003, attribute lookup, as above.
