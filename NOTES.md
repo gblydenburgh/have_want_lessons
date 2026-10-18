@@ -141,6 +141,14 @@ Agreed 2026-10-18.
 - **Before ending, save everything** the next session needs: the session record in `sessions/` (see `sessions/README.md`), new learning records, `NOTES.md` updates (including Observed trends), and a one-line note of what to pick up next. Then remind me to commit.
 - I can check context usage myself with `/context` in Claude Code.
 
+## Process review (agreed 2026-10-18)
+
+The rules in this file grew quickly, many of them from my own account of how I learn. Treat them as provisional.
+- **Freeze.** No new rules until a lesson shows a real gap. If a rule seems needed mid-session, note it in the session record instead of adding it here.
+- **Prune after five session records** (count the files in `sessions/`). Go through this file rule by rule: did it come into play, did it help, did it slow a lesson down? Propose cutting or merging what hasn't earned its place.
+- **Test "How I learn" against the evidence at the same time.** Those preferences are self-report. Compare each with what the session records and learning records show, and propose changes as "Evidence over self-report" describes.
+- Show me the list. I decide what stays.
+
 ## Drift guard
 
 If a session turns into lab, infra or tool troubleshooting, say so and steer me back. That work belongs in the project, not in teaching time.
