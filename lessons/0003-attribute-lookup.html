@@ -142,10 +142,10 @@ sw1: ['ip route 0.0.0.0 0.0.0.0 10.0.0.254', 'vlan 10']</pre>
   <p>That search has a name: <strong>attribute lookup</strong>. It isn't special to methods.
     Python does it for <em>every</em> attribute you read, data included:</p>
   <div class="note">
-    <p><strong>Reading <code>obj.name</code>:</strong></p>
+    <p><strong>Reading <code>instance.attr</code>:</strong></p>
     <ol>
-      <li>Look on the instance <code>obj</code>. If it has <code>name</code>, use that.</li>
-      <li>If not, look in <code>obj</code>'s class. If the class has <code>name</code>, use that.</li>
+      <li>Look on the instance. If it has <code>attr</code>, use that.</li>
+      <li>If not, look in the instance's class. If the class has <code>attr</code>, use that.</li>
       <li>If neither has it, stop with <code>AttributeError</code>.</li>
     </ol>
   </div>
@@ -190,15 +190,16 @@ sw1: ['ip route 0.0.0.0 0.0.0.0 10.0.0.254', 'vlan 10']</pre>
     created a list for an individual device.</p>
 
   <h2>Writing never searches</h2>
-  <p>Assignment to an attribute works differently. <code>obj.name = value</code> doesn't look
-    anywhere. It always stores <code>name</code> on <code>obj</code> itself, even when the class
+  <p>Assignment to an attribute works differently. <code>instance.attr = value</code> doesn't
+    look anywhere. It always stores <code>attr</code> on the instance itself, even when the class
     already has an attribute with that name, and it never changes the class.</p>
   <p class="cite">Data model, <a href="https://docs.python.org/3.12/reference/datamodel.html#id3">§3.2.11</a>:
     “Attribute assignments and deletions update the instance's dictionary, never a class's
     dictionary.” (Dictionary here means the instance's own storage, the thing
     <code>vars()</code> shows. The optional section below says more.)</p>
   <p>This matches lesson 0002's test: an attribute on the left of <code>=</code> mutates an
-    object, and the object is the one before the dot. After <code>r1.commands = []</code>,
+    object, and that object is whatever is before the dot: here, the instance. After
+    <code>r1.commands = []</code>,
     <code>r1</code> has its own <code>commands</code>. Lookup checks the instance first, so
     from then on <code>r1.commands</code> finds <code>r1</code>'s list and never reaches the
     class's. The class's list, and <code>sw1</code>, are untouched.</p>

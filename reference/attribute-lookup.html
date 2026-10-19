@@ -12,19 +12,19 @@
   <header>
     <p class="kicker">Reference</p>
     <h1>Attribute lookup</h1>
-    <p class="subtitle">Where <code>obj.name</code> is found, where <code>obj.name = …</code> goes,
+    <p class="subtitle">Where <code>instance.attr</code> is found, where <code>instance.attr = …</code> goes,
       and what belongs on the class.</p>
   </header>
 
   <h2>The rules</h2>
   <ol>
-    <li><strong>Reading <code>obj.name</code> looks it up:</strong> the instance first, then its
+    <li><strong>Reading <code>instance.attr</code> looks it up:</strong> the instance first, then its
       class. On neither: <code>AttributeError</code>.</li>
-    <li><strong>Writing <code>obj.name = value</code> never searches.</strong> It stores
-      <code>name</code> on <code>obj</code> itself, never on the class.</li>
+    <li><strong>Writing <code>instance.attr = value</code> never searches.</strong> It stores
+      <code>attr</code> on the instance itself, never on the class.</li>
     <li><strong>An instance attribute hides a class attribute</strong> with the same name, for that
       instance only.</li>
-    <li><strong><code>obj.name.append(…)</code> is a read, then a mutation.</strong> If the read
+    <li><strong><code>instance.attr.append(…)</code> is a read, then a mutation.</strong> If the read
       found a class attribute, the one shared object changes for every instance.</li>
     <li><strong>Methods use the same lookup.</strong> Data stored on an instance under a method's
       name hides the method.</li>

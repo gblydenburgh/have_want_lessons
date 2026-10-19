@@ -149,11 +149,11 @@
       <span class="not">Not copied onto each instance when it's created.</span></dd>
 
     <dt>attribute lookup</dt>
-    <dd>How Python finds the object for a <em>read</em> of <code>obj.name</code>: the instance
+    <dd>How Python finds the object for a <em>read</em> of <code>instance.attr</code>: the instance
       first, then its class, else <code>AttributeError</code>. Methods are found the same way.
       (<a href="https://docs.python.org/3.12/reference/datamodel.html#id3">data model §3.2.11</a>)
-      <span class="not">Assignment, <code>obj.name = …</code>, doesn't look anything up: it always
-        stores on <code>obj</code> itself.</span></dd>
+      <span class="not">Assignment, <code>instance.attr = …</code>, doesn't look anything up: it always
+        stores on the instance itself.</span></dd>
   </dl>
 
   <h2>Reconciliation and Ansible</h2>
