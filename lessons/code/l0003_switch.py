@@ -5,10 +5,10 @@ class IosSwitch:
     """One IOS access switch, and the VLANs this run will add to it."""
 
     max_vlan_id = 4094
-    vlans_to_add = []
 
     def __init__(self, hostname: str) -> None:
         self.hostname = hostname
+        self.vlans_to_add = []
 
     def plan_vlan(self, vlan_id: int) -> None:
         if not 1 <= vlan_id <= self.max_vlan_id:
@@ -26,3 +26,9 @@ if __name__ == "__main__":
     sw2.plan_vlan(20)
     print("sw1:", sw1.commands())
     print("sw2:", sw2.commands())
+    assert ['vlan 10'] == sw1.commands(), (
+        f"sw1.commands: {sw1.commands()}, should be: ['vlan 10']"
+    )
+    assert ['vlan 20'] == sw2.commands(), (
+        f"sw2.commands: {sw2.commands()}, should be: ['vlan 20']"
+    )
