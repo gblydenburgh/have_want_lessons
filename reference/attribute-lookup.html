@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attribute Lookup</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/lookup-diagram.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Reference</p>
+    <h1>Attribute lookup</h1>
+    <p class="subtitle">Where <code>obj.name</code> is found, where <code>obj.name = …</code> goes,
+      and what belongs on the class.</p>
+  </header>
+
+  <h2>The rules</h2>
+  <ol>
+    <li><strong>Reading <code>obj.name</code> looks it up:</strong> the instance first, then its
+      class. On neither: <code>AttributeError</code>.</li>
+    <li><strong>Writing <code>obj.name = value</code> never searches.</strong> It stores
+      <code>name</code> on <code>obj</code> itself, never on the class.</li>
+    <li><strong>An instance attribute hides a class attribute</strong> with the same name, for that
+      instance only.</li>
+    <li><strong><code>obj.name.append(…)</code> is a read, then a mutation.</strong> If the read
+      found a class attribute, the one shared object changes for every instance.</li>
+    <li><strong>Methods use the same lookup.</strong> Data stored on an instance under a method's
+      name hides the method.</li>
+  </ol>
+
+  <figure class="lookup" data-lookup='{
+    "expr": "sw1.commands",
+    "find": "commands",
+    "chain": [
+      {"title": "sw1", "kind": "instance of ConfigPush", "attrs": [["hostname", "&#39;sw1&#39;"]]},
+      {"title": "ConfigPush", "kind": "class",
+       "attrs": [["commands", "[…]"], ["__init__", "function"], ["add", "function"]]}
+    ]
+  }'><figcaption>Not on the instance, so the search reaches the class. Every instance without its
+    own <code>commands</code> finds this same list.</figcaption></figure>
+
+  <h2>Read, write, or both?</h2>
+  <table class="ref">
+    <thead><tr><th>Line</th><th>What Python does</th></tr></thead>
+    <tbody>
+      <tr><td><code>x = sw1.commands</code></td><td>Read: the instance, then the class.</td></tr>
+      <tr><td><code>sw1.commands = []</code></td><td>Write: stored on <code>sw1</code>.</td></tr>
+      <tr><td><code>sw1.commands.append(…)</code></td><td>Read, then mutate the object found.</td></tr>
+      <tr><td><code>self.x = self.x + [v]</code></td><td>Read (may find the class's), build a new
+        list, write it to the instance.</td></tr>
+      <tr><td><code>del sw1.commands</code></td><td>Delete from <code>sw1</code>; lookup reaches
+        the class again.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>What goes where</h2>
+  <table class="ref">
+    <thead><tr><th>Put it on</th><th>When</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td>the instance, in <code>__init__</code></td><td>It differs per device or per run, or
+        anything changes it.</td><td><code>hostname</code>, commands to send, WANT, HAVE
+        (<code>ResourceModule</code>: <code>self.commands = []</code>)</td></tr>
+      <tr><td>the class</td><td>Every instance uses the same one and nothing changes it.</td>
+        <td>methods, <code>max_vlan_id = 4094</code>, parser tables
+        (<code>VlansTemplate.PARSERS</code>)</td></tr>
+    </tbody>
+  </table>
+  <p>Never mutate a class attribute through <code>self</code>.</p>
+
+  <h2>Check it in Python</h2>
+<pre>vars(r1)                          # r1's own attributes only
+"commands" in vars(ConfigPush)    # stored on the class?
+r1.commands is ConfigPush.commands   # found on the class by lookup?
+r1.commands is sw1.commands       # two instances sharing one object?</pre>
+
+  <div class="aside">
+    <p><strong>Layer 3.</strong> <code>vars(r1)</code> returns <code>r1.__dict__</code>. Reading
+      checks <code>r1.__dict__</code>, then <code>type(r1).__dict__</code>; writing does
+      <code>r1.__dict__["name"] = value</code>. A class's <code>__dict__</code> is read-only
+      (<code>mappingproxy</code>): assign <code>Cls.x = …</code> instead. Incomplete until
+      later lessons: parent classes (inheritance), <code>property</code> (checked before the
+      instance), bound methods.</p>
+  </div>
+
+  <p class="cite">Sources: Python data model,
+    <a href="https://docs.python.org/3.12/reference/datamodel.html#id3">§3.2.11 Class instances</a>;
+    Python tutorial, <a href="https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables">§9.3.5</a>;
+    <a href="https://docs.python.org/3/library/functions.html#vars">vars()</a>.</p>
+
+  <footer>
+    <p>From <a href="../lessons/0003-attribute-lookup.html">lesson 0003</a> ·
+      Terms: <a href="oop-glossary.html">glossary</a> · <a href="class-anatomy.html">class anatomy</a> ·
+      <a href="names-and-objects.html">names and objects</a></p>
+  </footer>
+</main>
+</body>
+</html>

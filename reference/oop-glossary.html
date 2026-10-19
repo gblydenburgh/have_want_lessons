@@ -25,17 +25,20 @@
       it. <code>Device</code> is a class.
       <span class="not">A class is not an instance created from it: <code>Device</code> isn't a device.</span></dd>
 
-    <dt>instance (object)</dt>
+    <dt>instance</dt>
     <dd>One particular thing built from a class. <code>r1 = Device("r1", ...)</code> makes
       <code>r1</code> an instance of <code>Device</code>. Each instance has its own attribute values.
+      Every instance is an <a href="#object">object</a>; saying “instance” adds <em>which class</em>
+      it came from, so it's always “an instance of …”. Every Python object is an instance of some
+      class: <code>"r1"</code> is an instance of <code>str</code>.
       <span class="not">Not “instantiated class” or “instanced class”.</span></dd>
 
     <dt>instantiate</dt>
     <dd>Create an instance by calling the class: <code>Device(...)</code>. The instance is the result.</dd>
 
     <dt>attribute</dt>
-    <dd>A named value stored on an instance, read with a dot: <code>r1.hostname</code>. Like a dict key,
-      written differently. Like any name, it <em>refers to</em> an object: after
+    <dd>A named value read with a dot: <code>r1.hostname</code>. Like a dict key, written
+      differently. It's stored either on the instance or on its class (see the next section). Like any name, it <em>refers to</em> an object: after
       <code>self.hostname = hostname</code>, the attribute and the parameter refer to the same string.
       <span class="not">Not a copy of the value.</span></dd>
 
@@ -88,8 +91,16 @@
   <p>From <a href="../lessons/0002-names-refer-to-objects.html">lesson 0002</a>. Primary source:
     Ned Batchelder, <a href="https://nedbatchelder.com/text/names1.html">Facts and Myths about Python names and values</a>.</p>
   <dl class="glossary">
-    <dt>object</dt>
+    <dt id="object">object</dt>
     <dd>Any value Python has created: a dict, a list, a string, a number, a <code>Device</code> instance.</dd>
+
+    <dt>type</dt>
+    <dd>The class an object is an instance of. <code>type(obj)</code> returns it:
+      <code>type(sw1)</code> is <code>Switch</code>, <code>type(sw1.hostname)</code> is
+      <code>str</code>. It decides what you can do with the object, such as which methods it has.
+      (<a href="https://docs.python.org/3/reference/datamodel.html#objects-values-and-types">data model §3.1</a>:
+      “Every object has an identity, a type and a value.”)
+      <span class="not">A name has no type of its own: the type belongs to the object it refers to.</span></dd>
 
     <dt>name (variable)</dt>
     <dd>A label that refers to an object: <code>have</code>, <code>r1</code>. Parameters and attributes
@@ -122,6 +133,29 @@
       keys and values are equal but not identical. Think Python says “equivalent” for equal.</dd>
   </dl>
 
+  <h2>Attribute lookup</h2>
+  <p>From lesson 0003. Primary source:
+    <a href="https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables">Python tutorial §9.3.5</a>.</p>
+  <dl class="glossary">
+    <dt>instance attribute</dt>
+    <dd>An attribute stored on one instance, usually by <code>self.x = …</code> in
+      <code>__init__</code>: <code>hostname</code>. What <code>vars(r1)</code> shows.</dd>
+
+    <dt>class attribute</dt>
+    <dd>An attribute stored on the class, by an assignment in the class body outside any
+      <code>def</code>: <code>max_vlan_id = 4094</code>. It's one object, shared by every instance.
+      Methods are class attributes too. The Python tutorial and Think Python say <em>class
+      variable</em> for the data kind.
+      <span class="not">Not copied onto each instance when it's created.</span></dd>
+
+    <dt>attribute lookup</dt>
+    <dd>How Python finds the object for a <em>read</em> of <code>obj.name</code>: the instance
+      first, then its class, else <code>AttributeError</code>. Methods are found the same way.
+      (<a href="https://docs.python.org/3.12/reference/datamodel.html#id3">data model §3.2.11</a>)
+      <span class="not">Assignment, <code>obj.name = …</code>, doesn't look anything up: it always
+        stores on <code>obj</code> itself.</span></dd>
+  </dl>
+
   <h2>Reconciliation and Ansible</h2>
   <dl class="glossary">
     <dt>HAVE / WANT</dt>
@@ -138,7 +172,9 @@
   <footer>
     <p>Used by <a href="../lessons/0001-what-a-class-is.html">lesson 0001</a> ·
       <a href="../lessons/0002-names-refer-to-objects.html">lesson 0002</a> ·
+      <a href="../lessons/0003-attribute-lookup.html">lesson 0003</a> ·
       <a href="names-and-objects.html">names and objects</a> ·
+      <a href="attribute-lookup.html">attribute lookup</a> ·
       <a href="class-anatomy.html">class anatomy</a></p>
   </footer>
 </main>

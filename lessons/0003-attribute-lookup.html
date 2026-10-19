@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attribute Lookup</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/lookup-diagram.js" defer></script>
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/answer-sheet.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Lesson 0003 · Classes from the ground up</p>
+    <h1>Attribute lookup</h1>
+    <p class="subtitle">Reading <code>r1.something</code> searches the instance first, then its
+      class. Writing <code>r1.something = …</code> never searches. Those two rules explain a bug
+      that sends one device's config to another.</p>
+    <div class="meta">
+      <span>About 30 minutes</span>
+      <span>Builds on <a href="0001-what-a-class-is.html">lesson 0001</a> and
+        <a href="0002-names-refer-to-objects.html">lesson 0002</a></span>
+      <span>Depth: layer 2, plus an optional layer 3 section</span>
+    </div>
+  </header>
+
+  <h2>Warm-up: from memory</h2>
+  <p>Answer these without opening lesson 0002. A wrong or partial answer is useful: the effort
+    of recalling is what makes it stick. Your answers stay in this browser until you copy them
+    at the end of the page.</p>
+
+  <div class="question">
+    <div class="part">
+      <p><span class="part-label">R1</span>This code has run:</p>
+<pre>prefixes = ["10.0.0.0/8", "172.16.0.0/12"]
+summary = prefixes
+prefixes.append("192.168.0.0/16")
+prefixes = ["100.64.0.0/10"]
+print(summary)
+print(prefixes)</pre>
+      <p>Write the two printed lines. Then say whether line 3 and line 4 each <em>mutate</em> or
+        <em>rebind</em>, in the form <code>line 3: …</code>, <code>line 4: …</code></p>
+      <textarea data-answer="R1" data-label="R1. Two printed lines; line 3 and line 4: mutate or rebind"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">R2</span>A function this time:</p>
+<pre>def mark_changed(device):
+    device["changed"] = True
+    device = {"hostname": "unknown", "changed": False}
+    return device
+
+
+sw1 = {"hostname": "sw1", "changed": False}
+result = mark_changed(sw1)
+print(sw1)
+print(result)</pre>
+      <p>Write the two printed lines. Then, in one sentence: what does the parameter
+        <code>device</code> refer to when the call starts?</p>
+      <textarea data-answer="R2" data-label="R2. Two printed lines; what device refers to at the start"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">R3</span>A class:</p>
+<pre>class Vlan:
+    def __init__(self, vlan_id, name):
+        self.vlan_id = vlan_id
+        self.vlan_name = name
+
+
+v = Vlan(10, "users")</pre>
+      <p>List each attribute on <code>v</code> and the value it refers to, one per line, in the
+        form <code>mtu: 1500</code>.</p>
+      <textarea data-answer="R3" data-label="R3. The attributes on v and their values"></textarea>
+    </div>
+  </div>
+
+  <h2>One new thing: data in the class body</h2>
+  <p>So far, the only lines inside a class body have been <code>def</code> lines. A class body
+    can also hold an ordinary assignment, outside any <code>def</code>:</p>
+<pre>class ConfigPush:
+    commands = []                  # the config lines to send
+
+    def __init__(self, hostname):
+        self.hostname = hostname</pre>
+  <p>Lesson 0001 showed that the <code>def</code> lines run once, when Python runs the
+    <code>class</code> statement, and that the methods they make are stored on the class. The
+    line <code>commands = []</code> runs at the same time and is stored in the same place: one
+    list, stored once, on the class <code>ConfigPush</code>. Two new terms:</p>
+  <dl class="glossary">
+    <dt>class attribute</dt>
+    <dd>A name stored on the class: <code>commands</code> above. The methods are class
+      attributes too. The Python tutorial and Think Python call data stored this way a
+      <em>class variable</em>; this course says class attribute.</dd>
+    <dt>instance attribute</dt>
+    <dd>A name stored on one instance, usually by <code>self.x = …</code> in
+      <code>__init__</code>: <code>hostname</code> above. This is what lessons 0001 and 0002 called
+      simply an attribute, and what <code>vars(r1)</code> shows.</dd>
+  </dl>
+
+  <h2>A bug to start with</h2>
+  <p>A script collects the config lines for each device before pushing them. The file is
+    <code>lessons/code/l0003_demo.py</code>:</p>
+<pre>class ConfigPush:
+    commands = []                  # the config lines to send
+
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def add(self, line):
+        self.commands.append(line)
+
+
+r1 = ConfigPush("r1")
+sw1 = ConfigPush("sw1")
+r1.add("ip route 0.0.0.0 0.0.0.0 10.0.0.254")
+sw1.add("vlan 10")
+
+print("r1: ", r1.commands)
+print("sw1:", sw1.commands)</pre>
+
+  <div class="question">
+    <div class="part">
+      <p><span class="part-label">P1</span><strong>Before you run it,</strong> write the two
+        lines you expect it to print.</p>
+      <textarea data-answer="P1" data-label="P1. Predicted output of l0003_demo.py"></textarea>
+    </div>
+  </div>
+  <p>Now run it:</p>
+<pre>python3 lessons/code/l0003_demo.py</pre>
+  <p>This is what it printed when this lesson was written:</p>
+<pre>r1:  ['ip route 0.0.0.0 0.0.0.0 10.0.0.254', 'vlan 10']
+sw1: ['ip route 0.0.0.0 0.0.0.0 10.0.0.254', 'vlan 10']</pre>
+  <p>Push those lists and the access switch <code>sw1</code> gets the router's default route.
+    There's no error and no warning. To see why, you need the rule Python uses to find
+    <code>self.commands</code>, and you've seen it before.</p>
+
+  <h2>Attribute lookup: you saw it in lesson 0001</h2>
+  <p>Lesson 0001 traced <code>r1.describe()</code> like this:</p>
+  <blockquote><p>Python looks for <code>describe</code> on <code>r1</code>. It isn't there:
+    <code>r1</code> holds only its data. So Python looks in <code>r1</code>'s class,
+    <code>Device</code>, and finds the method.</p></blockquote>
+  <p>That search has a name: <strong>attribute lookup</strong>. It isn't special to methods.
+    Python does it for <em>every</em> attribute you read, data included:</p>
+  <div class="note">
+    <p><strong>Reading <code>obj.name</code>:</strong></p>
+    <ol>
+      <li>Look on the instance <code>obj</code>. If it has <code>name</code>, use that.</li>
+      <li>If not, look in <code>obj</code>'s class. If the class has <code>name</code>, use that.</li>
+      <li>If neither has it, stop with <code>AttributeError</code>.</li>
+    </ol>
+  </div>
+  <p class="cite">Python's data model, <a href="https://docs.python.org/3.12/reference/datamodel.html#id3">§3.2.11
+    Class instances</a>: the instance “is the first place in which attribute references are
+    searched. When an attribute is not found there, and the instance's class has an attribute by
+    that name, the search continues with the class attributes.”</p>
+
+  <p>In dict-and-function terms, it's like reading a per-device dict that falls back to one
+    shared dict. A simplified model, not Python's actual code:</p>
+<pre>def read_attribute(instance_attrs: dict, class_attrs: dict, name: str):
+    if name in instance_attrs:          # 1. the instance
+        return instance_attrs[name]
+    if name in class_attrs:             # 2. its class
+        return class_attrs[name]
+    raise AttributeError(name)          # 3. neither</pre>
+
+  <p>Here's the lookup for <code>sw1.commands</code> in the demo:</p>
+  <figure class="lookup" data-lookup='{
+    "expr": "sw1.commands",
+    "find": "commands",
+    "chain": [
+      {"title": "sw1", "kind": "instance of ConfigPush", "attrs": [["hostname", "&#39;sw1&#39;"]]},
+      {"title": "ConfigPush", "kind": "class",
+       "attrs": [["commands", "[&#39;ip route …&#39;, &#39;vlan 10&#39;]"], ["__init__", "function"], ["add", "function"]]}
+    ]
+  }'><figcaption><code>sw1</code> has only <code>hostname</code>, so the search goes on to the
+    class. <code>r1.commands</code> follows exactly the same path to the same list.</figcaption></figure>
+
+  <h2>Back to the bug</h2>
+  <p>Take <code>sw1.add("vlan 10")</code> one step at a time:</p>
+  <ol>
+    <li>Python looks up <code>add</code>: not on <code>sw1</code>, found on
+      <code>ConfigPush</code>. It runs with <code>self</code> = <code>sw1</code>.</li>
+    <li><code>self.commands</code> is a <em>read</em>, so Python looks it up: not on
+      <code>sw1</code>, found on <code>ConfigPush</code>. That's the one list stored on the class.</li>
+    <li><code>.append("vlan 10")</code> mutates that list.</li>
+  </ol>
+  <p><code>r1.add(…)</code> took the same steps and found the same list. This is lesson 0002's
+    aliasing again: <code>r1.commands</code> and <code>sw1.commands</code> lead to one object, so
+    <code>r1.commands is sw1.commands</code> is <code>True</code>. Nothing in the class ever
+    created a list for an individual device.</p>
+
+  <h2>Writing never searches</h2>
+  <p>Assignment to an attribute works differently. <code>obj.name = value</code> doesn't look
+    anywhere. It always stores <code>name</code> on <code>obj</code> itself, even when the class
+    already has an attribute with that name, and it never changes the class.</p>
+  <p class="cite">Data model, <a href="https://docs.python.org/3.12/reference/datamodel.html#id3">§3.2.11</a>:
+    “Attribute assignments and deletions update the instance's dictionary, never a class's
+    dictionary.” (Dictionary here means the instance's own storage, the thing
+    <code>vars()</code> shows. The optional section below says more.)</p>
+  <p>This matches lesson 0002's test: an attribute on the left of <code>=</code> mutates an
+    object, and the object is the one before the dot. After <code>r1.commands = []</code>,
+    <code>r1</code> has its own <code>commands</code>. Lookup checks the instance first, so
+    from then on <code>r1.commands</code> finds <code>r1</code>'s list and never reaches the
+    class's. The class's list, and <code>sw1</code>, are untouched.</p>
+  <figure class="lookup" data-lookup='{
+    "expr": "r1.commands",
+    "find": "commands",
+    "chain": [
+      {"title": "r1", "kind": "instance of ConfigPush", "attrs": [["hostname", "&#39;r1&#39;"], ["commands", "[]"]]},
+      {"title": "ConfigPush", "kind": "class",
+       "attrs": [["commands", "[&#39;ip route …&#39;, &#39;vlan 10&#39;]"], ["__init__", "function"], ["add", "function"]]}
+    ]
+  }'><figcaption>After <code>r1.commands = []</code>: <code>r1</code>'s own attribute is found
+    first, so the class's <code>commands</code> is hidden for <code>r1</code>, and only for
+    <code>r1</code>.</figcaption></figure>
+
+  <p>So three kinds of line use an attribute name, and they behave differently:</p>
+  <table class="ref">
+    <thead><tr><th>Line</th><th>What Python does</th></tr></thead>
+    <tbody>
+      <tr><td><code>x = sw1.commands</code></td><td><strong>Read.</strong> Look up: the instance, then the class.</td></tr>
+      <tr><td><code>sw1.commands = []</code></td><td><strong>Write.</strong> No search: store on <code>sw1</code> itself.</td></tr>
+      <tr><td><code>sw1.commands.append(…)</code></td><td><strong>Read, then mutate.</strong> Look up
+        <code>commands</code> (the instance, then the class), then change whatever object it
+        found. That's the demo's bug.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>What goes where</h2>
+  <p>The rules give the design reason. A class attribute is one object, and every instance reads
+    the same one. That suits things that are the same for every instance and that no instance
+    changes: the methods, and constants such as the highest valid VLAN ID. Data that differs from
+    device to device has to be created for each device, so it belongs on the instance. The
+    procedural version is the same split: a module-level constant such as
+    <code>MAX_VLAN_ID = 4094</code>, and one dict per device.</p>
+
+  <h2>See it in Python</h2>
+  <p>Don't take this page's word for it. Start <code>python3</code> and type each line after
+    <code>&gt;&gt;&gt;</code>. One new statement: <code>del r1.commands</code> deletes the
+    attribute <code>commands</code> from the instance <code>r1</code>. This is what it printed
+    when this lesson was written:</p>
+<pre>>>> class ConfigPush:
+...     commands = []
+...     def __init__(self, hostname):
+...         self.hostname = hostname
+...     def add(self, line):
+...         self.commands.append(line)
+...
+>>> r1 = ConfigPush("r1")
+>>> vars(r1)                              # only r1's own attributes
+{'hostname': 'r1'}
+>>> "commands" in vars(ConfigPush)        # commands is stored on the class
+True
+>>> r1.commands is ConfigPush.commands    # found by lookup: the same list
+True
+>>> r1.add("vlan 10")
+>>> ConfigPush.commands                   # add() mutated the class's list
+['vlan 10']
+>>> r1.commands = []                      # write: stored on r1
+>>> vars(r1)
+{'hostname': 'r1', 'commands': []}
+>>> ConfigPush.commands                   # the class's list is untouched
+['vlan 10']
+>>> r1.commands                           # r1's own list is found first
+[]
+>>> del r1.commands                       # remove r1's own attribute
+>>> r1.commands                           # lookup reaches the class again
+['vlan 10']
+>>> r1.mtu                                # on neither
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+AttributeError: 'ConfigPush' object has no attribute 'mtu'</pre>
+  <p>Note that <code>vars(ConfigPush)</code> works on a class too. Printed in full it lists
+    several entries Python adds itself, which is why the line above only asks whether
+    <code>commands</code> is in it.</p>
+
+  <div class="aside">
+    <h3>Under the hood (layer 3, optional)</h3>
+    <p>Skip this if the layer 2 rules above aren't solid yet. It adds no new behaviour, only
+      where the behaviour lives.</p>
+    <ul>
+      <li><strong>Where instance attributes live.</strong> An instance of a class like these has a
+        dict holding its own attributes, stored on it as <code>r1.__dict__</code>. <code>vars(r1)</code> simply
+        returns it (<a href="https://docs.python.org/3/library/functions.html#vars">vars()</a>):
+        <code>r1.__dict__ is vars(r1)</code> is <code>True</code>.</li>
+      <li><strong>The class has one too</strong>, <code>ConfigPush.__dict__</code>, holding
+        <code>commands</code>, <code>__init__</code> and <code>add</code>. Python won't let you
+        change it directly: <code>ConfigPush.__dict__["x"] = 1</code> raises
+        <code>TypeError: 'mappingproxy' object does not support item assignment</code>. Write
+        <code>ConfigPush.x = 1</code> instead.</li>
+      <li><strong>So the rules are dict operations.</strong> Reading <code>r1.commands</code>
+        checks <code>r1.__dict__</code>, then <code>type(r1).__dict__</code>, where
+        <code>type(r1)</code> is <code>ConfigPush</code>. Writing <code>r1.commands = []</code>
+        does <code>r1.__dict__["commands"] = []</code>. That's the
+        <code>read_attribute</code> model above, with the real dicts filled in.</li>
+    </ul>
+    <p><strong>Where “instance first, then its class” is incomplete,</strong> so you aren't
+      surprised later. With inheritance, the search continues from the class into its parent
+      classes (route step 5). Some special class attributes, <code>property</code> among them,
+      are checked even <em>before</em> the instance (step 6). And a function found on the class is
+      turned into a bound method on the way out, which is how <code>self</code> gets filled in
+      (step 4). Each gets its own lesson.</p>
+  </div>
+
+  <h2>Check yourself</h2>
+  <p>Six questions. Each option gives an answer <em>and</em> a reason, so read every option to
+    the end. The page tells you straight away whether you're right and why. Only your first pick
+    counts.</p>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>1. What does the last line print, and why?</legend>
+<pre>class IosRouter:
+    platform = "ios"
+
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+
+r1 = IosRouter("r1")
+print(r1.platform, "platform" in vars(r1))</pre>
+    <label><input type="radio" name="q1" value="a"> ios True: __init__ stores platform on each new instance too</label>
+    <label><input type="radio" name="q1" value="b"> ios False: r1 lacks platform, so the class's is found</label>
+    <label><input type="radio" name="q1" value="c"> ios False: vars() hides attributes that came from the class</label>
+    <div class="feedback" data-for="a">Not quite. <code>__init__</code> stores only what its
+      <code>self.x = …</code> lines store, here just <code>hostname</code>. <code>platform</code>
+      exists once, on the class.</div>
+    <div class="feedback" data-for="b">Right. <code>vars(r1)</code> holds only
+      <code>hostname</code>. Reading <code>r1.platform</code> finds nothing on <code>r1</code>, so
+      lookup goes on to <code>IosRouter</code> and finds <code>"ios"</code>.</div>
+    <div class="feedback" data-for="c">Right output, wrong reason. <code>vars(r1)</code> doesn't
+      hide anything: <code>platform</code> was never stored on <code>r1</code>. It's stored on the
+      class, and lookup finds it there.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="c">
+    <legend>2. What does the last line print, and why?</legend>
+<pre>class IosRouter:
+    ssh_timeout = 30
+
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+
+r1 = IosRouter("r1")
+r2 = IosRouter("r2")
+r1.ssh_timeout = 120
+print(r1.ssh_timeout, r2.ssh_timeout, IosRouter.ssh_timeout)</pre>
+    <label><input type="radio" name="q2" value="a"> 120 120 120: assigning through r1 changed the class attribute</label>
+    <label><input type="radio" name="q2" value="b"> 120 30 120: class changed, r2 kept its earlier copy</label>
+    <label><input type="radio" name="q2" value="c"> 120 30 30: assignment stored an attribute on r1 only</label>
+    <div class="feedback" data-for="a">Not quite. Assigning to an attribute never searches and never
+      changes the class. It stores <code>ssh_timeout</code> on <code>r1</code>.</div>
+    <div class="feedback" data-for="b">Not quite. <code>r2</code> never had a copy; it has only
+      <code>hostname</code>. And the assignment didn't touch the class: it stored a new attribute
+      on <code>r1</code>.</div>
+    <div class="feedback" data-for="c">Right. <code>r1</code> now has its own
+      <code>ssh_timeout</code>, found first. <code>r2</code> has none, so lookup reaches the
+      class, which still says 30.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="a">
+    <legend>3. What does the last line print, and why?</legend>
+<pre>class IosRouter:
+    ntp_servers = []
+
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def add_ntp(self, server):
+        self.ntp_servers.append(server)
+
+
+r1 = IosRouter("r1")
+r2 = IosRouter("r2")
+r1.add_ntp("10.0.0.123")
+print(r2.ntp_servers)</pre>
+    <label><input type="radio" name="q3" value="a"> ['10.0.0.123']: the lookup of self.ntp_servers found the class's one list</label>
+    <label><input type="radio" name="q3" value="b"> []: the append stored a new list on r1 alone</label>
+    <label><input type="radio" name="q3" value="c"> ['10.0.0.123']: append copies the change into every instance's own list</label>
+    <div class="feedback" data-for="a">Right. <code>self.ntp_servers</code> is a read: not on
+      <code>r1</code>, found on the class. <code>append</code> mutated that one list, and
+      <code>r2.ntp_servers</code> finds the same list.</div>
+    <div class="feedback" data-for="b">Not quite. <code>append</code> is a method call, not an
+      assignment, so nothing is stored on <code>r1</code>. It mutates the list that the lookup
+      found, the class's.</div>
+    <div class="feedback" data-for="c">Right output, wrong reason. There are no per-instance lists
+      to copy to. One list exists, on the class, and both instances find it.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>4. One line of <code>add_ntp</code> has changed. What does the last line print, and why?</legend>
+<pre>class IosRouter:
+    ntp_servers = []
+
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def add_ntp(self, server):
+        self.ntp_servers = self.ntp_servers + [server]
+
+
+r1 = IosRouter("r1")
+r2 = IosRouter("r2")
+r1.add_ntp("10.0.0.123")
+print(r2.ntp_servers, "ntp_servers" in vars(r1))</pre>
+    <label><input type="radio" name="q4" value="a"> ['10.0.0.123'] False: the method still changes the one list on the class</label>
+    <label><input type="radio" name="q4" value="b"> [] True: + built a new list; assignment stored it on r1</label>
+    <label><input type="radio" name="q4" value="c"> [] False: add_ntp only ever changed a private copy of the list</label>
+    <div class="feedback" data-for="a">Not quite. The right side reads the class's list, but
+      <code>+</code> builds a new list rather than changing it. Then the assignment stores that new
+      list on <code>r1</code>.</div>
+    <div class="feedback" data-for="b">Right. The read on the right finds the class's empty list.
+      <code>+</code> builds a new list from it. The assignment never searches: it stores the new
+      list on <code>r1</code>. The class's list is still empty, and <code>r2</code> finds it.</div>
+    <div class="feedback" data-for="c">Not quite. No copy was made of anything. <code>+</code>
+      built a new list, and the assignment stored it on <code>r1</code>, so it does appear in
+      <code>vars(r1)</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="c">
+    <legend>5. What happens on the last line, and why?</legend>
+<pre>class IosRouter:
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def describe(self):
+        return f"{self.hostname} (ios)"
+
+
+r1 = IosRouter("r1")
+r1.describe = "core router, rack 4"
+print(r1.describe())</pre>
+    <label><input type="radio" name="q5" value="a"> Prints r1 (ios): methods are always looked up in the class</label>
+    <label><input type="radio" name="q5" value="b"> Prints core router, rack 4: calling it returns r1's own string</label>
+    <label><input type="radio" name="q5" value="c"> TypeError: lookup finds r1's string first, and strings can't be called</label>
+    <div class="feedback" data-for="a">Not quite. Methods use the same lookup as data: the instance
+      first. <code>r1</code> now has its own <code>describe</code>, so the class's method is never
+      reached.</div>
+    <div class="feedback" data-for="b">Not quite. Lookup does find <code>r1</code>'s string, but the
+      <code>()</code> then tries to call it, and a string can't be called.</div>
+    <div class="feedback" data-for="c">Right. Python prints <code>TypeError: 'str' object is not
+      callable</code>. The assignment stored a string named <code>describe</code> on
+      <code>r1</code>, which hides the method for <code>r1</code>. Naming data after a method is a
+      real bug.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="a">
+    <legend>6. A class pushes VLAN config, one instance per device per run. Which of these could
+      safely be a class attribute?</legend>
+    <label><input type="radio" name="q6" value="a"> The parser list, which every instance reads and none changes</label>
+    <label><input type="radio" name="q6" value="b"> The command list, which each instance builds during its run</label>
+    <label><input type="radio" name="q6" value="c"> The HAVE facts, which each instance reads from its device</label>
+    <div class="feedback" data-for="a">Right. One object that every instance reads and none
+      changes is safe to share. The real VLAN template class does exactly this; see the end of
+      this lesson.</div>
+    <div class="feedback" data-for="b">Not quite. That's the demo's bug: appending through
+      <code>self</code> mutates the one shared list, so one device's commands reach another.</div>
+    <div class="feedback" data-for="c">Not quite. HAVE differs from device to device, so it has
+      to be created for each instance. One shared HAVE would mix devices together.</div>
+  </fieldset>
+  <p class="quiz-score" data-quiz-score></p>
+
+  <h2>Your turn: fix a VLAN planner</h2>
+  <p>Open <code>lessons/code/l0003_switch.py</code> from the Explorer sidebar:</p>
+<pre>class IosSwitch:
+    """One IOS access switch, and the VLANs this run will add to it."""
+
+    max_vlan_id = 4094
+    vlans_to_add = []
+
+    def __init__(self, hostname: str) -> None:
+        self.hostname = hostname
+
+    def plan_vlan(self, vlan_id: int) -> None:
+        if not 1 <= vlan_id <= self.max_vlan_id:
+            raise ValueError(f"VLAN ID out of range: {vlan_id}")
+        self.vlans_to_add.append(vlan_id)
+
+    def commands(self) -> list[str]:
+        return [f"vlan {vlan_id}" for vlan_id in self.vlans_to_add]</pre>
+  <p class="cite">4094 is the highest usable VLAN ID: IEEE 802.1Q reserves 0 and 4095.</p>
+  <ol>
+    <li><strong>Run it</strong> (<code>python3 lessons/code/l0003_switch.py</code>) and check that
+      it has the demo's bug.</li>
+    <li><strong>Plan before you code.</strong> Answer E1 below: for each of the two class
+      attributes, should it stay on the class or move to each instance, and why?</li>
+    <li><strong>Write the test first.</strong> In the <code>if __name__ == "__main__":</code>
+      block, after the two <code>print</code> calls, add an <code>assert</code> that is true only
+      if each switch's commands contain only the VLANs planned for that switch. Keep every line
+      to 79 characters or fewer. <strong>Run the file against the bug.</strong> Your
+      <code>assert</code> must fail now; if it passes, it isn't testing the bug. Paste the
+      <code>AssertionError</code> line it printed into E2.</li>
+    <li><strong>Fix <code>IosSwitch</code></strong> to match your plan. Run the file again: your
+      <code>assert</code> should pass.</li>
+    <li><strong>Check your work:</strong>
+<pre>python3 lessons/code/l0003_check.py</pre>
+      Keep going until it prints “All checks passed.”, then paste its output into E3. Then a
+      polish pass: is the docstring still true, and is anything left over from debugging?</li>
+  </ol>
+
+  <div class="question">
+    <div class="part">
+      <p><span class="part-label">E1</span>Your plan, before you change the code. One line each,
+        in the form <code>max_vlan_id: class or instance, because …</code></p>
+      <textarea data-answer="E1" data-label="E1. Plan: max_vlan_id and vlans_to_add, class or instance, and why"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">E2</span>The <code>AssertionError</code> line your test printed
+        when you ran it against the bug.</p>
+      <textarea data-answer="E2" data-label="E2. My assert's output against the bug"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">E3</span>The output of <code>l0003_check.py</code> after your fix.</p>
+      <textarea data-answer="E3" data-label="E3. l0003_check.py output after the fix"></textarea>
+    </div>
+  </div>
+  <p>Then copy your answers below and paste them into the chat with your quiz score. Say the file
+    is ready for review only after E3 shows “All checks passed.”</p>
+
+  <section data-answer-sheet="0003" data-title="Lesson 0003">
+    <div class="question">
+      <div class="part">
+        <p><span class="part-label">Q</span>Optional: anything in this lesson that lost you, or that
+          you want to argue with.</p>
+        <textarea data-answer="Q" data-label="Questions or objections"></textarea>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button type="button" data-sheet-copy>Copy my answers</button>
+      <button type="button" class="secondary" data-sheet-clear>Clear</button>
+      <span class="sheet-status"></span>
+    </div>
+    <pre class="sheet-output" hidden></pre>
+  </section>
+
+  <h2>After the exercise: both kinds in the real framework</h2>
+  <p>Read this once your checks pass. The resource-module framework uses each kind of attribute
+    for the job this lesson gave it.</p>
+  <p><strong>Per-run data goes on the instance.</strong> <code>ResourceModule</code> is the class
+    that every resource module's config class, such as <code>cisco.ios</code>'s
+    <code>Vlans</code>, is built on (how one class builds on another is route step 5). Its
+    <code>__init__</code> creates a new commands list for each instance
+    (<a href="https://github.com/ansible-collections/ansible.netcommon/blob/a929db70577e5630c32b36690fe58362f8c17443/plugins/module_utils/network/common/rm_base/resource_module.py#L52">resource_module.py, line 52</a>):</p>
+<pre>        self.commands = []</pre>
+  <p>The lines just above it store <code>self.want</code> and <code>self.have</code> the same way.
+    Each module run gets its own WANT, HAVE and commands.</p>
+  <p><strong>Shared, read-only data goes on the class.</strong> The VLAN template class keeps its
+    parsers (each one a regex for reading a config line plus a Jinja template for writing one) as
+    a class attribute
+    (<a href="https://github.com/ansible-collections/cisco.ios/blob/675a661cea0639fb9a00b290f5f36ebef6d25957/plugins/module_utils/network/ios/rm_templates/vlans.py#L35-L44">rm_templates/vlans.py, lines 35–44</a>):</p>
+<pre>class VlansTemplate(NetworkTemplate):
+    def __init__(self, lines=None, module=None):
+        ...
+
+    # fmt: off
+    PARSERS = [
+        {
+            "name": "vlan_configuration",
+            ...</pre>
+  <p>The code that uses it reads <code>self._tmplt.PARSERS</code>
+    (<a href="https://github.com/ansible-collections/ansible.netcommon/blob/a929db70577e5630c32b36690fe58362f8c17443/plugins/module_utils/network/common/rm_base/network_template.py#L77">network_template.py, line 77</a>).
+    There, <code>self._tmplt</code> refers to a <code>VlansTemplate</code> instance. The instance
+    has no <code>PARSERS</code> of its own, so lookup finds the class's list. Line 85 then works
+    on a deep copy of each parser's result instead of changing it, so the shared list is never
+    mutated. (What a deep copy is belongs to the other course.)</p>
+  <p>One honest note: <code>Vlans</code> itself keeps a plain list of parser names on the
+    instance, set in <code>__init__</code>
+    (<a href="https://github.com/ansible-collections/cisco.ios/blob/675a661cea0639fb9a00b290f5f36ebef6d25957/plugins/module_utils/network/ios/config/vlans/vlans.py#L48">vlans.py, line 48</a>).
+    Nothing ever changes that list, so a class attribute would have worked too. For data no one
+    mutates, both are safe. The rule that matters is the one in the demo: never mutate a class
+    attribute through <code>self</code>.</p>
+  <p class="cite">All links are pinned to the commits used in lesson 0002, so the line numbers stay
+    valid. Checked 2026-10-18.</p>
+
+  <h2>Read or watch</h2>
+  <p><strong>Primary source:</strong> the Python tutorial,
+    <a href="https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables">§9.3.5 Class
+    and Instance Variables</a>, and the first example in
+    <a href="https://docs.python.org/3/tutorial/classes.html#random-remarks">§9.4</a>. It's
+    short. Its <code>Dog</code> class with a shared <code>tricks</code> list is this lesson's bug,
+    which it calls a “mistaken use of a class variable”. The tutorial is written for people who
+    already program, but these two sections are plain.</p>
+  <p><strong>For a beginner's angle:</strong> Think Python, 3rd edition,
+    <a href="https://allendowney.github.io/ThinkPython/chap17.html#representing-cards">§17.1</a>
+    and <a href="https://allendowney.github.io/ThinkPython/chap17.html#card-attributes">§17.2</a>,
+    which store card names as class variables. It says they are “class variables, not attributes”; this course
+    calls them class attributes, because <code>queen.suit_names</code> finds them by the same
+    lookup as any other attribute.</p>
+  <p><strong>For layer 3:</strong> the data model,
+    <a href="https://docs.python.org/3.12/reference/datamodel.html#id3">§3.2.11 Class instances</a>.
+    One paragraph, quoted above.</p>
+  <p>The <a href="../reference/attribute-lookup.html">attribute lookup</a> sheet has this lesson
+    on one page. New terms are in the <a href="../reference/oop-glossary.html">glossary</a>.</p>
+
+  <div class="note">
+    <p><strong>Ask your teacher anything,</strong> especially if a word or a step isn't clear. Say
+      which sentence lost you; unclear writing is the lesson's fault, not yours.</p>
+  </div>
+
+  <footer>
+    <p>Previous: <a href="0002-names-refer-to-objects.html">lesson 0002, Names refer to objects</a> · Next: lesson 0004.</p>
+  </footer>
+</main>
+</body>
+</html>

@@ -115,6 +115,8 @@ _(teacher maintains; newest last)_
 
 - 2026-10-18: lesson 0002 exercise. The fix was right the first time; the test took four rounds (one key only → inverted `!=` → duplicated, 170 characters → couldn't wrap). Twice I said "ready" when the file failed or was unchanged on disk. I didn't answer whether I run the file against the bug. When I hit a real knowledge gap (wrapping lines) I said so plainly, and the follow-up questions (why parentheses work, around any argument?) were good ones. Watch: test-writing, and running before saying "ready".
 
+- 2026-10-18: side practice on "name → object → instance of which class" (`sessions/2026-10-18-01.md`). The model held once one layer 2 slip was corrected (read the bare name `gi1` as a string). Four exact-name slips in one session (`s1`, `g1` ×2, `port`) and "object list" for "an instance of `list`". That's my detail-slip habit again, now in written answers as well as code. I spotted the teacher's faulty glossary entry and a question missing its code, and objected to both, correctly. Watch: name slips in lesson 0003's answers.
+
 ## Scheduling, practice and the parallel course
 
 Agreed 2026-10-18.
@@ -181,3 +183,4 @@ Topics 3–6 are what Ansible resource-module classes rely on. Layer 3 primary s
 - New component: `assets/refs-diagram.js` draws name → object diagrams from a JSON spec. Use it for every aliasing, copy or attribute picture from now on.
 - 2026-10-18: lesson 0002 complete (LR-0003). Next: lesson 0003, attribute lookup (route step 3). Name the lookup as something already seen in lesson 0001. Open with spaced retrieval of 0002: a mutate-vs-rebind trace, an argument trace, and one question needing an attribute's *name* (not the `self.x` code that stores it). Starter files: keep every line ≤79 characters (my lesson 0002 docstring was 89).
 - 2026-10-18: next session, first ask "extra practice on a past lesson, or the next lesson?" (see Scheduling). If it's the next lesson: lesson 0003, attribute lookup, as above.
+- 2026-10-18 (ran to 10-19): lesson 0003 (attribute lookup) written and handed over, not yet worked. Next session (fresh): grade the answer sheet (R1–R3, P1, quiz, E1–E3) and review `lessons/code/l0003_switch.py`. See `sessions/2026-10-18-01.md`, "Resume here". Write LR-0004 only on that evidence.

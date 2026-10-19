@@ -22,6 +22,10 @@
   Beginner-friendly alternative with a glossary. Calls `__init__` a constructor, so terms differ from this course. Use for: a second explanation.
 - [Python docs: Classes tutorial](https://docs.python.org/3/tutorial/classes.html)
   The exact rules, but written for people who already program in other languages (compares with C++, uses CS terms). Use for: backing up claims, translated into plain words; not as first reading.
+- [Python tutorial §9.3.5 Class and Instance Variables](https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables) and the first example in [§9.4](https://docs.python.org/3/tutorial/classes.html#random-remarks)
+  Short and plain. The `Dog` class with a shared `tricks` list ("mistaken use of a class variable") is lesson 0003's bug; §9.4 shows an instance attribute taking priority over a class attribute. Says "class variable" where this course says class attribute. **Primary source for lesson 0003.** (Checked 2026-10-18.)
+- [Python data model §3.2.11 Class instances](https://docs.python.org/3.12/reference/datamodel.html#id3)
+  The exact lookup rule: the instance's dictionary is "the first place in which attribute references are searched", then the class; "Attribute assignments and deletions update the instance's dictionary, never a class's dictionary." Linked to the 3.12 docs because the section anchor is auto-generated (`#id3` in 3.12, `#id4` in 3.15). Use for: lesson 0003's layer 3. (Checked 2026-10-18.)
 - [Python docs: Descriptor HowTo Guide](https://docs.python.org/3/howto/descriptor.html)
   **Layer 3 primary source** (route steps 4 and 6): how functions become bound methods, and how `property` works. Written for experienced programmers. Use for: the "Under the hood" sections, translated into plain words. (Not yet checked against the current docs; verify before first use.)
 - [Python docs: dataclasses](https://docs.python.org/3/library/dataclasses.html)
@@ -42,4 +46,5 @@ Not yet researched. Find well-moderated places where resource-module and collect
 ## Gaps
 
 - Pinned so far: `cisco.ios` @ `675a661c` `config/vlans/vlans.py` (the `merged` branch, L111–113) and `ansible.netcommon` @ `a929db70` `utils.py` `dict_merge` (L321–383, returns a new dict, `deepcopy(base)` at L341). Used in lesson 0002.
+- Also pinned, used in lesson 0003: `ansible.netcommon` @ `a929db70` `rm_base/resource_module.py` (`self.commands = []` in `ResourceModule.__init__`, L52; `self.want`/`self.have` just above) and `rm_base/network_template.py` (`self._tmplt.PARSERS` read at L77, `deepcopy(parser["result"])` at L85); `cisco.ios` @ `675a661c` `rm_templates/vlans.py` (`PARSERS` class attribute, L44) and `config/vlans/vlans.py` (`self.parsers` set in `__init__`, L48).
 - No vetted walkthrough yet of a simple, current `cisco.ios` module from argspec to tests. Pick one module and pin its commit SHA when the framework comes up.
