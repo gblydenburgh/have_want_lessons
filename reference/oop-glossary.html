@@ -44,7 +44,14 @@
 
     <dt>method</dt>
     <dd>A function defined inside a class, which works on one instance at a time:
-      <code>describe</code>. Called as <code>r1.describe()</code>.</dd>
+      <code>describe</code>. Called as <code>r1.describe()</code>. It's one function object, made
+      once by the <code>def</code> line and stored on the class: <code>type(Device.describe)</code>
+      is <code>function</code>. (Python's <a href="https://docs.python.org/3/glossary.html#term-method">glossary</a>:
+      “A function which is defined inside a class body.”)
+      <span class="not">Not the <a href="#bound-method">bound method</a>, the separate object you
+        get by reading it through an instance. And not a “class method”: that term means something
+        else in Python (<code>@classmethod</code>, not taught yet). Say “the function, stored on the
+        class”.</span></dd>
 
     <dt><code>self</code></dt>
     <dd>The first parameter of a method: the instance the method is working on. In
@@ -85,6 +92,11 @@
       <code>return</code>, <code>assert</code>. <code>assert &lt;condition&gt;, &lt;message&gt;</code>
       is a statement made of two expressions.
       <span class="not">Not a function: the assert's message isn't an argument.</span></dd>
+
+    <dt>positional argument</dt>
+    <dd>An argument matched to a parameter by its position: the first argument to the first
+      parameter, and so on. In <code>render(data, tmplt, negate)</code> all three are positional.
+      Error messages count them: <code>takes 0 positional arguments but 1 was given</code>.</dd>
   </dl>
 
   <h2>Names and objects</h2>
@@ -156,6 +168,25 @@
         stores on the instance itself.</span></dd>
   </dl>
 
+  <h2>Methods and <code>self</code></h2>
+  <p class="cite">From lesson 0004. Primary source:
+    <a href="https://docs.python.org/3/tutorial/classes.html#method-objects">Python tutorial §9.3.4</a>.</p>
+  <dl class="glossary">
+    <dt id="bound-method">bound method</dt>
+    <dd>What you get by reading a method through an instance: <code>r1.show_version</code>. An
+      new object, made on each read, that refers to two objects: the function (found on the class) and the instance before the
+      dot. Calling it calls the function with that instance as the first argument. Python prints
+      it as <code>&lt;bound method IosRouter.show_version of …&gt;</code>; the tutorial says
+      <em>method object</em>.
+      <span class="not">Not the function itself: <code>IosRouter.show_version</code>, read
+        through the class, is the plain function, and nothing is bound.</span></dd>
+
+    <dt>call</dt>
+    <dd>Running a function or method by putting <code>()</code> after it:
+      <code>r1.show_version()</code>. Without the brackets, nothing runs; you have only read the
+      attribute.</dd>
+  </dl>
+
   <h2>Reconciliation and Ansible</h2>
   <dl class="glossary">
     <dt>HAVE / WANT</dt>
@@ -173,8 +204,10 @@
     <p>Used by <a href="../lessons/0001-what-a-class-is.html">lesson 0001</a> ·
       <a href="../lessons/0002-names-refer-to-objects.html">lesson 0002</a> ·
       <a href="../lessons/0003-attribute-lookup.html">lesson 0003</a> ·
+      <a href="../lessons/0004-how-methods-get-self.html">lesson 0004</a> ·
       <a href="names-and-objects.html">names and objects</a> ·
       <a href="attribute-lookup.html">attribute lookup</a> ·
+      <a href="bound-methods.html">bound methods</a> ·
       <a href="class-anatomy.html">class anatomy</a></p>
   </footer>
 </main>

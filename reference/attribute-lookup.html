@@ -81,7 +81,8 @@ r1.commands is sw1.commands       # two instances sharing one object?</pre>
       <code>r1.__dict__["name"] = value</code>. A class's <code>__dict__</code> is read-only
       (<code>mappingproxy</code>): assign <code>Cls.x = …</code> instead. Incomplete until
       later lessons: parent classes (inheritance), <code>property</code> (checked before the
-      instance), bound methods.</p>
+      instance). How a method found on the class becomes a bound method: see
+      <a href="bound-methods.html">bound methods</a>.</p>
   </div>
 
   <p class="cite">Sources: Python data model,

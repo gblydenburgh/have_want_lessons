@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Methods Get self</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/refs-diagram.js" defer></script>
+  <script src="../assets/quiz.js" defer></script>
+  <script src="../assets/answer-sheet.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Lesson 0004 · Classes from the ground up</p>
+    <h1>How methods get <code>self</code></h1>
+    <p class="subtitle"><code>r1.show_version()</code> is two steps. Reading
+      <code>r1.show_version</code> gives you a <em>bound method</em>, which refers to the function and
+      <code>r1</code>. The <code>()</code> then calls the function with <code>r1</code> as its first
+      argument. That explains an error that counts an argument you never wrote.</p>
+    <div class="meta">
+      <span>About 30 minutes</span>
+      <span>Builds on <a href="0001-what-a-class-is.html">lesson 0001</a>,
+        <a href="0002-names-refer-to-objects.html">0002</a> and
+        <a href="0003-attribute-lookup.html">0003</a></span>
+      <span>Depth: layer 2, plus an optional layer 3 section</span>
+    </div>
+  </header>
+
+  <h2>Warm-up: from memory</h2>
+  <p>Answer these without opening lessons 0002 or 0003. A wrong or partial answer is useful: the
+    effort of recalling is what makes it stick. Your answers stay in this browser until you copy
+    them at the end of the page.</p>
+
+  <div class="question">
+    <div class="part">
+      <p><span class="part-label">R1</span>A class whose initializer takes a <code>save</code>
+        option, meaning “write memory after the push”:</p>
+<pre>class ConfigPush:
+    def __init__(self, hostname, save):
+        self.hostname = hostname
+        self.save = save               # write memory after the push?
+
+    def save(self):
+        return f"{self.hostname}: write memory"
+
+
+r1 = ConfigPush("r1", True)
+print(r1.save)
+print(ConfigPush.save(r1))</pre>
+      <p>Three parts: the two printed lines, and what <code>r1.save()</code> would do, with the
+        reason. Use the form <code>line 1: …</code>, <code>line 2: …</code>,
+        <code>r1.save(): …, because …</code></p>
+      <textarea data-answer="R1" data-label="R1. Two printed lines; what r1.save() would do, and why"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">R2</span>A function:</p>
+<pre>def prepare(lines):
+    lines.append("end")
+    lines = ["! dry run"] + lines
+    return lines
+
+
+push = ["interface Gi0/1", "shutdown"]
+out = prepare(push)
+print(push)
+print(out)</pre>
+      <p>Write the two printed lines. Then, in one sentence: what does the parameter
+        <code>lines</code> refer to when the call starts?</p>
+      <textarea data-answer="R2" data-label="R2. Two printed lines; what lines refers to at the start"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">R3</span>A class that runs show commands over SSH, one instance
+        per device. It needs two pieces of data: <code>max_retries</code>, how many times to retry
+        a failed command (3, the same for every device), and <code>last_output</code>, the text the
+        most recent show command returned on this device. For each, should it be a class attribute
+        or an instance attribute? One line each, in the form
+        <code>max_retries: class or instance, because …</code></p>
+      <textarea data-answer="R3" data-label="R3. max_retries and last_output: class or instance, and why"></textarea>
+    </div>
+  </div>
+
+  <h2>A puzzle to start with</h2>
+  <p>A router class with two methods. The second one returns the command that saves the config.
+    The file is <code>lessons/code/l0004_demo.py</code>:</p>
+<pre>class IosRouter:
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def show_version(self):
+        return f"{self.hostname}: show version"
+
+    def save_command():
+        return "write memory"
+
+
+r1 = IosRouter("r1")
+print(r1.show_version())
+print(r1.save_command())</pre>
+
+  <div class="question">
+    <div class="part">
+      <p><span class="part-label">P1</span><strong>Before you run it,</strong> write what you
+        expect each <code>print</code> line to output. If you expect an error on a line, say which
+        error and why.</p>
+      <textarea data-answer="P1" data-label="P1. Predicted output of l0004_demo.py"></textarea>
+    </div>
+  </div>
+  <p>Now run it:</p>
+<pre>python3 lessons/code/l0004_demo.py</pre>
+  <p>This is what it printed when this lesson was written (Python 3.12):</p>
+<pre>r1: show version
+Traceback (most recent call last):
+  File ".../lessons/code/l0004_demo.py", line 14, in &lt;module&gt;
+    print(r1.save_command())
+          ^^^^^^^^^^^^^^^^^
+TypeError: IosRouter.save_command() takes 0 positional arguments but 1 was given</pre>
+  <p>Read the last line closely. A <strong>positional argument</strong> is an argument matched to
+    a parameter by its position: the first argument goes to the first parameter, and so on.
+    <code>save_command</code>'s <code>def</code> line has no parameters, so it “takes 0”. But
+    the brackets in <code>r1.save_command()</code> are empty, and Python says
+    <strong>1 was given</strong>. Where did that argument come from?</p>
+
+  <h2>Two steps hiding in one line</h2>
+  <p>A call like <code>r1.show_version()</code> is really two operations, and you can split them
+    apart:</p>
+<pre>m = r1.show_version     # 1. read the attribute (no brackets)
+m()                     # 2. call what you got</pre>
+  <p><strong>Step 1, the read.</strong> This is lesson 0003's attribute lookup: not on
+    <code>r1</code>, found on the class <code>IosRouter</code>. What's found there is the
+    function the <code>def</code> line made. But Python doesn't hand you that plain function.
+    Because a function stored on the class was read <em>through an instance</em>, Python builds a
+    new object, a <strong>bound method</strong>, which refers to two objects:</p>
+  <ul>
+    <li>the function, found on the class;</li>
+    <li>the instance that came before the dot, here <code>r1</code>.</li>
+  </ul>
+  <p>So two objects are in play, and only one of them is the method you wrote. The
+    <em>method</em> is the function the <code>def</code> line made: made once, stored on the
+    class. The <em>bound method</em> is a separate object, made each time you read the method
+    through an instance. It doesn't contain the function or a copy of it; it refers to it, the
+    way a name does. Python's own labels show the difference: <code>type(IosRouter.show_version)</code>
+    is <code>function</code>, and <code>type(r1.show_version)</code> is <code>method</code>.
+    (Yes, Python's type name for the bound method is <code>method</code>. This course always
+    says <em>bound method</em> for it, to keep the two apart.)</p>
+  <p><strong>Step 2, the call.</strong> Calling the bound method calls the function, with the
+    instance put in front of whatever arguments you wrote. So <code>m()</code> calls the function
+    with one argument, <code>r1</code>, and that argument lands in the first parameter,
+    <code>self</code>.</p>
+  <p class="cite">Python tutorial, <a href="https://docs.python.org/3/tutorial/classes.html#method-objects">§9.3.4
+    Method Objects</a>: “references to both the instance object and the function object are
+    packed into a method object. When the method object is called with an argument list, a new
+    argument list is constructed from the instance object and the argument list, and the function
+    object is called with this new argument list.” (The tutorial says <em>method object</em>;
+    Python prints <em>bound method</em>, and so does this course.)</p>
+
+  <figure class="refs" data-refs='{
+    "names": [{"name": "m", "to": "bm"}, {"name": "r1", "to": "inst"}],
+    "objects": [
+      {"id": "bm", "type": "bound method", "lines": [
+        {"text": "function", "to": "fn"}, {"text": "instance", "to": "inst"}]},
+      {"id": "fn", "col": 2, "type": "function, stored on IosRouter",
+       "lines": ["IosRouter.show_version"]},
+      {"id": "inst", "col": 2, "type": "instance of IosRouter",
+       "lines": ["hostname: &#39;r1&#39;"]}
+    ]
+  }'><figcaption>After <code>m = r1.show_version</code>. The bound method refers to the instance
+    itself, the same object <code>r1</code> refers to, not a copy of it.</figcaption></figure>
+
+  <p>In dict-and-function terms, it's like packing a function and a device dict together, then
+    calling one with the other. A simplified model, not Python's actual code:</p>
+<pre>def show_version(device: dict) -> str:
+    return f"{device['hostname']}: show version"
+
+
+r1 = {"hostname": "r1"}
+bound = {"function": show_version, "instance": r1}   # step 1: the read
+bound["function"](bound["instance"])                  # step 2: the call</pre>
+
+  <h2>Back to the puzzle</h2>
+  <p>Take <code>r1.save_command()</code> one step at a time:</p>
+  <ol>
+    <li>The read: <code>save_command</code> isn't on <code>r1</code>; it's found on
+      <code>IosRouter</code>. Python returns a bound method that refers to that function and
+      <code>r1</code>.</li>
+    <li>The call: you wrote no arguments, so the argument list is just <code>r1</code>. That's
+      one positional argument.</li>
+    <li>The function's <code>def</code> line, <code>def save_command():</code>, has no parameter
+      to receive it. Python raises the <code>TypeError</code>.</li>
+  </ol>
+  <p>The fix is <code>def save_command(self):</code>. Note what that fix is <em>not</em>.
+    <code>self</code> isn't a keyword, and Python never looks for that name. It puts the instance
+    into the first parameter, whatever that parameter is called. Calling it <code>self</code> is a
+    convention (the tutorial,
+    <a href="https://docs.python.org/3/tutorial/classes.html#random-remarks">§9.4</a>: “nothing
+    more than a convention: the name <code>self</code> has absolutely no special meaning to
+    Python”). Keep to the convention; every Python reader expects it. If the first parameter is
+    missing, the instance has nowhere to go.</p>
+
+  <h2>Read through the class: nothing is bound</h2>
+  <p>Lesson 0001 showed that <code>r1.show_version()</code> is the same call as
+    <code>IosRouter.show_version(r1)</code>. Now you can see why both work. Reading
+    <code>IosRouter.show_version</code> goes straight to the class, with no instance before the
+    dot, so there's nothing to bind. You get the plain function, and you pass the instance
+    yourself.</p>
+  <table class="ref">
+    <thead><tr><th>Expression</th><th>What you get</th></tr></thead>
+    <tbody>
+      <tr><td><code>r1.show_version</code></td><td>A bound method: the function plus
+        <code>r1</code>. Nothing has run yet.</td></tr>
+      <tr><td><code>r1.show_version()</code></td><td>The function called with <code>r1</code> as
+        its first argument.</td></tr>
+      <tr><td><code>IosRouter.show_version</code></td><td>The plain function. No instance.</td></tr>
+      <tr><td><code>IosRouter.show_version(r1)</code></td><td>The same call as
+        <code>r1.show_version()</code>, with the instance passed by hand.</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Why it's designed this way.</strong> Lesson 0001's procedural version was one
+    function, <code>describe(device)</code>, that you called with whichever device dict you
+    wanted. A class keeps one function on the class for every instance. The bound method is how
+    that one shared function learns which device to work on: the instance before the dot is
+    passed in for you. It's the same pattern as before; Python fills in the first argument.</p>
+
+  <h2>See it in Python</h2>
+  <p>Don't take this page's word for it. Run <code>python3 -i lessons/code/l0004_demo.py</code>.
+    The <code>-i</code> drops you into the REPL after the file runs, with <code>IosRouter</code>
+    and <code>r1</code> already defined. The file's own <code>TypeError</code> prints first;
+    ignore it. Then type each line after <code>&gt;&gt;&gt;</code>. This is what it printed when
+    this lesson was written (your addresses after <code>0x</code> will differ):</p>
+<pre>>>> r1.show_version                    # read, no call
+&lt;bound method IosRouter.show_version of &lt;__main__.IosRouter object at 0x764af06a2f60&gt;&gt;
+>>> IosRouter.show_version             # read through the class
+&lt;function IosRouter.show_version at 0x764af06bdf80&gt;
+>>> IosRouter.show_version(r1)         # pass the instance yourself
+'r1: show version'
+>>> m = r1.show_version                # keep the bound method ...
+>>> m()                                # ... and call it later
+'r1: show version'
+>>> IosRouter.show_version()           # nothing bound, nothing passed
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+TypeError: IosRouter.show_version() missing 1 required positional argument: 'self'</pre>
+  <p>Read the first printout from the inside out: a bound method; its function is
+    <code>IosRouter.show_version</code>; the instance it refers to is “an <code>IosRouter</code>
+    object at 0x…”, which is <code>r1</code>. The last error is the puzzle's mirror image: there,
+    one argument too many; here, one too few.</p>
+  <p class="cite">Storing a bound method and calling it later: the tutorial,
+    <a href="https://docs.python.org/3/tutorial/classes.html#method-objects">§9.3.4</a>: “<code>x.f</code>
+    is a method object, and can be stored away and called at a later time.”</p>
+
+  <div class="aside">
+    <h3>Under the hood (layer 3, optional)</h3>
+    <p>Skip this if the two steps above aren't solid yet. It adds no new behaviour, only how
+      step 1 knows to build a bound method.</p>
+    <ul>
+      <li><strong>Functions are descriptors.</strong> A descriptor is an object with a
+        <code>__get__</code> method. When lookup finds an attribute <em>on the class</em> and that
+        object has <code>__get__</code>, Python calls it and returns whatever it returns.
+        A function's <code>__get__</code> builds the bound method. So
+        <code>r1.show_version</code> does, in effect,
+        <code>IosRouter.__dict__["show_version"].__get__(r1, IosRouter)</code>. Type that line
+        and you get the same bound method printout.</li>
+      <li><strong>The two references have names</strong>: <code>m.__func__</code> is the function
+        and <code>m.__self__</code> is the instance. <code>m.__self__ is r1</code> is
+        <code>True</code>.</li>
+      <li><strong>Each read builds a new bound method.</strong>
+        <code>r1.show_version is r1.show_version</code> is <code>False</code>: two reads, two
+        objects. <code>==</code> is <code>True</code>, because both refer to the same function and the
+        same instance.</li>
+      <li><strong>Only functions found on the class get bound.</strong> A function stored on an
+        instance, <code>sw1.show_clock = show_clock</code>, comes back from lookup as the plain
+        function, because the descriptor step applies only to what's found on the class. Then
+        <code>sw1.show_clock()</code> fails with “missing 1 required positional argument”. This is
+        also why lesson 0003's Q5 string, stored on the instance, simply hid the method.</li>
+    </ul>
+    <p class="cite">Source: the Descriptor HowTo Guide,
+      <a href="https://docs.python.org/3/howto/descriptor.html#functions-and-methods">Functions and
+      methods</a>: “functions are non-data descriptors that return bound methods during dotted
+      lookup from an instance.” Written for experienced programmers; the section's
+      <code>MethodType</code> class is the dict model above, done properly.</p>
+  </div>
+
+  <h2>Check yourself</h2>
+  <p>Six questions. Each option gives an answer <em>and</em> a reason, so read every option to
+    the end. The page tells you straight away whether you're right and why. Only your first pick
+    counts.</p>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>1. What does the last line print, and why?</legend>
+<pre>class IosRouter:
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def show_version(self):
+        return f"{self.hostname}: show version"
+
+
+r1 = IosRouter("r1")
+print(r1.show_version)</pre>
+    <label><input type="radio" name="q1" value="a"> r1: show version, because print runs a method it is given</label>
+    <label><input type="radio" name="q1" value="b"> &lt;bound method IosRouter.show_version of …&gt;, because nothing called it</label>
+    <label><input type="radio" name="q1" value="c"> &lt;function IosRouter.show_version at …&gt;, because methods live on the class</label>
+    <div class="feedback" data-for="a">Not quite. Without <code>()</code> nothing is called.
+      <code>print</code> receives the bound method object and prints a description of it.</div>
+    <div class="feedback" data-for="b">Right. Reading <code>r1.show_version</code> through the
+      instance gives a bound method that refers to the function and <code>r1</code>. Without
+      <code>()</code>, that object is what gets printed.</div>
+    <div class="feedback" data-for="c">Not quite. The function is stored on the class, but reading
+      it <em>through the instance</em> gives a bound method, not the plain function. You'd get
+      this printout from <code>print(IosRouter.show_version)</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="c">
+    <legend>2. What happens on the last line, and why?</legend>
+<pre>class NxosSwitch:
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def checkpoint(name):
+        return f"checkpoint {name}"
+
+
+sw1 = NxosSwitch("sw1")
+sw1.checkpoint("pre-change")</pre>
+    <label><input type="radio" name="q2" value="a"> Returns 'checkpoint pre-change': name receives the one argument written</label>
+    <label><input type="radio" name="q2" value="b"> TypeError, missing argument 'name': sw1 is not passed in at all</label>
+    <label><input type="radio" name="q2" value="c"> TypeError, takes 1 but 2 given: sw1 goes first, then the string</label>
+    <div class="feedback" data-for="a">Not quite. You wrote one argument, but the bound method puts
+      <code>sw1</code> in front of it. Two arguments arrive for one parameter.</div>
+    <div class="feedback" data-for="b">Not quite. <code>sw1</code> is always passed: the read
+      <code>sw1.checkpoint</code> bound it. The problem is the opposite: there's one argument too
+      many.</div>
+    <div class="feedback" data-for="c">Right. Python prints <code>TypeError:
+      NxosSwitch.checkpoint() takes 1 positional argument but 2 were given</code>. The instance
+      goes into <code>name</code>, and the string has nowhere to go. The fix is
+      <code>def checkpoint(self, name):</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="a">
+    <legend>3. What does the last line print, and why?</legend>
+<pre>class IosRouter:
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def show_version(self):
+        return f"{self.hostname}: show version"
+
+
+r1 = IosRouter("r1")
+check = r1.show_version
+r1.hostname = "r1-core"
+print(check())</pre>
+    <label><input type="radio" name="q3" value="a"> r1-core: show version, since check refers to r1 itself, not a copy</label>
+    <label><input type="radio" name="q3" value="b"> r1: show version, since check saved r1's data when it was made</label>
+    <label><input type="radio" name="q3" value="c"> A TypeError, since check was split from r1 and has no self now</label>
+    <div class="feedback" data-for="a">Right. The bound method refers to the instance, the same
+      object <code>r1</code> refers to. Line 3 mutated that instance, and the call reads
+      <code>self.hostname</code> when it runs. Lesson 0002 again: references, never copies.</div>
+    <div class="feedback" data-for="b">Not quite. Nothing was copied or saved. The bound method
+      refers to the instance itself, and line 3 mutated that instance.</div>
+    <div class="feedback" data-for="c">Not quite. The bound method still refers to the instance. A
+      stored bound method can be called later; the tutorial says so in §9.3.4.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="c">
+    <legend>4. What happens on the last line, and why?</legend>
+<pre>class IosRouter:
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def show_version(self):
+        return f"{self.hostname}: show version"
+
+
+r1 = IosRouter("r1")
+IosRouter.show_version()</pre>
+    <label><input type="radio" name="q4" value="a"> Returns 'r1: show version': Python uses the only instance there is</label>
+    <label><input type="radio" name="q4" value="b"> Returns 'IosRouter: show version': self is the class in this call</label>
+    <label><input type="radio" name="q4" value="c"> TypeError, missing 'self': no instance came before the dot to bind</label>
+    <div class="feedback" data-for="a">Not quite. Python never goes looking for an instance. Only
+      the object before the dot gets bound, and here that's the class.</div>
+    <div class="feedback" data-for="b">Not quite. Reading a function through the class binds
+      nothing, so <code>self</code> receives nothing at all, and the call fails before the
+      f-string runs.</div>
+    <div class="feedback" data-for="c">Right. <code>IosRouter.show_version</code> is the plain
+      function. You passed no arguments, so <code>self</code> gets none:
+      <code>missing 1 required positional argument: 'self'</code>.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="b">
+    <legend>5. A script maps each <code>state</code> value to the method that handles it. What
+      does the last line print, and why?</legend>
+<pre>class Vlans:
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def merged(self):
+        return f"{self.hostname}: merge"
+
+    def deleted(self):
+        return f"{self.hostname}: delete"
+
+
+sw1 = Vlans("sw1")
+sw2 = Vlans("sw2")
+handlers = {"merged": sw1.merged, "deleted": sw2.deleted}
+print(handlers["deleted"]())</pre>
+    <label><input type="radio" name="q5" value="a"> sw1: delete, because the dict's first bound method set the instance</label>
+    <label><input type="radio" name="q5" value="b"> sw2: delete, because each bound method refers to its own instance</label>
+    <label><input type="radio" name="q5" value="c"> TypeError, because a method stored in a dict loses its instance</label>
+    <div class="feedback" data-for="a">Not quite. Each bound method is its own object with its own
+      instance. <code>sw2.deleted</code> was read through <code>sw2</code>.</div>
+    <div class="feedback" data-for="b">Right. <code>sw2.deleted</code> made a bound method that refers to
+      <code>deleted</code> and <code>sw2</code>. The dict entry refers to that object, so calling
+      it passes <code>sw2</code> as <code>self</code>.</div>
+    <div class="feedback" data-for="c">Not quite. A dict entry refers to the bound method like any
+      other name does. The bound method still refers to its instance.</div>
+  </fieldset>
+
+  <fieldset class="mcq" data-answer="a">
+    <legend>6. Which line does exactly the same as <code>sw1.merged()</code>?</legend>
+<pre>class Vlans:
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def merged(self):
+        return f"{self.hostname}: merge"
+
+
+sw1 = Vlans("sw1")</pre>
+    <label><input type="radio" name="q6" value="a"> Vlans.merged(sw1): the class's function, given sw1 by hand</label>
+    <label><input type="radio" name="q6" value="b"> sw1.merged(sw1): the bound method, given sw1 once more</label>
+    <label><input type="radio" name="q6" value="c"> Vlans.merged(): the class's function finds sw1 by itself</label>
+    <div class="feedback" data-for="a">Right. Read through the class, <code>merged</code> is the
+      plain function, so you pass the instance yourself. It arrives in <code>self</code>, exactly
+      as the bound method would have put it there.</div>
+    <div class="feedback" data-for="b">Not quite. The bound method already puts <code>sw1</code>
+      first, so this passes two arguments to a function with one parameter:
+      <code>TypeError</code>.</div>
+    <div class="feedback" data-for="c">Not quite. A function read through the class has no
+      instance and never looks for one: <code>missing 1 required positional argument:
+      'self'</code>.</div>
+  </fieldset>
+  <p class="quiz-score" data-quiz-score></p>
+
+  <h2>Your turn: a switch that never comes into line</h2>
+  <p>Before you start, commit the new lesson files, so your edits to the starter show up on their
+    own in git.</p>
+  <p>Open <code>lessons/code/l0004_switch.py</code> from the Explorer sidebar:</p>
+<pre>class IosSwitch:
+    """One IOS access switch: the VLANs it has, and the VLANs we want."""
+
+    def __init__(
+        self, hostname: str, have_vlans: list[int], want_vlans: list[int]
+    ) -> None:
+        self.hostname = hostname
+        self.have_vlans = have_vlans
+        self.want_vlans = want_vlans
+
+    def missing_vlans(self) -> list[int]:
+        """The wanted VLAN IDs that the switch doesn't have yet."""
+        return [
+            vlan_id for vlan_id in self.want_vlans
+            if vlan_id not in self.have_vlans
+        ]
+
+    def needs_change(self) -> bool:
+        return len(self.missing_vlans()) > 0
+
+
+def plan_push(switch: IosSwitch) -> list[str]:
+    """The lines to send to one switch; empty if it already matches."""
+    if switch.needs_change:
+        lines = [f"vlan {vlan_id}" for vlan_id in switch.missing_vlans()]
+        return lines + ["end", "write memory"]
+    return []
+
+
+if __name__ == "__main__":
+    sw1 = IosSwitch("sw1", have_vlans=[1, 10], want_vlans=[10, 20])
+    sw2 = IosSwitch("sw2", have_vlans=[1, 10, 20], want_vlans=[10, 20])
+    print("sw1:", plan_push(sw1))
+    print("sw2:", plan_push(sw2))</pre>
+  <p><code>sw2</code>'s HAVE already holds VLANs 10 and 20, everything its WANT asks for. A correct
+    plan for it is empty. Ask yourself what this file would do to <code>sw2</code> on every run,
+    and what an Ansible module built like this would report as <code>changed</code>.</p>
+  <ol>
+    <li><strong>Run it</strong> (<code>python3 lessons/code/l0004_switch.py</code>) and look at
+      <code>sw2</code>'s line.</li>
+    <li><strong>Diagnose before you change anything.</strong> Answer E1 below. Inspect, don't
+      guess: if you're unsure, print the value the suspicious line actually tests.</li>
+    <li><strong>Write the test first.</strong> In the <code>if __name__ == "__main__":</code>
+      block, after the two <code>print</code> calls, add an <code>assert</code> that is true only
+      if <code>plan_push(sw2)</code> returns an empty list. Before you run it, compare the
+      condition you wrote with that sentence, word for word. Keep every line to 79 characters or
+      fewer. <strong>Run the file against the bug.</strong> Your <code>assert</code> must fail
+      now; if it passes, it isn't testing the bug. Paste the <code>AssertionError</code> line into
+      E2. Then commit, so your test and the bug are in git together.</li>
+    <li><strong>Fix the bug.</strong> Change as little as you can: <code>needs_change</code> must
+      stay a method. Run the file again: your <code>assert</code> should pass.</li>
+    <li><strong>Check your work:</strong>
+<pre>python3 lessons/code/l0004_check.py</pre>
+      Keep going until it prints “All checks passed.”, then paste its output into E3. Then a
+      polish pass: are the docstrings still true, and is anything left over from debugging?</li>
+  </ol>
+
+  <div class="question">
+    <div class="part">
+      <p><span class="part-label">E1</span>Your diagnosis, before you change the code. One line, in
+        the form <code>line N: &lt;the expression&gt; is &lt;what it evaluates to&gt;, so …</code></p>
+      <textarea data-answer="E1" data-label="E1. Diagnosis: the line, what its expression evaluates to, and the consequence"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">E2</span>The <code>AssertionError</code> line your test printed
+        when you ran it against the bug.</p>
+      <textarea data-answer="E2" data-label="E2. My assert's output against the bug"></textarea>
+    </div>
+    <div class="part">
+      <p><span class="part-label">E3</span>The output of <code>l0004_check.py</code> after your fix.</p>
+      <textarea data-answer="E3" data-label="E3. l0004_check.py output after the fix"></textarea>
+    </div>
+  </div>
+  <p>Then copy your answers below and paste them into the chat with your quiz score. Say the file
+    is ready for review only after E3 shows “All checks passed.”</p>
+
+  <section data-answer-sheet="0004" data-title="Lesson 0004">
+    <div class="question">
+      <div class="part">
+        <p><span class="part-label">Q</span>Optional: anything in this lesson that lost you, or that
+          you want to argue with.</p>
+        <textarea data-answer="Q" data-label="Questions or objections"></textarea>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button type="button" data-sheet-copy>Copy my answers</button>
+      <button type="button" class="secondary" data-sheet-clear>Clear</button>
+      <span class="sheet-status"></span>
+    </div>
+    <pre class="sheet-output" hidden></pre>
+  </section>
+
+  <h2>After the exercise: <code>self</code> in the real framework</h2>
+  <p>Read this once your checks pass.</p>
+  <p><strong>Your bug has a tool that catches it.</strong> The type checker mypy reports it with
+    no extra configuration (checked with mypy 1.13.0):</p>
+<pre>l0004_switch.py:27: error: Function "needs_change" could always be true in boolean context  [truthy-function]</pre>
+  <p class="cite">mypy docs:
+    <a href="https://mypy.readthedocs.io/en/stable/error_code_list.html#check-that-function-isn-t-used-in-boolean-context-truthy-function">truthy-function</a>.
+    Run it without installing anything: <code>uvx mypy lessons/code/l0004_switch.py</code>.</p>
+
+  <p><strong>Follow <code>self</code> through two real calls.</strong> In <code>cisco.ios</code>'s
+    <code>Vlans</code>, a <code>Vlans</code> instance is one module run. Its
+    <code>__init__</code> passes <code>tmplt=VlansTemplate()</code> to the framework, which
+    stores that template instance as <code>self._tmplt</code>
+    (<a href="https://github.com/ansible-collections/cisco.ios/blob/675a661cea0639fb9a00b290f5f36ebef6d25957/plugins/module_utils/network/ios/config/vlans/vlans.py#L46">vlans.py, line 46</a>;
+    <a href="https://github.com/ansible-collections/ansible.netcommon/blob/a929db70577e5630c32b36690fe58362f8c17443/plugins/module_utils/network/common/rm_base/resource_module.py#L40">resource_module.py, line 40</a>).
+    When the run finds a difference, it calls <code>self.addcmd(want, parser, False)</code>
+    (<a href="https://github.com/ansible-collections/ansible.netcommon/blob/a929db70577e5630c32b36690fe58362f8c17443/plugins/module_utils/network/common/rm_base/resource_module.py#L145">line 145</a>),
+    which runs this method of <code>ResourceModule</code>
+    (<a href="https://github.com/ansible-collections/ansible.netcommon/blob/a929db70577e5630c32b36690fe58362f8c17443/plugins/module_utils/network/common/rm_base/resource_module.py#L89-L93">lines 89–93</a>):</p>
+<pre>    def addcmd(self, data, tmplt, negate=False):
+        """addcmd"""
+        command = self._tmplt.render(data, tmplt, negate)
+        if command:
+            self.commands.extend(to_list(command))</pre>
+  <p>And <code>render</code> is defined in <code>NetworkTemplate</code>, the class
+    <code>VlansTemplate</code> is built on
+    (<a href="https://github.com/ansible-collections/ansible.netcommon/blob/a929db70577e5630c32b36690fe58362f8c17443/plugins/module_utils/network/common/rm_base/network_template.py#L119">network_template.py, line 119</a>;
+    how one class builds on another is route step 5):</p>
+<pre>    def render(self, data, parser_name, negate=False):</pre>
+  <ol>
+    <li><code>self.addcmd(want, parser, False)</code>: three arguments written. The bound method
+      puts the <code>Vlans</code> instance first, so <code>addcmd</code> receives four:
+      <code>self</code> is the <code>Vlans</code> instance, then <code>data</code>,
+      <code>tmplt</code>, <code>negate</code>.</li>
+    <li>Inside <code>addcmd</code>, <code>self._tmplt.render(data, tmplt, negate)</code> reads
+      <code>render</code> through a <em>different</em> instance, the <code>VlansTemplate</code>
+      that <code>self._tmplt</code> refers to. So inside <code>render</code>, <code>self</code> is
+      the template, not the module run.</li>
+  </ol>
+  <p><code>self</code> isn't “the module” or “the class”. In each call, it's whatever instance
+    came before the dot.</p>
+  <p><strong>One line that looks like your bug but isn't.</strong> <code>Vlans.execute_module</code>
+    ends with <code>return self.result</code>, with no brackets
+    (<a href="https://github.com/ansible-collections/cisco.ios/blob/675a661cea0639fb9a00b290f5f36ebef6d25957/plugins/module_utils/network/ios/config/vlans/vlans.py#L66">vlans.py, line 66</a>).
+    It isn't a mistake: <code>result</code> is marked <code>@property</code>
+    (<a href="https://github.com/ansible-collections/ansible.netcommon/blob/a929db70577e5630c32b36690fe58362f8c17443/plugins/module_utils/network/common/rm_base/resource_module.py#L67-L68">resource_module.py, lines 67–68</a>),
+    which makes reading the attribute run the method. That's route step 6. Until then: when real
+    code reads a method without brackets, check for <code>@property</code> above its
+    <code>def</code> before you call it a bug.</p>
+  <p class="cite">All links are pinned to the commits used since lesson 0002. Checked
+    2026-10-22.</p>
+
+  <h2>Read or watch</h2>
+  <p><strong>Primary source:</strong> the Python tutorial,
+    <a href="https://docs.python.org/3/tutorial/classes.html#method-objects">§9.3.4 Method
+    Objects</a>. Six short paragraphs; the last one is the two-step model of this lesson, word for
+    word. Then the paragraph in
+    <a href="https://docs.python.org/3/tutorial/classes.html#random-remarks">§9.4</a> that begins
+    “Often, the first argument of a method is called <code>self</code>.”</p>
+  <p><strong>For a beginner's angle:</strong> Think Python, 3rd edition,
+    <a href="https://allendowney.github.io/ThinkPython/chap15.html#defining-methods">§15.1 Defining
+    methods</a>. It turns a function into a method and calls it both ways. It calls the object
+    before the dot the <em>receiver</em>: “The receiver is assigned to the first parameter, so
+    inside the method, <code>self</code> refers to the same object.”</p>
+  <p><strong>For layer 3:</strong> the Descriptor HowTo Guide,
+    <a href="https://docs.python.org/3/howto/descriptor.html#functions-and-methods">Functions and
+    methods</a>. Only that section, for now.</p>
+  <p>The <a href="../reference/bound-methods.html">bound methods</a> sheet has this lesson on one
+    page. New terms are in the <a href="../reference/oop-glossary.html">glossary</a>.</p>
+
+  <div class="note">
+    <p><strong>Ask your teacher anything,</strong> especially if a word or a step isn't clear. Say
+      which sentence lost you; unclear writing is the lesson's fault, not yours.</p>
+  </div>
+
+  <footer>
+    <p>Previous: <a href="0003-attribute-lookup.html">lesson 0003, Attribute lookup</a> · Next: lesson 0005.</p>
+  </footer>
+</main>
+</body>
+</html>

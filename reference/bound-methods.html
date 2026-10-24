@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bound Methods</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="../assets/refs-diagram.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="kicker">Reference</p>
+    <h1>Bound methods and <code>self</code></h1>
+    <p class="subtitle">What <code>r1.show_version()</code> does, in two steps, and the errors you
+      get when the two sides don't match.</p>
+  </header>
+
+  <h2>The two steps</h2>
+  <ol>
+    <li><strong>Read <code>r1.show_version</code>.</strong> Attribute lookup finds the function on
+      the class. Read through an instance, it comes back as a <strong>bound method</strong>: an
+      new object that refers to the function and <code>r1</code>. The method is the function;
+      the bound method is a separate object pointing at it.</li>
+    <li><strong>Call it with <code>()</code>.</strong> Python calls the function with the instance
+      put in front of the arguments you wrote. The instance lands in the first parameter, which by
+      convention is named <code>self</code>.</li>
+  </ol>
+
+  <figure class="refs" data-refs='{
+    "names": [{"name": "m", "to": "bm"}, {"name": "r1", "to": "inst"}],
+    "objects": [
+      {"id": "bm", "type": "bound method", "lines": [
+        {"text": "function", "to": "fn"}, {"text": "instance", "to": "inst"}]},
+      {"id": "fn", "col": 2, "type": "function, stored on IosRouter",
+       "lines": ["IosRouter.show_version"]},
+      {"id": "inst", "col": 2, "type": "instance of IosRouter",
+       "lines": ["hostname: &#39;r1&#39;"]}
+    ]
+  }'><figcaption>After <code>m = r1.show_version</code>: a reference to the instance, not a
+    copy.</figcaption></figure>
+
+  <h2>Through the instance or through the class</h2>
+  <table class="ref">
+    <thead><tr><th>Expression</th><th>What you get</th></tr></thead>
+    <tbody>
+      <tr><td><code>r1.show_version</code></td><td>Bound method (function + <code>r1</code>).
+        Nothing runs.</td></tr>
+      <tr><td><code>r1.show_version()</code></td><td>The function, called with <code>r1</code>
+        first.</td></tr>
+      <tr><td><code>IosRouter.show_version</code></td><td>The plain function. No instance.</td></tr>
+      <tr><td><code>IosRouter.show_version(r1)</code></td><td>Same as
+        <code>r1.show_version()</code>.</td></tr>
+      <tr><td><code>handlers = {"merged": sw1.merged}</code></td><td>Stores the bound method; calling
+        it later still passes <code>sw1</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Reading the errors</h2>
+  <table class="ref">
+    <thead><tr><th>Message</th><th>Usual cause</th></tr></thead>
+    <tbody>
+      <tr><td><code>f() takes 0 positional arguments but 1 was given</code></td><td>The
+        <code>def</code> line has no <code>self</code>; the instance has nowhere to go.</td></tr>
+      <tr><td><code>f() takes 1 positional argument but 2 were given</code></td><td>Same, with one
+        argument you wrote. The count includes the instance.</td></tr>
+      <tr><td><code>f() missing 1 required positional argument: 'self'</code></td><td>Called
+        through the class (or a function stored on an instance): nothing was bound.</td></tr>
+      <tr><td><code>'str' object is not callable</code></td><td>Data stored on the instance under
+        the method's name hides the method.</td></tr>
+      <tr><td>mypy: <code>could always be true in boolean context</code></td><td><code>if
+        x.method:</code> with no <code>()</code>. A bound method is always true.</td></tr>
+    </tbody>
+  </table>
+  <p>No brackets in real code isn't always a bug. If the <code>def</code> has
+    <code>@property</code> above it, reading the attribute runs the method (route step 6).</p>
+
+  <h2>Check it in Python</h2>
+<pre>r1.show_version                    # &lt;bound method IosRouter.show_version of …&gt;
+IosRouter.show_version             # &lt;function IosRouter.show_version at …&gt;
+m = r1.show_version; m()           # store it, call it later</pre>
+
+  <div class="aside">
+    <p><strong>Layer 3.</strong> Functions are descriptors: they have a <code>__get__</code>
+      method. When lookup finds one <em>on the class</em>, Python calls
+      <code>function.__get__(r1, IosRouter)</code>, which returns the bound method.
+      <code>m.__func__</code> is the function and <code>m.__self__</code> is the instance. Each
+      read builds a new bound method (<code>is</code> is false, <code>==</code> is true). A
+      function stored on an instance isn't bound.</p>
+  </div>
+
+  <p class="cite">Sources: Python tutorial,
+    <a href="https://docs.python.org/3/tutorial/classes.html#method-objects">§9.3.4 Method Objects</a>
+    and <a href="https://docs.python.org/3/tutorial/classes.html#random-remarks">§9.4</a>;
+    Descriptor HowTo Guide,
+    <a href="https://docs.python.org/3/howto/descriptor.html#functions-and-methods">Functions and
+    methods</a>.</p>
+
+  <footer>
+    <p>From <a href="../lessons/0004-how-methods-get-self.html">lesson 0004</a> ·
+      Terms: <a href="oop-glossary.html">glossary</a> · <a href="attribute-lookup.html">attribute lookup</a> ·
+      <a href="class-anatomy.html">class anatomy</a></p>
+  </footer>
+</main>
+</body>
+</html>
