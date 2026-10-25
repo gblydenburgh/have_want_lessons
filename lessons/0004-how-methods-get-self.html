@@ -446,9 +446,19 @@ sw1 = Vlans("sw1")</pre>
   <h2>Your turn: a switch that never comes into line</h2>
   <p>Before you start, commit the new lesson files, so your edits to the starter show up on their
     own in git.</p>
+  <p>The reconciliation rule this class follows is <strong>add-only</strong>, like Ansible's
+    <code>merged</code> state but for VLAN IDs only: wanted VLANs the switch lacks get created,
+    and VLANs on the switch that aren't in WANT are left alone. Under <code>overridden</code> they
+    would be removed (<a href="https://docs.ansible.com/ansible/latest/network/user_guide/network_resource_modules.html">resource
+    module states</a>; the <a href="https://docs.ansible.com/ansible/latest/collections/cisco/ios/ios_vlans_module.html"><code>ios_vlans</code>
+    overridden example</a> sends <code>no vlan 10</code> for a VLAN not listed).</p>
   <p>Open <code>lessons/code/l0004_switch.py</code> from the Explorer sidebar:</p>
 <pre>class IosSwitch:
-    """One IOS access switch: the VLANs it has, and the VLANs we want."""
+    """One IOS access switch, reconciled add-only.
+
+    Like Ansible's merged state, for VLAN IDs only: wanted VLANs the
+    switch lacks get created; VLANs not in WANT are left alone.
+    """
 
     def __init__(
         self, hostname: str, have_vlans: list[int], want_vlans: list[int]
@@ -469,7 +479,7 @@ sw1 = Vlans("sw1")</pre>
 
 
 def plan_push(switch: IosSwitch) -> list[str]:
-    """The lines to send to one switch; empty if it already matches."""
+    """The lines to send to one switch; empty if it has every wanted VLAN."""
     if switch.needs_change:
         lines = [f"vlan {vlan_id}" for vlan_id in switch.missing_vlans()]
         return lines + ["end", "write memory"]
@@ -481,8 +491,8 @@ if __name__ == "__main__":
     sw2 = IosSwitch("sw2", have_vlans=[1, 10, 20], want_vlans=[10, 20])
     print("sw1:", plan_push(sw1))
     print("sw2:", plan_push(sw2))</pre>
-  <p><code>sw2</code>'s HAVE already holds VLANs 10 and 20, everything its WANT asks for. A correct
-    plan for it is empty. Ask yourself what this file would do to <code>sw2</code> on every run,
+  <p><code>sw2</code>'s HAVE already holds VLANs 10 and 20, everything its WANT asks for. Its VLAN 1
+    isn't in WANT, but add-only leaves it alone, so a correct plan for it is empty. Ask yourself what this file would do to <code>sw2</code> on every run,
     and what an Ansible module built like this would report as <code>changed</code>.</p>
   <ol>
     <li><strong>Run it</strong> (<code>python3 lessons/code/l0004_switch.py</code>) and look at

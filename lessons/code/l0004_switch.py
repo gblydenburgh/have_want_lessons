@@ -2,7 +2,11 @@
 
 
 class IosSwitch:
-    """One IOS access switch: the VLANs it has, and the VLANs we want."""
+    """One IOS access switch, reconciled add-only.
+
+    Like Ansible's merged state, for VLAN IDs only: wanted VLANs the
+    switch lacks get created; VLANs not in WANT are left alone.
+    """
 
     def __init__(
         self, hostname: str, have_vlans: list[int], want_vlans: list[int]
@@ -23,7 +27,7 @@ class IosSwitch:
 
 
 def plan_push(switch: IosSwitch) -> list[str]:
-    """The lines to send to one switch; empty if it already matches."""
+    """The lines to send to one switch; empty if it has every wanted VLAN."""
     if switch.needs_change:
         lines = [f"vlan {vlan_id}" for vlan_id in switch.missing_vlans()]
         return lines + ["end", "write memory"]

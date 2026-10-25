@@ -9,7 +9,7 @@ def main() -> None:
         f"Check 1: sw2 already has VLANs 10 and 20, but would get "
         f"{plan_push(compliant)!r}, expected []"
     )
-    print("Check 1 passed: a switch that already matches gets no lines")
+    print("Check 1 passed: a switch with every wanted VLAN gets no lines")
 
     behind = IosSwitch("sw1", have_vlans=[1, 10], want_vlans=[10, 20])
     expected = ["vlan 20", "end", "write memory"]
