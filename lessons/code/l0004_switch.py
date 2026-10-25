@@ -28,7 +28,7 @@ class IosSwitch:
 
 def plan_push(switch: IosSwitch) -> list[str]:
     """The lines to send to one switch; empty if it has every wanted VLAN."""
-    if switch.needs_change:
+    if switch.needs_change():
         lines = [f"vlan {vlan_id}" for vlan_id in switch.missing_vlans()]
         return lines + ["end", "write memory"]
     return []
@@ -39,3 +39,6 @@ if __name__ == "__main__":
     sw2 = IosSwitch("sw2", have_vlans=[1, 10, 20], want_vlans=[10, 20])
     print("sw1:", plan_push(sw1))
     print("sw2:", plan_push(sw2))
+    assert plan_push(sw2) == [], (
+        f"sw2: returning {plan_push(sw2)}, should be []"
+    )

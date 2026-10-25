@@ -491,6 +491,18 @@ if __name__ == "__main__":
     sw2 = IosSwitch("sw2", have_vlans=[1, 10, 20], want_vlans=[10, 20])
     print("sw1:", plan_push(sw1))
     print("sw2:", plan_push(sw2))</pre>
+  <p><code>missing_vlans</code> uses a <strong>list comprehension</strong>, which no earlier
+    lesson taught. It's the same as this loop, with the <code>append</code> part written first
+    (<a href="https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions">tutorial
+    §5.1.3</a>; <a href="../reference/oop-glossary.html">glossary</a>):</p>
+<pre>missing = []
+for vlan_id in self.want_vlans:          # binds vlan_id to each item in turn
+    if vlan_id not in self.have_vlans:   # tests it
+        missing.append(vlan_id)          # the leading vlan_id: what's kept
+return missing</pre>
+  <p>Only <code>want_vlans</code> is looped over; <code>have_vlans</code> is only searched.
+    The name <code>vlan_id</code> is local to the comprehension and is gone after the closing
+    <code>]</code>; the new list keeps references to the objects, not to the name.</p>
   <p><code>sw2</code>'s HAVE already holds VLANs 10 and 20, everything its WANT asks for. Its VLAN 1
     isn't in WANT, but add-only leaves it alone, so a correct plan for it is empty. Ask yourself what this file would do to <code>sw2</code> on every run,
     and what an Ansible module built like this would report as <code>changed</code>.</p>

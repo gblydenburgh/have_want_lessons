@@ -14,6 +14,8 @@ Lesson 0003 (2026-10-19, `sessions/2026-10-19-01.md`). **Shown**, not mastery: I
 
 **Not yet shown:** that it lasts; that an instance attribute can hide a method (Q5); the optional layer 3 section (`__dict__`, `type(r1).__dict__`), which no question tested.
 
+**Update 2026-10-24:** Q5 is settled as a **concept gap**, not a reading slip: lesson 0004's R1 missed a fresh case of an instance attribute hiding a method. See LR-0005. The data-attribute claims above stand. R2's gap (mutation through a parameter) came back unaided in lesson 0004's warm-up.
+
 **Implications:**
 - Lesson 0004 (how methods get `self`, route step 4) needs "methods are found by the same lookup as data". Its warm-up must settle Q5 with a fresh case before anything builds on it.
 - Retest mutation through a parameter (R2) with a fresh case. LR-0003's "arguments are assignment" didn't come back unaided after one day.

@@ -97,6 +97,18 @@
     <dd>An argument matched to a parameter by its position: the first argument to the first
       parameter, and so on. In <code>render(data, tmplt, negate)</code> all three are positional.
       Error messages count them: <code>takes 0 positional arguments but 1 was given</code>.</dd>
+
+    <dt>list comprehension</dt>
+    <dd>Brackets that build a new list from a loop:
+      <code>[vlan_id for vlan_id in want if vlan_id not in have]</code>. The <code>for</code> binds
+      the name to each item in turn, the <code>if</code> tests it, and the leading expression is
+      what goes into the new list. Written first, run last: it's the <code>append</code> of the
+      equivalent <code>for</code> loop.
+      (<a href="https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions">tutorial §5.1.3</a>)
+      <span class="not">The loop name is local to the comprehension: it doesn't exist after the
+        closing <code>]</code>
+        (<a href="https://docs.python.org/3/reference/expressions.html#complex-comprehensions">reference</a>).
+        The new list refers to the same objects the looped-over list does, not copies.</span></dd>
   </dl>
 
   <h2>Names and objects</h2>
@@ -197,6 +209,12 @@
     <dd>Ansible calls these state values, but each is a <em>reconciliation policy</em>: a rule
       for combining HAVE and WANT.
       (<a href="https://docs.ansible.com/ansible/latest/network/user_guide/network_resource_modules.html">user guide</a>)
+      For VLANs: <code>merged</code> adds what WANT lists and removes nothing;
+      <code>replaced</code> replaces the config of the VLANs WANT lists and leaves the others
+      alone; <code>overridden</code> makes WANT the whole VLAN config, so VLANs not listed are
+      removed (the <a href="https://docs.ansible.com/ansible/latest/collections/cisco/ios/ios_vlans_module.html"><code>ios_vlans</code></a>
+      example sends <code>no vlan 10</code>). “Only what I list” is <code>overridden</code>, not
+      <code>replaced</code>.
       <span class="not">Not the resulting device state.</span></dd>
   </dl>
 
